@@ -9,9 +9,6 @@ def dict_to_hstore(value):
     else:
         return ','.join(pairs)
 
-def hstore_to_dict(value):
-    return eval('{%s}' % value.replace('=>', ':'))
-
 class WhereNode(BaseWhereNode):
     def make_atom(self, child, qn):
         lvalue, lookup_type, value_annot, param = child
