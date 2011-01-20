@@ -12,13 +12,6 @@ def acquire_reference(reference):
     except Exception:
         raise ValueError()
 
-def dict_to_hstore(value):
-    pairs = []
-    for k, v in value.iteritems():
-        pairs.append('"%s"=>"%s"' % (k, v))
-    else:
-        return ','.join(pairs)
-
 def identify_instance(instance):
     implementation = type(instance)
     return '%s.%s:%s' % (implementation.__module__, implementation.__name__, instance.pk)
