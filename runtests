@@ -1,0 +1,12 @@
+#!/bin/bash
+
+DB_NAME=${DB_NAME:-django_hstore_test}
+DB_USER=${DB_USER:-jrm}
+HSTORE_SQL=${HSTORE_SQL:-/usr/share/postgresql/contrib/hstore.sql}
+
+dropdb -U "${DB_USER}" "${DB_NAME}"
+createdb -U "${DB_USER}" "${DB_NAME}"
+psql -U "${DB_USER}" "${DB_NAME}" -f "${HSTORE_SQL}" -q
+
+DB_NAME=$DB_NAME DB_USER=$DB_USER nosetests "$@"
+

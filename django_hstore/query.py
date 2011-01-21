@@ -1,6 +1,7 @@
 
 from django.db.models.manager import Manager
 from django.db.models.query import QuerySet
+from django.db.models.sql.constants import SINGLE
 from django.db.models.sql.datastructures import EmptyResultSet
 from django.db.models.sql.query import Query
 from django.db.models.sql.where import EmptyShortCircuit, WhereNode
@@ -39,6 +40,24 @@ class HStoreQuery(Query):
 
 class HStoreQuerySet(QuerySet):
     def __init__(self, model=None, query=None, using=None):
-        query = query or HStoreQuery(model)
-        super(HStoreQuerySet, self).__init__(model=model, query=query, using=using)
+        super(HStoreQuerySet, self).__init__(model=model, query=(query or HStoreQuery(model)), using=using)
+
+    def peek(self, attr, key):
+        query = self.query.clone()
+        query.add_extra({'_': "%s -> %%s" % attr}, [key], None, None, None, None)
+        query.default_cols = False
+        query.clear_select_fields()
+        result = query.get_compiler(self.db).execute_sql(SINGLE)
+        return (result[0] if result else None)
+
+    def pull(self, attr, keys):
+        """Pulls the specified keys from the specified hstore attribute."""
+
+        query = self.query.clone()
+        clause = 'slice(%s, ARRAY[%s])' % (attr, ','.join("'%s'" % key for key in keys))
+        query.add_extra({'_v': clause}, None, None, None, None, None)
+        query.default_cols = False
+        query.clear_select_fields()
+        result = query.get_compiler(self.db).execute_sql(SINGLE)
+        return (result[0] if result else None)
 
