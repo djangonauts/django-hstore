@@ -1,4 +1,3 @@
-
 from django.core.exceptions import ObjectDoesNotExist
 
 def acquire_reference(reference):
@@ -35,4 +34,3 @@ def unserialize_references(references):
             refs[key] = reference
     else:
         return refs
-

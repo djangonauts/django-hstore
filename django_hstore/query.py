@@ -1,10 +1,51 @@
-
+from django.db import transaction
 from django.db.models.manager import Manager
 from django.db.models.query import QuerySet
 from django.db.models.sql.constants import SINGLE
 from django.db.models.sql.datastructures import EmptyResultSet
 from django.db.models.sql.query import Query
+from django.db.models.sql.subqueries import UpdateQuery
 from django.db.models.sql.where import EmptyShortCircuit, WhereNode
+
+class literal_clause(object):
+    def __init__(self, sql, params):
+        self.clause = (sql, params)
+    def as_sql(self, qn, connection):
+        return self.clause
+
+def select_query(method):
+    def selector(self, *args, **params):
+        query = self.query.clone()
+        query.default_cols = False
+        query.clear_select_fields()
+        return method(self, query, *args, **params)
+    return selector
+
+def update_query(method):
+    def updater(self, *args, **params):
+        self._for_write = True
+        query = method(self, self.query.clone(UpdateQuery), *args, **params)
+
+        forced_managed = False
+        if not transaction.is_managed(using=self.db):
+            transaction.enter_transaction_management(using=self.db)
+            forced_managed = True
+
+        try:
+            rows = query.get_compiler(self.db).execute_sql(None)
+            if forced_managed:
+                transaction.commit(using=self.db)
+            else:
+                transaction.commit_unless_managed(using=self.db)
+        finally:
+            if forced_managed:
+                transaction.leave_transaction_management(using=self.db)
+
+        self._result_cache = None
+        return rows
+
+    updater.alters_data = True
+    return updater
 
 class HStoreWhereNode(WhereNode):
     def make_atom(self, child, qn, connection):
@@ -24,7 +65,10 @@ class HStoreWhereNode(WhereNode):
                 if isinstance(param, dict):
                     return ('%s @> %%s' % field, [param])
                 elif isinstance(param, (list, tuple)):
-                    return ('%s ?& ARRAY[%s]' % (field, ','.join(['%s'] * len(param))), param)
+                    if param:
+                        return ('%s ?& %%s' % field, [param])
+                    else:
+                        raise ValueError('invalid value')
                 elif isinstance(param, basestring):
                     return ('%s ? %%s' % field, [param])
                 else:
@@ -40,24 +84,53 @@ class HStoreQuery(Query):
 
 class HStoreQuerySet(QuerySet):
     def __init__(self, model=None, query=None, using=None):
-        super(HStoreQuerySet, self).__init__(model=model, query=(query or HStoreQuery(model)), using=using)
+        query = query or HStoreQuery(model)
+        super(HStoreQuerySet, self).__init__(model=model, query=query, using=using)
 
-    def peek(self, attr, key):
-        query = self.query.clone()
-        query.add_extra({'_': "%s -> %%s" % attr}, [key], None, None, None, None)
-        query.default_cols = False
-        query.clear_select_fields()
+    @select_query
+    def hkeys(self, query, attr):
+        """Enumerates the keys in the specified hstore."""
+
+        query.add_extra({'_': 'akeys("%s")' % attr}, None, None, None, None, None)
         result = query.get_compiler(self.db).execute_sql(SINGLE)
-        return (result[0] if result else None)
+        return (result[0] if result else [])
 
-    def pull(self, attr, keys):
-        """Pulls the specified keys from the specified hstore attribute."""
+    @select_query
+    def hpeek(self, query, attr, key):
+        """Peeks at a value of the specified key."""
 
-        query = self.query.clone()
-        clause = 'slice(%s, ARRAY[%s])' % (attr, ','.join("'%s'" % key for key in keys))
-        query.add_extra({'_v': clause}, None, None, None, None, None)
-        query.default_cols = False
-        query.clear_select_fields()
+        query.add_extra({'_': '%s -> %%s' % attr}, [key], None, None, None, None)
         result = query.get_compiler(self.db).execute_sql(SINGLE)
-        return (result[0] if result else None)
+        if result and result[0]:
+            field = self.model._meta.get_field_by_name(attr)[0]
+            return field._value_to_python(result[0])
 
+    @update_query
+    def hremove(self, query, attr, keys):
+        """Removes the specified keys in the specified hstore."""
+
+        value = literal_clause('delete("%s", %%s)' % attr, [keys])
+        field, model, direct, m2m = self.model._meta.get_field_by_name(attr)
+        query.add_update_fields([(field, None, value)])
+        return query
+
+    @select_query
+    def hslice(self, query, attr, keys):
+        """Slices the specified key/value pairs."""
+
+        query.add_extra({'_': 'slice("%s", %%s)' % attr}, [keys], None, None, None, None)
+        result = query.get_compiler(self.db).execute_sql(SINGLE)
+        if result and result[0]:
+            field = self.model._meta.get_field_by_name(attr)[0]
+            return dict((key, field._value_to_python(value)) for key, value in result[0].iteritems())
+        else:
+            return {}
+
+    @update_query
+    def hupdate(self, query, attr, updates):
+        """Updates the specified hstore."""
+
+        value = literal_clause('"%s" || %%s' % attr, [updates])
+        field, model, direct, m2m = self.model._meta.get_field_by_name(attr)
+        query.add_update_fields([(field, None, value)])
+        return query

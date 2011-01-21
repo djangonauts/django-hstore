@@ -1,4 +1,3 @@
-
 try:
     import yaml
     def _to_python(value):
@@ -45,4 +44,3 @@ class ReferencesField(Field):
 
     def to_python(self, value):
         return util.unserialize_references(_to_python(value))
-

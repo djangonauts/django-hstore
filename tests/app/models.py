@@ -8,10 +8,17 @@ class Ref(models.Model):
     def __unicode__(self):
         return self.name
 
-class Bag(models.Model):
+class DataBag(models.Model):
     name = models.CharField(max_length=32)
-    data = hstore.DictionaryField()
-    refs = hstore.ReferencesField()
+    data = hstore.DictionaryField(db_index=True)
+    objects = hstore.Manager()
+
+    def __unicode__(self):
+        return self.name
+
+class RefsBag(models.Model):
+    name = models.CharField(max_length=32)
+    refs = hstore.ReferencesField(db_index=True)
     objects = hstore.Manager()
 
     def __unicode__(self):
