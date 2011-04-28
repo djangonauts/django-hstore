@@ -1,10 +1,13 @@
+from psycopg2.extras import register_hstore
+
+from django import VERSION
 from django.db.backends.postgresql_psycopg2.base import *
 from django.db.backends.util import truncate_name
-from psycopg2.extras import register_hstore
 
 class DatabaseCreation(DatabaseCreation):
     def sql_indexes_for_field(self, model, f, style):
-        if f.db_type() == 'hstore':
+        kwargs = VERSION[:2] >= (1, 3) and {'connection': self.connection} or {}
+        if f.db_type(**kwargs) == 'hstore':
             if not f.db_index:
                 return []
             qn = self.connection.ops.quote_name

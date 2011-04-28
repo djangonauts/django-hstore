@@ -1,3 +1,4 @@
+from django import VERSION
 from django.db import transaction
 from django.db.models.manager import Manager
 from django.db.models.query import QuerySet
@@ -50,7 +51,8 @@ def update_query(method):
 class HStoreWhereNode(WhereNode):
     def make_atom(self, child, qn, connection):
         lvalue, lookup_type, value_annot, param = child
-        if lvalue.field.db_type() == 'hstore':
+        kwargs = VERSION[:2] >= (1, 3) and {'connection': connection} or {}
+        if lvalue.field.db_type(**kwargs) == 'hstore':
             try:
                 lvalue, params = lvalue.process(lookup_type, param, connection)
             except EmptyShortCircuit:

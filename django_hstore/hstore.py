@@ -42,7 +42,7 @@ class HStoreField(models.Field):
         super(HStoreField, self).contribute_to_class(cls, name)
         setattr(cls, self.name, self._descriptor_class(self))
 
-    def db_type(self):
+    def db_type(self, connection=None):
         return 'hstore'
 
 class DictionaryField(HStoreField):
