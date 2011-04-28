@@ -1,4 +1,4 @@
-from setuptools import setup
+from distutils.core import setup
 
 setup(
     name='django-hstore',
@@ -9,5 +9,8 @@ setup(
     author_email='mccoy.jordan@gmail.com',
     license='BSD',
     url='http://github.com/jordanm/django-hstore',
-    packages=['django_hstore'],
+    packages=[
+        'django_hstore',
+        'django_hstore.postgresql_psycopg2',
+    ],
 )
