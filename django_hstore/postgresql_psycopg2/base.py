@@ -4,7 +4,9 @@ from django import VERSION
 from django.db.backends.postgresql_psycopg2.base import *
 from django.db.backends.util import truncate_name
 
+
 class DatabaseCreation(DatabaseCreation):
+
     def sql_indexes_for_field(self, model, f, style):
         kwargs = VERSION[:2] >= (1, 3) and {'connection': self.connection} or {}
         if f.db_type(**kwargs) == 'hstore':
@@ -25,13 +27,14 @@ class DatabaseCreation(DatabaseCreation):
                 style.SQL_KEYWORD('USING GIST'),
                 '(%s)' % style.SQL_FIELD(qn(f.column))]
             return ['%s%s;' % (' '.join(clauses), tablespace_sql)]
-        else:
-            return super(DatabaseCreation, self).sql_indexes_for_field(model, f, style)
+        return super(DatabaseCreation, self).sql_indexes_for_field(model, f, style)
+
 
 class DatabaseWrapper(DatabaseWrapper):
     def __init__(self, *args, **params):
         super(DatabaseWrapper, self).__init__(*args, **params)
         self.creation = DatabaseCreation(self)
+
     def _cursor(self):
         cursor = super(DatabaseWrapper, self)._cursor()
         register_hstore(self.connection, globally=True)
