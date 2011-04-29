@@ -98,7 +98,7 @@ class Manager(models.Manager):
 
     def hslice(self, attr, keys, **params):
         queryset = (self.filter(**params) if params else self.get_query_set())
-        return self.get_query_set().hslice(attr, keys)
+        return queryset.hslice(attr, keys)
 
 try:
     from south.modelsinspector import add_introspection_rules
