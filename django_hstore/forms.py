@@ -5,7 +5,10 @@ try:
     def _to_text(value):
         return yaml.dump(value, default_flow_style=False)
 except ImportError:
-    import json
+    try:
+        import json
+    except ImportError:
+        from django.utils import simplejson as json
     def _to_python(value):
         return json.loads(value)
     def _to_text(value):
