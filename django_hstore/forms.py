@@ -6,7 +6,7 @@ from django_hstore import util
 
 class JsonMixin(object):
 
-    def to_python(value):
+    def to_python(self, value):
         return json.loads(value)
 
     def render(self, name, value, attrs=None):
