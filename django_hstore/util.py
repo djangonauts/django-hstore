@@ -9,7 +9,7 @@ def acquire_reference(reference):
     except ObjectDoesNotExist:
         return None
     except Exception:
-        raise ValueError()
+        raise ValueError
 
 def identify_instance(instance):
     implementation = type(instance)
