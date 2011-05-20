@@ -32,6 +32,10 @@ First, update your settings module to specify the custom database backend::
             ...
         }
     }
+    
+**Note to South users:** If you keep getting errors like `There is no South database module 'south.db.None' for your database.`, add the following to `settings.py`::
+
+    SOUTH_DATABASE_ADAPTERS = {'default': 'south.db.postgresql_psycopg2'}
 
 The library provides three principal classes:
 
