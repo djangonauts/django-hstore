@@ -44,7 +44,7 @@ The library provides three principal classes:
 ``django_hstore.hstore.ReferencesField``
     An ORM field which builds on DictionaryField to store a mapping of string keys to
     django object references, much like ForeignKey.
-``django_hstore.hstore.Manager``
+``django_hstore.hstore.HStoreManager``
     An ORM manager which provides much of the query functionality of the library.
 
 Model definition is straightforward::
@@ -55,7 +55,7 @@ Model definition is straightforward::
     class Something(models.Model):
         name = models.CharField(max_length=32)
         data = hstore.DictionaryField(db_index=True)
-        objects = hstore.Manager()
+        objects = hstore.HStoreManager()
 
         def __unicode__(self):
             return self.name
