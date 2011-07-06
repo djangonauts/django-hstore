@@ -19,19 +19,12 @@ class HStoreDictionary(dict):
         queryset.filter(pk=self.instance.pk).hremove(self.field.name, keys)
 
 
-class HStoreDescriptor(object):
-    def __init__(self, field):
-        self.field = field
-
-    def __get__(self, instance=None, owner=None):
-        if instance is not None:
-            return instance.__dict__[self.field.name]
-        raise AttributeError
-
-    def __set__(self, instance, value):
+class HStoreDescriptor(models.fields.subclassing.Creator):
+    def __set__(self, obj, value):
+        value = self.field.to_python(value)
         if not isinstance(value, HStoreDictionary):
-            value = self.field._attribute_class(value, self.field, instance)
-        instance.__dict__[self.field.name] = value
+            value = self.field._attribute_class(value, self.field, obj)
+        obj.__dict__[self.field.name] = value
 
 
 class HStoreField(models.Field):
@@ -48,9 +41,9 @@ class HStoreField(models.Field):
 
 
 class DictionaryField(HStoreField):
-    """
-    Stores a python dictionary in a postgresql hstore field.
-    """
+
+    description = _("A python dictionary in a postgresql hstore field.")
+
     def formfield(self, **params):
         params['form_class'] = forms.DictionaryField
         return super(DictionaryField, self).formfield(**params)
@@ -64,35 +57,25 @@ class DictionaryField(HStoreField):
     def _value_to_python(self, value):
         return value
 
-
 class ReferencesField(HStoreField):
-    """
-    Stores a python dictionary of references to model instances in an hstore field.
-    """
+
+    description = _("A python dictionary of references to model instances in an hstore field.")
+
     def formfield(self, **params):
         params['form_class'] = forms.ReferencesField
         return super(ReferencesField, self).formfield(**params)
 
     def get_prep_lookup(self, lookup, value):
-        if isinstance(value, dict):
-            return util.serialize_references(value)
-        return value
+        return util.serialize_references(value) if isinstance(value, dict) else value
 
     def get_prep_value(self, value):
-        if value:
-            return util.serialize_references(value)
-        return {}
+        return util.serialize_references(value) if value else {}
 
     def to_python(self, value):
-        if value:
-            return util.unserialize_references(value)
-        return {}
+        return util.unserialize_references(value) if value else {}
 
     def _value_to_python(self, value):
-        if value:
-            return util.acquire_reference(value)
-        return None
-
+        return util.acquire_reference(value) if value else None
 
 try:
     from south.modelsinspector import add_introspection_rules

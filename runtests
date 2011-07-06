@@ -9,4 +9,4 @@ createdb -U "${DB_USER}" "${DB_NAME}"
 psql -U "${DB_USER}" "${DB_NAME}" -f "${HSTORE_SQL}" -q
 
 DB_NAME=$DB_NAME DB_USER=$DB_USER nosetests "$@"
-dropdb -U "${DB_USER}" "${DB_NAME}"
+#dropdb -U "${DB_USER}" "${DB_NAME}"
