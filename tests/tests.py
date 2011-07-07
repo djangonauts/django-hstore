@@ -1,4 +1,4 @@
-from unittest import TestCase
+from django.utils.unittest import TestCase
 from .app.models import DataBag, Ref, RefsBag
 
 class TestDictionaryField(TestCase):
