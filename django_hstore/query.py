@@ -47,8 +47,8 @@ def update_query(method):
 class HStoreWhereNode(WhereNode):
     def make_atom(self, child, qn, connection):
         lvalue, lookup_type, value_annot, param = child
-        kwargs = VERSION[:2] >= (1, 3) and {'connection': connection} or {}
-        if lvalue.field.db_type(**kwargs) == 'hstore':
+        kwargs = {'connection': connection} if VERSION[:2] >= (1, 3) else {}
+        if lvalue and lvalue.field and lvalue.field.db_type(**kwargs) == 'hstore':
             try:
                 lvalue, params = lvalue.process(lookup_type, param, connection)
             except EmptyShortCircuit:
