@@ -1,18 +1,97 @@
+import logging
+import re
 from psycopg2.extras import register_hstore
 
 from django import VERSION
 from django.db.backends.postgresql_psycopg2.base import *
 from django.db.backends.util import truncate_name
+from django.conf import settings
 
+log = logging.getLogger(__name__)
+
+# Regexp for SQL comments
+COMMENTS = re.compile(r'/\*.*?\*/', re.MULTILINE | re.DOTALL)
+COMMENTS2 = re.compile(r'--.*?$', re.MULTILINE)
 
 class DatabaseCreation(DatabaseCreation):
+    def executescript(self, path, title='SQL'):
+        """
+        Load up a SQL script file and execute.
+        """
+        try:
+            sql = ''.join(open(path).readlines())
+
+            # strip out comments
+            sql = COMMENTS.sub('',sql)
+            sql = COMMENTS2.sub('',sql)
+
+            # execute script line by line
+            cursor = self.connection.cursor()
+            self.set_autocommit()
+
+            for l in re.split(r';', sql):
+                l = l.strip()
+                if len(l)>0:
+                    try:
+                        cursor.execute(l)
+                    except Exception:
+                        log.exception('Error running % script: %s', title, l)
+            log.info('Executed post setup for %s.', title)
+        except Exception:
+            log.exception('Problem in %s script', title)
+
+    def _create_test_db(self, verbosity, autoclobber):
+        super(DatabaseCreation, self)._create_test_db(verbosity,autoclobber)
+
+        # point to test database
+        self.connection.close()
+        test_database_name = self._get_test_db_name()
+        self.connection.settings_dict["NAME"] = test_database_name
+
+        import glob
+        import os
+
+        # Quick Hack to run HSTORE sql script for test runs
+        sql = getattr(settings,'HSTORE_SQL',None)
+        if not sql:
+            # Attempt to helpfully locate contrib SQL on typical installs
+            for loc in (
+                # Ubuntu/Debian Location
+                '/usr/share/postgresql/*/contrib/hstore.sql',
+                # Redhat/RPM location
+                '/usr/share/pgsql/contrib/hstore.sql',
+                # MacOSX location
+                '/Library/PostgreSQL/*/share/postgresql/contrib/hstore.sql',
+                # MacPorts location
+                '/opt/local/share/postgresql*/contrib/hstore.sql',
+                # Mac HomeBrew location
+                '/usr/local/Cellar/postgresql/*/share/contrib/hstore.sql',
+                # Windows location
+                'C:/Program Files/PostgreSQL/*/share/contrib/hstore.sql',
+                # Windows 32-bit location
+                'C:/Program Files (x86)/PostgreSQL/*/share/contrib/hstore.sql',
+            ):
+                files = glob.glob(loc)
+                if files and len(files)>0:
+                    sql = sorted(files)[-1]
+                    log.info("Found installed HSTORE script: %s" % (sql,))
+                    break
+
+        if sql and os.path.isfile(sql):
+            self.executescript(sql, 'HSTORE')
+        else:
+            log.warning('Valid HSTORE sql script found.  You may need to install the postgres contrib module.  '
+                + 'You can explicitly locate it with the HSTORE_SQL property in django settings.')
+
+        register_hstore(self.connection.connection, globally=True, unicode=True)
+
     def sql_indexes_for_field(self, model, f, style):
         kwargs = VERSION[:2] >= (1, 3) and {'connection': self.connection} or {}
         if f.db_type(**kwargs) == 'hstore':
             if not f.db_index:
                 return []
 
-            # create GIST index for hstore columne
+            # create GIST index for hstore column
             qn = self.connection.ops.quote_name
             index_name = '%s_%s_gist' % (model._meta.db_table, f.column)
             clauses = [style.SQL_KEYWORD('CREATE INDEX'),

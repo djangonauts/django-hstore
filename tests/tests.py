@@ -1,3 +1,5 @@
+from django.db import connections
+from django.db.models.aggregates import Count
 from django.utils.unittest import TestCase
 from .app.models import DataBag, Ref, RefsBag
 
@@ -9,6 +11,19 @@ class TestDictionaryField(TestCase):
         alpha = DataBag.objects.create(name='alpha', data={'v': '1', 'v2': '3'})
         beta = DataBag.objects.create(name='beta', data={'v': '2', 'v2': '4'})
         return alpha, beta
+
+    def _create_bitfield_bags(self):
+        # create dictionaries with bits as dictionary keys (i.e. bag5 = { 'b0':'1', 'b2':'1'})
+        for i in xrange(10):
+            DataBag.objects.create(name='bag%d' % (i,),
+               data=dict(('b%d' % (bit,), '1') for bit in xrange(4) if (1 << bit) & i))
+
+    def test_create_test_db(self):
+        db = connections['default']
+        db.creation.create_test_db(verbosity=2,autoclobber=True)
+        alpha, beta = self._create_bags()
+        self.assertEqual(DataBag.objects.get(name='alpha'), alpha)
+        self.assertEqual(DataBag.objects.filter(name='beta')[0], beta)
 
     def test_empty_instantiation(self):
         bag = DataBag.objects.create(name='bag')
@@ -26,10 +41,14 @@ class TestDictionaryField(TestCase):
         self.assertEqual(DataBag.objects.get(name='alpha'), alpha)
         self.assertEqual(DataBag.objects.filter(name='beta')[0], beta)
 
+    def test_aggregates(self):
+        self._create_bitfield_bags()
+
+        self.assertEqual(DataBag.objects.filter(data__contains={'b0':'1'}).aggregate(Count('id'))['id__count'], 5)
+        self.assertEqual(DataBag.objects.filter(data__contains={'b1':'1'}).aggregate(Count('id'))['id__count'], 4)
+
     def test_nested_filtering(self):
-        # create dictionaries with bits as dictionary keys (i.e. bag5 = { 'b0':'1', 'b2':'1'})
-        for i in xrange(10):
-            DataBag.objects.create(name='bag%d'%(i,), data=dict(('b%d'%(bit,),'1') for bit in xrange(4) if (1<<bit)&i))
+        self._create_bitfield_bags()
 
         # Test cumulative successive filters for both dictionaries and other fields
         f = DataBag.objects.all()
@@ -210,3 +229,4 @@ class TestReferencesField(TestCase):
         self.assertEqual(RefsBag.objects.hslice(id=alpha.id, attr='refs', keys=['0']), {'0': refs[0]})
         self.assertEqual(RefsBag.objects.filter(id=alpha.id).hslice(attr='refs', keys=['0']), {'0': refs[0]})
         self.assertEqual(RefsBag.objects.hslice(id=alpha.id, attr='refs', keys=['invalid']), {})
+
