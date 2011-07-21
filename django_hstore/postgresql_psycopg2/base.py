@@ -1,3 +1,4 @@
+import sys
 import logging
 import re
 from psycopg2.extras import register_hstore
@@ -35,10 +36,16 @@ class DatabaseCreation(DatabaseCreation):
                     try:
                         cursor.execute(l)
                     except Exception:
-                        log.exception('Error running % script: %s', title, l)
+                        message = 'Error running % script: %s' % (title, l)
+                        log.exception(message)
+                        print >> sys.stderr, message
+                        traceback.print_exc()
             log.info('Executed post setup for %s.', title)
         except Exception:
-            log.exception('Problem in %s script', title)
+            message = 'Problem in %s script' % (title,)
+            log.exception(message)
+            print >> sys.stderr, message
+            traceback.print_exc()
 
     def _create_test_db(self, verbosity, autoclobber):
         super(DatabaseCreation, self)._create_test_db(verbosity,autoclobber)
@@ -80,9 +87,12 @@ class DatabaseCreation(DatabaseCreation):
         if sql and os.path.isfile(sql):
             self.executescript(sql, 'HSTORE')
         else:
-            log.warning('Valid HSTORE sql script found.  You may need to install the postgres contrib module.  '
-                + 'You can explicitly locate it with the HSTORE_SQL property in django settings.')
+            message = 'Valid HSTORE sql script not found.  You may need to install the postgres contrib module.\n' + \
+                'You can explicitly locate it with the HSTORE_SQL property in django settings.'
+            log.warning(message)
+            print >> sys.stderr, message
 
+        self.connection.cursor()
         register_hstore(self.connection.connection, globally=True, unicode=True)
 
     def sql_indexes_for_field(self, model, f, style):
