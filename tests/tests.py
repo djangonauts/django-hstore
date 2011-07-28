@@ -47,6 +47,11 @@ class TestDictionaryField(TestCase):
         self.assertEqual(DataBag.objects.filter(data__contains={'b0':'1'}).aggregate(Count('id'))['id__count'], 5)
         self.assertEqual(DataBag.objects.filter(data__contains={'b1':'1'}).aggregate(Count('id'))['id__count'], 4)
 
+    def test_annotations(self):
+        self._create_bitfield_bags()
+
+        self.assertEqual(DataBag.objects.annotate(num_id=Count('id')).filter(num_id=1)[0].num_id, 1)
+
     def test_nested_filtering(self):
         self._create_bitfield_bags()
 
