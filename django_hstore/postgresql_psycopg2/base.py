@@ -1,5 +1,5 @@
-import sys
 import logging
+import traceback
 import re
 from psycopg2.extras import register_hstore
 
@@ -47,9 +47,7 @@ class DatabaseCreation(DatabaseCreation):
             print >> sys.stderr, message
             traceback.print_exc()
 
-    def _create_test_db(self, verbosity, autoclobber):
-        super(DatabaseCreation, self)._create_test_db(verbosity,autoclobber)
-
+    def install_hstore_contrib(self):
         # point to test database
         self.connection.close()
         test_database_name = self._get_test_db_name()
@@ -57,6 +55,13 @@ class DatabaseCreation(DatabaseCreation):
 
         import glob
         import os
+
+        # Test to see if HSTORE type was already installed
+        cursor = self.connection.cursor()
+        cursor.execute("SELECT 1 FROM pg_type WHERE typname='hstore';")
+        if cursor.fetchone():
+            # skip if already exists
+            return
 
         # Quick Hack to run HSTORE sql script for test runs
         sql = getattr(settings,'HSTORE_SQL',None)
@@ -92,7 +97,11 @@ class DatabaseCreation(DatabaseCreation):
             log.warning(message)
             print >> sys.stderr, message
 
-        self.connection.cursor()
+    def _create_test_db(self, verbosity, autoclobber):
+        super(DatabaseCreation, self)._create_test_db(verbosity,autoclobber)
+
+        self.install_hstore_contrib()
+
         register_hstore(self.connection.connection, globally=True, unicode=True)
 
     def sql_indexes_for_field(self, model, f, style):
