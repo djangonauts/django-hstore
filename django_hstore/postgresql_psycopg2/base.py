@@ -63,6 +63,11 @@ class DatabaseCreation(DatabaseCreation):
             # skip if already exists
             return
 
+        if self.connection._version[0:2]>=(9,1):
+            cursor.execute("create extension hstore;")
+            self.connection.commit()
+            return
+
         # Quick Hack to run HSTORE sql script for test runs
         sql = getattr(settings,'HSTORE_SQL',None)
         if not sql:
