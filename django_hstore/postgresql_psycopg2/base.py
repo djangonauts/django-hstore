@@ -65,7 +65,7 @@ class DatabaseCreation(DatabaseCreation):
 
         if self.connection._version[0:2]>=(9,1):
             cursor.execute("create extension hstore;")
-            self.connection.commit()
+            self.connection.commit_unless_managed()
             return
 
         # Quick Hack to run HSTORE sql script for test runs
