@@ -19,9 +19,7 @@ class TestDictionaryField(TestCase):
             DataBag.objects.create(name='bag%d' % (i,),
                data=dict(('b%d' % (bit,), '1') for bit in xrange(4) if (1 << bit) & i))
 
-    def test_create_test_db(self):
-        db = connections['default']
-        db.creation.create_test_db(verbosity=2,autoclobber=True)
+    def test_create_bags(self):
         alpha, beta = self._create_bags()
         self.assertEqual(DataBag.objects.get(name='alpha'), alpha)
         self.assertEqual(DataBag.objects.filter(name='beta')[0], beta)
