@@ -1,4 +1,4 @@
-from .app.models import DataBag, Ref, RefsBag
+from .models import DataBag, Ref, RefsBag
 from django.db import connections
 from django.db.models.aggregates import Count
 from django.utils.unittest import TestCase

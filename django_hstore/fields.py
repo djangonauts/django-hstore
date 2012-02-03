@@ -39,6 +39,12 @@ class HStoreField(models.Field):
     def db_type(self, connection=None):
         return 'hstore'
 
+    def south_field_triple(self):
+        from south.modelsinspector import introspector
+        name = '%s.%s' % (self.__class__.__module__, self.__class__.__name__)
+        args, kwargs = introspector(self)
+        return name, args, kwargs
+
 
 class DictionaryField(HStoreField):
     description = _("A python dictionary in a postgresql hstore field.")
@@ -76,9 +82,3 @@ class ReferencesField(HStoreField):
     def _value_to_python(self, value):
         return util.acquire_reference(value) if value else None
 
-
-try:
-    from south.modelsinspector import add_introspection_rules
-    add_introspection_rules(rules=[], patterns=['django_hstore\.fields'])
-except ImportError:
-    pass

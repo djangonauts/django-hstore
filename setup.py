@@ -1,4 +1,11 @@
 from setuptools import setup, find_packages
+from setuptools.command.test import test
+
+
+class TestCommand(test):
+    def run(self):
+        from tests.runtests import runtests
+        runtests()
 
 
 setup(
@@ -22,5 +29,6 @@ setup(
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
         'Framework :: Django',
     ],
+    cmdclass={"test": TestCommand},
 )
 
