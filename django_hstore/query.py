@@ -11,6 +11,7 @@ try:
 except ImportError:
     from django.db.models.query_utils import QueryWrapper # django >= 1.4
 
+
 def select_query(method):
     def selector(self, *args, **params):
         query = self.query.clone()

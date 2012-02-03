@@ -1,18 +1,18 @@
 import logging
-import traceback
 import re
-from psycopg2.extras import register_hstore
-
+import traceback
 from django import VERSION
+from django.conf import settings
 from django.db.backends.postgresql_psycopg2.base import *
 from django.db.backends.util import truncate_name
-from django.conf import settings
+from psycopg2.extras import register_hstore
+
 
 log = logging.getLogger(__name__)
-
 # Regexp for SQL comments
 COMMENTS = re.compile(r'/\*.*?\*/', re.MULTILINE | re.DOTALL)
 COMMENTS2 = re.compile(r'--.*?$', re.MULTILINE)
+
 
 class DatabaseCreation(DatabaseCreation):
     def executescript(self, path, title='SQL'):

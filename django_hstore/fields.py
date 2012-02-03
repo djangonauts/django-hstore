@@ -1,6 +1,6 @@
 from django.db import models
-from django_hstore import forms, util
 from django.utils.translation import ugettext_lazy as _
+from django_hstore import forms, util
 
 
 class HStoreDictionary(dict):
@@ -29,7 +29,6 @@ class HStoreDescriptor(models.fields.subclassing.Creator):
 
 
 class HStoreField(models.Field):
-
     _attribute_class = HStoreDictionary
     _descriptor_class = HStoreDescriptor
 
@@ -42,7 +41,6 @@ class HStoreField(models.Field):
 
 
 class DictionaryField(HStoreField):
-
     description = _("A python dictionary in a postgresql hstore field.")
 
     def formfield(self, **params):
@@ -58,8 +56,8 @@ class DictionaryField(HStoreField):
     def _value_to_python(self, value):
         return value
 
-class ReferencesField(HStoreField):
 
+class ReferencesField(HStoreField):
     description = _("A python dictionary of references to model instances in an hstore field.")
 
     def formfield(self, **params):
@@ -77,6 +75,7 @@ class ReferencesField(HStoreField):
 
     def _value_to_python(self, value):
         return util.acquire_reference(value) if value else None
+
 
 try:
     from south.modelsinspector import add_introspection_rules

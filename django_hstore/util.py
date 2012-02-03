@@ -1,5 +1,6 @@
 from django.core.exceptions import ObjectDoesNotExist
 
+
 def acquire_reference(reference):
     try:
         implementation, identifier = reference.split(':')
@@ -11,9 +12,11 @@ def acquire_reference(reference):
     except Exception:
         raise ValueError
 
+
 def identify_instance(instance):
     implementation = type(instance)
     return '%s.%s:%s' % (implementation.__module__, implementation.__name__, instance.pk)
+
 
 def serialize_references(references):
     refs = {}
@@ -24,6 +27,7 @@ def serialize_references(references):
             refs[key] = instance
     else:
         return refs
+
 
 def unserialize_references(references):
     refs = {}

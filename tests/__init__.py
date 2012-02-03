@@ -1,8 +1,7 @@
-
-from os import environ
-
 from django.conf import settings
 from django.core.management import call_command
+from os import environ
+
 
 settings.configure(
     HSTORE_SQL = environ.get('HSTORE_SQL',None),

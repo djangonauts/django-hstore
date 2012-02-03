@@ -1,7 +1,8 @@
+from .app.models import DataBag, Ref, RefsBag
 from django.db import connections
 from django.db.models.aggregates import Count
 from django.utils.unittest import TestCase
-from .app.models import DataBag, Ref, RefsBag
+
 
 class TestDictionaryField(TestCase):
     def setUp(self):
@@ -163,6 +164,7 @@ class TestDictionaryField(TestCase):
         self.assertEqual(DataBag.objects.get(name='alpha').data, alpha.data)
         DataBag.objects.filter(name='alpha').hupdate('data', {'v2': '10', 'v3': '20'})
         self.assertEqual(DataBag.objects.get(name='alpha').data, {'v': '1', 'v2': '10', 'v3': '20'})
+
 
 class TestReferencesField(TestCase):
     def setUp(self):
