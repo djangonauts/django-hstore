@@ -5,26 +5,30 @@ from django_hstore import hstore
 class Ref(models.Model):
     name = models.CharField(max_length=32)
 
-    def __unicode__(self):
-        return self.name
+
+class HStoreModel(models.Model):
+    objects = hstore.HStoreManager()
+
+    class Meta:
+        abstract = True
 
 
-class DataBag(models.Model):
+class DataBag(HStoreModel):
     name = models.CharField(max_length=32)
     data = hstore.DictionaryField(db_index=True)
 
-    objects = hstore.HStoreManager()
 
-    def __unicode__(self):
-        return self.name
-
-
-class RefsBag(models.Model):
+class RefsBag(HStoreModel):
     name = models.CharField(max_length=32)
     refs = hstore.ReferencesField(db_index=True)
 
-    objects = hstore.HStoreManager()
 
-    def __unicode__(self):
-        return self.name
+class DefaultsModel(models.Model):
+    a = hstore.DictionaryField(default={})
+    b = hstore.DictionaryField(default=None, null=True)
+    c = hstore.DictionaryField(default={'x': '1'})
+
+
+class BadDefaultsModel(models.Model):
+    a = hstore.DictionaryField(default=None)
 

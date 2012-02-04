@@ -1,6 +1,7 @@
-from .models import DataBag, Ref, RefsBag
-from django.db import connections
+from .models import DataBag, Ref, RefsBag, DefaultsModel, BadDefaultsModel
+from django.db import transaction
 from django.db.models.aggregates import Count
+from django.db.utils import IntegrityError
 from django.utils.unittest import TestCase
 
 
@@ -18,11 +19,6 @@ class TestDictionaryField(TestCase):
         for i in xrange(10):
             DataBag.objects.create(name='bag%d' % (i,),
                data=dict(('b%d' % (bit,), '1') for bit in xrange(4) if (1 << bit) & i))
-
-    def test_create_bags(self):
-        alpha, beta = self._create_bags()
-        self.assertEqual(DataBag.objects.get(name='alpha'), alpha)
-        self.assertEqual(DataBag.objects.filter(name='beta')[0], beta)
 
     def test_empty_instantiation(self):
         bag = DataBag.objects.create(name='bag')
@@ -162,6 +158,19 @@ class TestDictionaryField(TestCase):
         self.assertEqual(DataBag.objects.get(name='alpha').data, alpha.data)
         DataBag.objects.filter(name='alpha').hupdate('data', {'v2': '10', 'v3': '20'})
         self.assertEqual(DataBag.objects.get(name='alpha').data, {'v': '1', 'v2': '10', 'v3': '20'})
+
+    def test_default(self):
+        m = DefaultsModel()
+        m.save()
+
+    def test_bad_default(self):
+        m = BadDefaultsModel()
+        try:
+            m.save()
+        except IntegrityError:
+            transaction.rollback()
+        else:
+            self.assertTrue(False)
 
 
 class TestReferencesField(TestCase):
