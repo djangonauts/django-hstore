@@ -15,12 +15,12 @@ class HStoreModel(models.Model):
 
 class DataBag(HStoreModel):
     name = models.CharField(max_length=32)
-    data = hstore.DictionaryField(db_index=True)
+    data = hstore.DictionaryField()
 
 
 class RefsBag(HStoreModel):
     name = models.CharField(max_length=32)
-    refs = hstore.ReferencesField(db_index=True)
+    refs = hstore.ReferencesField()
 
 
 class DefaultsModel(models.Model):

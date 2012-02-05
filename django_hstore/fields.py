@@ -31,6 +31,10 @@ class HStoreDescriptor(models.fields.subclassing.Creator):
 
 
 class HStoreField(models.Field):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault('db_index', True)
+        super(HStoreField, self).__init__(*args, **kwargs)
+
     def contribute_to_class(self, cls, name):
         super(HStoreField, self).contribute_to_class(cls, name)
         setattr(cls, self.name, HStoreDescriptor(self))
