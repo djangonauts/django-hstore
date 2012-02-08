@@ -57,6 +57,9 @@ class HStoreField(models.Field):
             return None
         return {}
 
+    def value_to_string(self, obj):
+        return self._get_val_from_obj(obj)
+
     def db_type(self, connection=None):
         return 'hstore'
 
