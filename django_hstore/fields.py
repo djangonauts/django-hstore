@@ -30,9 +30,26 @@ class HStoreDescriptor(models.fields.subclassing.Creator):
         obj.__dict__[self.field.name] = value
 
 
+class HStoreDict(dict):
+    def __init__(self, dict):
+        super(HStoreDict, self).__init__(dict)
+        self.connection = None
+
+    def prepare(self, connection):
+        self.connection = connection
+
+    def __str__(self):
+        from psycopg2.extras import HstoreAdapter
+        value = HstoreAdapter(self)
+        if self.connection:
+            value.prepare(self.connection.connection)
+        return value.getquoted()
+
+
 class HStoreField(models.Field):
     def __init__(self, *args, **kwargs):
-        kwargs.setdefault('db_index', True)
+        if kwargs.get('db_index', False):
+            raise TypeError("'db_index' is not a valid argument for %s. Use 'python manage.py sqlhstoreindexes' instead." % self.__class__)
         super(HStoreField, self).__init__(*args, **kwargs)
 
     def contribute_to_class(self, cls, name):
@@ -45,8 +62,8 @@ class HStoreField(models.Field):
         """
         if self.has_default():
             if callable(self.default):
-                return self.default()
-            return self.default
+                return HStoreDict(self.default())
+            return HStoreDict(self.default)
         if (
             not self.empty_strings_allowed or
                 (
@@ -55,7 +72,19 @@ class HStoreField(models.Field):
                 )
             ):
             return None
-        return {}
+        return HStoreDict({})
+
+    def get_prep_value(self, value):
+        if not isinstance(value, HStoreDict):
+            return HStoreDict(value)
+        else:
+            return value
+
+    def get_db_prep_value(self, value, connection, prepared=False):
+        if not prepared:
+            value = self.get_prep_value(value)
+            value.prepare(connection)
+        return value
 
     def value_to_string(self, obj):
         return self._get_val_from_obj(obj)
