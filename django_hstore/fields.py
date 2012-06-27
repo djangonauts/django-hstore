@@ -1,6 +1,7 @@
 from django.db import models, connection
 from django.utils.translation import ugettext_lazy as _
 from django_hstore import forms, util
+from django.conf import settings
 
 
 class HStoreDictionary(dict):
@@ -134,3 +135,9 @@ class ReferencesField(HStoreField):
     def _value_to_python(self, value):
         return util.acquire_reference(value)
 
+if settings.DATABASES['default']['ENGINE'] == 'django.db.backends.sqlite3':
+    try:
+        from jsonfield.fields import JSONField
+        DictionaryField = JSONField
+    except ImportError:
+        pass
