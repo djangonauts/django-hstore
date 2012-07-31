@@ -1,12 +1,18 @@
 #!/bin/bash
+export DJANGO_SETTINGS_MODULE=tests.settings
 
+PWD=`pwd`
 DB_NAME=${DB_NAME:-django_hstore_test}
 DB_USER=${DB_USER:-$USER}
-HSTORE_SQL=${HSTORE_SQL:-/usr/share/postgresql/contrib/hstore.sql}
+POSTGIS_SQL=${POSTGIS_SQL:-/usr/share/postgresql/9.1/contrib/postgis-2.1/postgis.sql}
+SPATIAL_REF_SQL=${SPATIAL_REF_SQL:-/usr/share/postgresql/9.1/contrib/postgis-2.1/spatial_ref_sys.sql}
+PYTHON_PATH="${PWD}/:${PWD}/tests/:${PYTHON_PATH}"
 
 dropdb -U "${DB_USER}" "${DB_NAME}"
 createdb -U "${DB_USER}" "${DB_NAME}"
-psql -U "${DB_USER}" "${DB_NAME}" -f "${HSTORE_SQL}" -q
+psql -U "${DB_USER}" "${DB_NAME}" -c "CREATE EXTENSION hstore;"
+psql -U "${DB_USER}" "${DB_NAME}" -f "${POSTGIS_SQL}"
+psql -U "${DB_USER}" "${DB_NAME}" -f "${SPATIAL_REF_SQL}"
 
 DB_NAME=$DB_NAME DB_USER=$DB_USER nosetests "$@"
 dropdb -U "${DB_USER}" "${DB_NAME}"

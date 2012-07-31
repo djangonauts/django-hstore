@@ -5,6 +5,12 @@ django-hstore
 Django-hstore is a niche library which integrates the `hstore`_ extension of PostgreSQL into Django,
 assuming one is using Django 1.2+, PostgreSQL 9.0+, and Psycopg 2.3+.
 
+=============
+Fork features
+=============
+
+This fork aims to support spatial querysets. Now supported only Postgis backend.
+
 Limitations
 ===========
 
@@ -19,7 +25,7 @@ Running the tests
 
 Assuming one has the dependencies installed as well as nose, and a PostgreSQL 9.0+ server up and running::
 
-    DB_USER=<username> HSTORE_SQL=<path-to-contrib/hstore.sql> ./runtests
+    DB_USER=<username> DB_PASS=<pass> POSTGIS_SQL=<path/to/postgis.sql> SPATIAL_REF_SQL=<path/to/spatial_ref_sys.sql> ./runtests
 
 Usage
 =====
@@ -28,7 +34,9 @@ First, update your settings module to specify the custom database backend::
 
     DATABASES = {
         'default': {
-            'ENGINE': 'django_hstore.postgresql_psycopg2',
+            'ENGINE': 'django_hstore.backends.postgresql_psycopg2',
+            # or
+            # 'ENGINE': 'django_hstore.backends.gis.postgresql_psycopg2',
             ...
         }
     }
@@ -51,7 +59,9 @@ Model definition is straightforward::
     class Something(models.Model):
         name = models.CharField(max_length=32)
         data = hstore.DictionaryField(db_index=True)
-        objects = hstore.Manager()
+
+        objects = hstore.Manager() # for simple hstore support
+        # objects = hstore.GeoManager(), for support of spatial + hstore queries/querysets
 
         def __unicode__(self):
             return self.name

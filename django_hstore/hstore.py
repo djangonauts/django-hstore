@@ -1,8 +1,9 @@
 from django.db import models
 
 from django_hstore import forms
-from django_hstore.query import HStoreQuerySet
+from django_hstore.query import HStoreQuerySet, HStoreGeoQuerySet
 from django_hstore.util import acquire_reference, serialize_references, unserialize_references
+from django.contrib.gis.db.models import GeoManager
 
 class HStoreDictionary(dict):
     """A dictionary subclass which implements hstore support."""
@@ -91,7 +92,7 @@ class Manager(models.Manager):
     def hkeys(self, attr, **params):
         queryset = (self.filter(**params) if params else self.get_query_set())
         return queryset.hkeys(attr)
-    
+
     def hpeek(self, attr, key, **params):
         queryset = (self.filter(**params) if params else self.get_query_set())
         return queryset.hpeek(attr, key)
@@ -100,8 +101,16 @@ class Manager(models.Manager):
         queryset = (self.filter(**params) if params else self.get_query_set())
         return queryset.hslice(attr, keys)
 
+class GeoManager(GeoManager, Manager):
+
+    def get_query_set(self):
+        return HStoreGeoQuerySet(self.model, using=self._db)
+
 try:
     from south.modelsinspector import add_introspection_rules
     add_introspection_rules(rules=[], patterns=['django_hstore\.hstore'])
 except ImportError:
     pass
+
+
+

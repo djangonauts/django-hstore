@@ -7,22 +7,31 @@ from django.db.models.sql.datastructures import EmptyResultSet
 from django.db.models.sql.query import Query
 from django.db.models.sql.subqueries import UpdateQuery
 from django.db.models.sql.where import EmptyShortCircuit, WhereNode
+from django.contrib.gis.db.models.query import GeoQuerySet
+from django.contrib.gis.db.models.sql import GeoQuery
+
 
 class literal_clause(object):
+
+
     def __init__(self, sql, params):
         self.clause = (sql, params)
+
     def as_sql(self, qn, connection):
         return self.clause
 
 def select_query(method):
+
     def selector(self, *args, **params):
         query = self.query.clone()
         query.default_cols = False
         query.clear_select_fields()
         return method(self, query, *args, **params)
+
     return selector
 
 def update_query(method):
+
     def updater(self, *args, **params):
         self._for_write = True
         query = method(self, self.query.clone(UpdateQuery), *args, **params)
@@ -49,6 +58,8 @@ def update_query(method):
     return updater
 
 class HStoreWhereNode(WhereNode):
+
+
     def make_atom(self, child, qn, connection):
         lvalue, lookup_type, value_annot, param = child
         kwargs = VERSION[:2] >= (1, 3) and {'connection': connection} or {}
@@ -81,10 +92,16 @@ class HStoreWhereNode(WhereNode):
             return super(HStoreWhereNode, self).make_atom(child, qn, connection)
 
 class HStoreQuery(Query):
+
     def __init__(self, model):
         super(HStoreQuery, self).__init__(model, HStoreWhereNode)
 
+class HStoreGeoQuery(GeoQuery, Query):
+    pass
+
 class HStoreQuerySet(QuerySet):
+
+
     def __init__(self, model=None, query=None, using=None):
         query = query or HStoreQuery(model)
         super(HStoreQuerySet, self).__init__(model=model, query=query, using=using)
@@ -136,3 +153,9 @@ class HStoreQuerySet(QuerySet):
         field, model, direct, m2m = self.model._meta.get_field_by_name(attr)
         query.add_update_fields([(field, None, value)])
         return query
+
+class HStoreGeoQuerySet(HStoreQuerySet, GeoQuerySet):
+
+    def __init__(self, model=None, query=None, using=None):
+        query = query or HStoreGeoQuery(model)
+        super(HStoreGeoQuerySet, self).__init__(model=model, query=query, using=using)
