@@ -11,6 +11,7 @@ setup(
     url='http://github.com/jordanm/django-hstore',
     packages=[
         'django_hstore',
-        'django_hstore.postgresql_psycopg2',
+        'django_hstore.backends.postgresql_psycopg2',
+        'django_hstore.backends.gis.postgresql_psycopg2',
     ],
 )
