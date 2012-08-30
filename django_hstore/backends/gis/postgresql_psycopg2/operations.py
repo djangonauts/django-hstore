@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 from django.contrib.gis.db.backends.postgis.operations import PostGISOperations
+from django_hstore.backends.gis.postgresql_psycopg2.adapter import PostGISAdapter
 
 class DatabaseOperations(PostGISOperations):
+
+    Adapter = PostGISAdapter
+    Adaptor = Adapter # Backwards-compatibility alias.
 
     def _get_postgis_func(self, func, close=True):
         """
