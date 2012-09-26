@@ -31,4 +31,3 @@ setup(
     ],
     cmdclass={"test": TestCommand},
 )
-

@@ -110,11 +110,11 @@ class DatabaseCreation(PostGISCreation):
             qn = self.connection.ops.quote_name
             index_name = '%s_%s_gist' % (model._meta.db_table, f.column)
             clauses = [style.SQL_KEYWORD('CREATE INDEX'),
-                style.SQL_TABLE(qn(truncate_name(index_name, self.connection.ops.max_name_length()))),
-                style.SQL_KEYWORD('ON'),
-                style.SQL_TABLE(qn(model._meta.db_table)),
-                style.SQL_KEYWORD('USING GIST'),
-                '(%s)' % style.SQL_FIELD(qn(f.column))]
+                       style.SQL_TABLE(qn(truncate_name(index_name, self.connection.ops.max_name_length()))),
+                       style.SQL_KEYWORD('ON'),
+                       style.SQL_TABLE(qn(model._meta.db_table)),
+                       style.SQL_KEYWORD('USING GIST'),
+                       '(%s)' % style.SQL_FIELD(qn(f.column))]
             # add tablespace clause
             tablespace = f.db_tablespace or model._meta.db_tablespace
             if tablespace:
@@ -122,7 +122,7 @@ class DatabaseCreation(PostGISCreation):
                 if sql:
                     clauses.append(sql)
             clauses.append(';')
-            return [ ' '.join(clauses) ]
+            return [' '.join(clauses)]
         return super(DatabaseCreation, self).sql_indexes_for_field(model, f, style)
 
 

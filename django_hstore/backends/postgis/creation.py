@@ -10,8 +10,7 @@ class PostGISCreation(DatabaseCreation):
         "Return any spatial index creation SQL for the field."
         from django.contrib.gis.db.models.fields import GeometryField
 
-        output = super(PostGISCreation, self).sql_indexes_for_field(
-          model, f, style)
+        output = super(PostGISCreation, self).sql_indexes_for_field(model, f, style)
 
         if isinstance(f, GeometryField):
             gqn = self.connection.ops.geo_quote_name

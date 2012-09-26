@@ -7,9 +7,9 @@ from django.db.models.sql.query import Query
 from django.db.models.sql.subqueries import UpdateQuery
 from django.db.models.sql.where import EmptyShortCircuit, WhereNode
 try:
-    from django.db.models.sql.where import QueryWrapper # django <= 1.3
+    from django.db.models.sql.where import QueryWrapper  # django <= 1.3
 except ImportError:
-    from django.db.models.query_utils import QueryWrapper # django >= 1.4
+    from django.db.models.query_utils import QueryWrapper  # django >= 1.4
 
 
 def select_query(method):

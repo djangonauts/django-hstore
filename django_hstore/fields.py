@@ -26,7 +26,7 @@ class HStoreDescriptor(models.fields.subclassing.Creator):
         if isinstance(value, dict):
             value = HStoreDictionary(
                 value=value, field=self.field, instance=obj
-                )
+            )
         obj.__dict__[self.field.name] = value
 
 
@@ -47,13 +47,7 @@ class HStoreField(models.Field):
             if callable(self.default):
                 return self.default()
             return self.default
-        if (
-            not self.empty_strings_allowed or
-                (
-                self.null and
-                not connection.features.interprets_empty_strings_as_nulls
-                )
-            ):
+        if (not self.empty_strings_allowed or (self.null and not connection.features.interprets_empty_strings_as_nulls)):
             return None
         return {}
 
@@ -82,10 +76,7 @@ class DictionaryField(HStoreField):
 
 
 class ReferencesField(HStoreField):
-    description = _(
-        "A python dictionary of references to model instances in an hstore "
-        "field."
-        )
+    description = _("A python dictionary of references to model instances in an hstore field.")
 
     def formfield(self, **params):
         params['form_class'] = forms.ReferencesField
@@ -104,4 +95,3 @@ class ReferencesField(HStoreField):
 
     def _value_to_python(self, value):
         return util.acquire_reference(value)
-

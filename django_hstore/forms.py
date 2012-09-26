@@ -4,8 +4,8 @@ from django.contrib.admin.widgets import AdminTextareaWidget
 
 from django_hstore import util
 
-class JsonMixin(object):
 
+class JsonMixin(object):
     def to_python(self, value):
         return json.loads(value)
 
