@@ -10,9 +10,9 @@ Limitations
 ===========
 
 - Due to how Django implements its ORM, you will need to use the custom
-  ``postgresql_psycopg2`` backend defined in this package, which naturally will
-  prevent you from dropping in other django extensions which require a custom
-  backend (unless you fork and combine).
+  ``postgresql_psycopg2`` or ``postgis`` backend defined in this package,
+  which naturally will prevent you from dropping in other django extensions
+  which require a custom backend (unless you fork and combine).
 - PostgreSQL's implementation of hstore has no concept of type; it stores a
   mapping of string keys to string values. This library makes no attempt to
   coerce keys or values to strings.
@@ -32,11 +32,13 @@ First, update your settings module to specify the custom database backend::
 
     DATABASES = {
         'default': {
-            'ENGINE': 'django_hstore.postgresql_psycopg2',
+            'ENGINE': 'django_hstore.backends.postgresql_psycopg2',
+            # or
+            # 'ENGINE': 'django_hstore.backends.postgis',
             ...
         }
     }
-    
+
 **Note to South users:** If you keep getting errors like `There is no South
 database module 'south.db.None' for your database.`, add the following to
 `settings.py`::
@@ -54,6 +56,9 @@ The library provides three principal classes:
 ``django_hstore.hstore.HStoreManager``
     An ORM manager which provides much of the query functionality of the
     library.
+``django_hstore.hstore.HStoreGeoManager``
+    An additional ORM manager to provide Geodjango functionality as well.
+
 
 Model definition is straightforward::
 
@@ -64,6 +69,7 @@ Model definition is straightforward::
         name = models.CharField(max_length=32)
         data = hstore.DictionaryField()
         objects = hstore.HStoreManager()
+        # or objects = hstore.HStoreGeoManager()
 
         def __unicode__(self):
             return self.name

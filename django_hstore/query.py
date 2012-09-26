@@ -144,6 +144,7 @@ class HStoreQuerySet(QuerySet):
         query.add_update_fields([(field, None, value)])
         return query
 
+
 class HStoreGeoQuerySet(HStoreQuerySet, GeoQuerySet):
     def __init__(self, model=None, query=None, using=None):
         query = query or HStoreGeoQuery(model)

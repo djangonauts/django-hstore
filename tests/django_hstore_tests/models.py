@@ -40,4 +40,3 @@ class Location(geo_models.Model):
     point = geo_models.GeometryField()
 
     objects = hstore.HStoreGeoManager()
-

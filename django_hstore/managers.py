@@ -28,4 +28,3 @@ class HStoreGeoManager(geo_models.GeoManager, HStoreManager):
     """
     def get_query_set(self):
         return HStoreGeoQuerySet(self.model, using=self._db)
-
