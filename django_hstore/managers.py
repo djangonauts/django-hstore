@@ -1,5 +1,6 @@
 from django.db import models
-from django_hstore.query import HStoreQuerySet
+from django.contrib.gis.db import models as geo_models
+from django_hstore.query import HStoreQuerySet, HStoreGeoQuerySet
 
 
 class HStoreManager(models.Manager):
@@ -19,4 +20,12 @@ class HStoreManager(models.Manager):
 
     def hslice(self, attr, keys, **params):
         return self.filter(**params).hslice(attr, keys)
+
+
+class HStoreGeoManager(geo_models.GeoManager, HStoreManager):
+    """
+    Object manager combining Geodjango and hstore.
+    """
+    def get_query_set(self):
+        return HStoreGeoQuerySet(self.model, using=self._db)
 

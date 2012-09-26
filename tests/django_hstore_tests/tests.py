@@ -1,8 +1,9 @@
-from .models import DataBag, Ref, RefsBag, DefaultsModel, BadDefaultsModel
+from .models import DataBag, Ref, RefsBag, DefaultsModel, BadDefaultsModel, Location
 from django.db import transaction
 from django.db.models.aggregates import Count
 from django.db.utils import IntegrityError
 from django.utils.unittest import TestCase
+from django.contrib.gis.geos import GEOSGeometry
 
 
 class TestDictionaryField(TestCase):
@@ -175,15 +176,24 @@ class TestDictionaryField(TestCase):
 
 
 class TestReferencesField(TestCase):
+    pnt1 = GEOSGeometry('POINT(65.5758316 57.1345383)')
+    pnt2 = GEOSGeometry('POINT(65.2316 57.3423233)')
+
     def setUp(self):
         Ref.objects.all().delete()
         RefsBag.objects.all().delete()
+        Location.objects.all().delete()
 
     def _create_bags(self):
         refs = [Ref.objects.create(name=str(i)) for i in range(4)]
         alpha = RefsBag.objects.create(name='alpha', refs={'0': refs[0], '1': refs[1]})
         beta = RefsBag.objects.create(name='beta', refs={'0': refs[2], '1': refs[3]})
         return alpha, beta, refs
+
+    def _create_locations(self):
+        loc1 = Location.objects.create(name='Location1', data={'prop1': '1', 'prop2': 'test_value'}, point=self.pnt1)
+        loc2 = Location.objects.create(name='Location2', data={'prop1': '2', 'prop2': 'test_value'}, point=self.pnt2)
+        return loc1, loc2
 
     def test_empty_instantiation(self):
         bag = RefsBag.objects.create(name='bag')
@@ -245,3 +255,17 @@ class TestReferencesField(TestCase):
         self.assertEqual(RefsBag.objects.filter(id=alpha.id).hslice(attr='refs', keys=['0']), {'0': refs[0]})
         self.assertEqual(RefsBag.objects.hslice(id=alpha.id, attr='refs', keys=['invalid']), {})
 
+    def test_location_create(self):
+        l1, l2 = self._create_locations()
+        loc_1 = Location.objects.get(point__contains=self.pnt1)
+        self.assertEqual(loc_1.data, {'prop1': '1', 'prop2': 'test_value'})
+        loc_2 = Location.objects.get(point__contains=self.pnt2)
+        self.assertEqual(loc_2.data, {'prop1': '2', 'prop2': 'test_value'})
+
+    def test_location_hupdate(self):
+        l1, l2 = self._create_locations()
+        Location.objects.filter(point__contains=self.pnt1).hupdate('data', {'prop1': '2'})
+        loc = Location.objects.exclude(point__contains=self.pnt2)[0]
+        self.assertEqual(loc.data, {'prop1': '2', 'prop2': 'test_value'})
+        loc = Location.objects.get(point__contains=self.pnt2)
+        self.assertNotEqual(loc.data, {'prop1': '1', 'prop2': 'test_value'})
