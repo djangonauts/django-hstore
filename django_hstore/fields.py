@@ -1,6 +1,7 @@
 from django.db import models, connection
 from django.utils.translation import ugettext_lazy as _
 from django_hstore import forms, util
+import json
 
 
 class HStoreDictionary(dict):
@@ -18,6 +19,12 @@ class HStoreDictionary(dict):
         """
         queryset = self.instance._base_manager.get_query_set()
         queryset.filter(pk=self.instance.pk).hremove(self.field.name, keys)
+
+    def __str__(self):
+        return json.dumps(self)
+
+    def __unicode__(self):
+        return json.dumps(self)
 
 
 class HStoreDescriptor(models.fields.subclassing.Creator):

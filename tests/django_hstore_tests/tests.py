@@ -4,6 +4,7 @@ from django.db.models.aggregates import Count
 from django.db.utils import IntegrityError
 from django.utils.unittest import TestCase
 from django.contrib.gis.geos import GEOSGeometry
+import json
 
 
 class TestDictionaryField(TestCase):
@@ -173,6 +174,11 @@ class TestDictionaryField(TestCase):
             transaction.rollback()
         else:
             self.assertTrue(False)
+
+    def test_serialization_deserialization(self):
+        alpha, beta = self._create_bags()
+        self.assertEqual(json.loads(str(DataBag.objects.get(name='alpha').data)), json.loads(str(alpha.data)))
+        self.assertEqual(json.loads(str(DataBag.objects.get(name='beta').data)), json.loads(str(beta.data)))
 
 
 class TestReferencesField(TestCase):
