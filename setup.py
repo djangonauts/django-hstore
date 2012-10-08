@@ -13,10 +13,10 @@ setup(
     version='1.1.1',
     description="Support for PostgreSQL's hstore for Django.",
     long_description=open('README.rst').read(),
-    author='Mikko Hellsing',
-    author_email='mikko@aino.se',
+    author='Jann Kleen',
+    author_email='jann@pocketvillage.com',
     license='BSD',
-    url='https://github.com/aino/django-hstore',
+    url='https://github.com/pocketvillage/django-hstore',
     packages=find_packages(exclude=['tests', 'tests.*']),
     zip_safe=False,
     classifiers=[
