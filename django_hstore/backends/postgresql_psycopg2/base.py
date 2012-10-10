@@ -5,6 +5,7 @@ import traceback
 from django import VERSION
 from django.conf import settings
 from django.db.backends.postgresql_psycopg2.base import *
+from django.db.backends.postgresql_psycopg2.version import get_version
 from django.db.backends.util import truncate_name
 from psycopg2.extras import register_hstore
 
@@ -56,7 +57,7 @@ class DatabaseCreation(DatabaseCreation):
         if cursor.fetchone():
             # skip if already exists
             return
-        if self.connection._version[0:2] >= (9, 1):
+        if get_version(self.connection) >= 90100:
             cursor.execute("create extension hstore;")
             self.connection.commit_unless_managed()
             return
