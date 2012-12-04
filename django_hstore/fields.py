@@ -6,26 +6,29 @@ from django.conf import settings
 import json
 
 
-class HStoreDescriptor(models.fields.subclassing.Creator):
-    def __set__(self, obj, value):
-        value = self.field.to_python(value)
-        if isinstance(value, dict):
-            value = HStoreDict(
-                value=value, field=self.field
-                )
-        obj.__dict__[self.field.name] = value
-
-
 class HStoreDict(dict):
-    def __init__(self, value, field=None):
+    def __init__(self, value, field=None, loaded=True):
         super(HStoreDict, self).__init__(value)
         self.connection = None
         self.field = field
+        self.loaded = loaded
 
     def prepare(self, connection):
         self.connection = connection
 
-    def json_dict(self):
+    def loads(self):
+        if self.loaded:
+            return self
+
+        if self.field.default_key_type == 'json' or self.field.json_keys:
+            for key, item in self.items():
+                if self.field.default_key_type == 'json' or key in self.field.json_keys:
+                    self[key] = json.loads(item, **self.field.load_kwargs)
+
+        self.loaded = True
+        return self
+
+    def dumps(self):
         if self.field.default_key_type == 'json' or self.field.json_keys:
             result = {}
             for key, item in self.items():
@@ -36,9 +39,9 @@ class HStoreDict(dict):
         return result
 
     def __str__(self):
-        json_dict = self.json_dict()
+        result = self.dumps()
         from psycopg2.extras import HstoreAdapter
-        value = HstoreAdapter(json_dict)
+        value = HstoreAdapter(result)
         if self.connection:
             value.prepare(self.connection.connection)
         return value.getquoted()
@@ -57,17 +60,10 @@ class HStoreField(models.Field):
             raise TypeError("'db_index' is not a valid argument for %s. Use 'python manage.py sqlhstoreindexes' instead." % self.__class__)
         super(HStoreField, self).__init__(*args, **kwargs)
 
-    def contribute_to_class(self, cls, name):
-        super(HStoreField, self).contribute_to_class(cls, name)
-        setattr(cls, self.name, HStoreDescriptor(self))
-
     def to_python(self, value):
-        if self.default_key_type == 'json' or self.json_keys:
-            for key, item in value.items():
-                if self.default_key_type == 'json' or key in self.json_keys:
-                    if isinstance(item, str) or isinstance(item, unicode):
-                        value[key] = json.loads(item, **self.load_kwargs)
-                        print key
+        if isinstance(value, HStoreDict) and not value.loaded:
+            value.field = self
+            value.loads()
         return value
 
     def get_default(self):
@@ -91,7 +87,7 @@ class HStoreField(models.Field):
         return HStoreDict({}, self)
 
     def get_prep_value(self, value):
-        if isinstance(value, dict):
+        if isinstance(value, dict) and not isinstance(value, HStoreDict):
             return HStoreDict(value, self)
         else:
             return value
@@ -101,7 +97,7 @@ class HStoreField(models.Field):
             value = self.get_prep_value(value)
             if isinstance(value, HStoreDict):
                 value.prepare(connection)
-                return value.json_dict()
+                return value.dumps()
         return value
 
     def value_to_string(self, obj):
