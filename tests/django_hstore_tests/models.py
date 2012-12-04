@@ -15,8 +15,11 @@ class HStoreModel(models.Model):
 
 class DataBag(HStoreModel):
     name = models.CharField(max_length=32)
-    data = hstore.DictionaryField()
+    data = hstore.DictionaryField(default_key_type='normal')
 
+class JsonBag(HStoreModel):
+    name = models.CharField(max_length=32)
+    data = hstore.DictionaryField()
 
 class RefsBag(HStoreModel):
     name = models.CharField(max_length=32)
@@ -24,11 +27,11 @@ class RefsBag(HStoreModel):
 
 
 class DefaultsModel(models.Model):
-    a = hstore.DictionaryField(default={})
-    b = hstore.DictionaryField(default=None, null=True)
-    c = hstore.DictionaryField(default={'x': '1'})
+    a = hstore.DictionaryField(default={}, default_key_type='normal')
+    b = hstore.DictionaryField(default=None, null=True, default_key_type='normal')
+    c = hstore.DictionaryField(default={'x': '1'}, default_key_type='normal')
 
 
 class BadDefaultsModel(models.Model):
-    a = hstore.DictionaryField(default=None)
+    a = hstore.DictionaryField(default=None, default_key_type='normal')
 

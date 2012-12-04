@@ -1,4 +1,4 @@
-from .models import DataBag, Ref, RefsBag, DefaultsModel, BadDefaultsModel
+from .models import DataBag, JsonBag, Ref, RefsBag, DefaultsModel, BadDefaultsModel
 from django.db import transaction
 from django.db.models.aggregates import Count
 from django.db.utils import IntegrityError
@@ -171,6 +171,10 @@ class TestDictionaryField(TestCase):
             transaction.rollback()
         else:
             self.assertTrue(False)
+
+    def test_json(self):
+        JsonBag.objects.create(name="alpha", data={'v': '1', 'v2': 10, 'v3': [20]})
+        self.assertEqual(JsonBag.objects.get(name='alpha').data, {'v': '1', 'v2': 10, 'v3': [20]})
 
 
 class TestReferencesField(TestCase):
