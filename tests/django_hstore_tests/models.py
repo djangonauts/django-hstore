@@ -15,11 +15,11 @@ class HStoreModel(models.Model):
 
 class DataBag(HStoreModel):
     name = models.CharField(max_length=32)
-    data = hstore.DictionaryField(default_key_type='normal')
+    data = hstore.DictionaryField(json_keys=['json'], default_key_type='normal')
 
 class JsonBag(HStoreModel):
     name = models.CharField(max_length=32)
-    data = hstore.DictionaryField()
+    data = hstore.DictionaryField(normal_keys=['normal'])
 
 class RefsBag(HStoreModel):
     name = models.CharField(max_length=32)

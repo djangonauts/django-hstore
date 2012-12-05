@@ -1,7 +1,7 @@
 from .models import DataBag, JsonBag, Ref, RefsBag, DefaultsModel, BadDefaultsModel
 from django.db import transaction
 from django.db.models.aggregates import Count
-from django.db.utils import IntegrityError
+from django.db.utils import IntegrityError, DatabaseError
 from django.utils.unittest import TestCase
 
 
@@ -175,6 +175,17 @@ class TestDictionaryField(TestCase):
     def test_json(self):
         JsonBag.objects.create(name="alpha", data={'v': '1', 'v2': 10, 'v3': [20]})
         self.assertEqual(JsonBag.objects.get(name='alpha').data, {'v': '1', 'v2': 10, 'v3': [20]})
+        JsonBag.objects.create(name="alpha2", data={'normal': '1', 'json': '1'})
+        self.assertEqual(JsonBag.objects.get(name='alpha2').data, {'normal': '1', 'json': '1'})
+        try:
+            JsonBag.objects.create(name="alpha3", data={'normal': 1, 'json': '1'})
+        except DatabaseError:
+            transaction.rollback()
+        else:
+            self.assertTrue(False)
+
+        DataBag.objects.create(name="beta", data={'normal': '1', 'json': 1})
+        self.assertEqual(DataBag.objects.get(name='beta').data, {'normal': '1', 'json': 1})
 
 
 class TestReferencesField(TestCase):

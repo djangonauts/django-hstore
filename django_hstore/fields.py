@@ -22,7 +22,7 @@ class HStoreDict(dict):
 
         if self.field.default_key_type == 'json' or self.field.json_keys:
             for key, item in self.items():
-                if self.field.default_key_type == 'json' or key in self.field.json_keys:
+                if (self.field.default_key_type == 'json' and not key in self.field.normal_keys) or key in self.field.json_keys:
                     self[key] = json.loads(item, **self.field.load_kwargs)
 
         self.loaded = True
@@ -30,9 +30,9 @@ class HStoreDict(dict):
 
     def dumps(self):
         if self.field.default_key_type == 'json' or self.field.json_keys:
-            result = {}
+            result = self.copy()
             for key, item in self.items():
-                if self.field.default_key_type == 'json' or key in self.field.json_keys:
+                if (self.field.default_key_type == 'json' and not key in self.field.normal_keys) or key in self.field.json_keys:
                     result[key] = json.dumps(item, **self.field.dump_kwargs)
         else:
             result = self
