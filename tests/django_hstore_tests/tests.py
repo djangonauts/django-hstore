@@ -175,6 +175,10 @@ class TestDictionaryField(TestCase):
     def test_json(self):
         JsonBag.objects.create(name="alpha", data={'v': '1', 'v2': 10, 'v3': [20]})
         self.assertEqual(JsonBag.objects.get(name='alpha').data, {'v': '1', 'v2': 10, 'v3': [20]})
+        alpha = JsonBag.objects.get(name='alpha')
+        alpha.data['v2'] = 20
+        alpha.save()
+        self.assertEqual(JsonBag.objects.get(name='alpha').data, {'v': '1', 'v2': 20, 'v3': [20]})
         JsonBag.objects.create(name="alpha2", data={'normal': '1', 'json': '1'})
         self.assertEqual(JsonBag.objects.get(name='alpha2').data, {'normal': '1', 'json': '1'})
         try:
@@ -186,6 +190,10 @@ class TestDictionaryField(TestCase):
 
         DataBag.objects.create(name="beta", data={'normal': '1', 'json': 1})
         self.assertEqual(DataBag.objects.get(name='beta').data, {'normal': '1', 'json': 1})
+
+    def test_hstoredict_str(self):
+        JsonBag.objects.create(name="alpha3", data={'v': '1', 'v2': 10, 'v3': [20]})
+        self.assertEqual(str(JsonBag.objects.get(name='alpha3').data), "{u'v2': 10, u'v3': [20], u'v': u'1'}")
 
 
 class TestReferencesField(TestCase):

@@ -43,12 +43,14 @@ class HStoreDict(dict):
         return result
 
     def __str__(self):
-        result = self.dumps()
-        from psycopg2.extras import HstoreAdapter
-        value = HstoreAdapter(result)
         if self.connection:
+            result = self.dumps()
+            from psycopg2.extras import HstoreAdapter
+            value = HstoreAdapter(result)
             value.prepare(self.connection.connection)
-        return value.getquoted()
+            return value.getquoted()
+        else:
+            return super(HStoreDict, self).__str__()
 
 
 class HStoreField(models.Field):
