@@ -4,14 +4,18 @@ from django.utils.translation import ugettext_lazy as _
 from django_hstore import forms, util
 from django.conf import settings
 import json
+import copy
 
 
 class HStoreDict(dict):
-    def __init__(self, value, field=None, loaded=True):
+    def __init__(self, value, field=None, loaded=True, connection=None):
         super(HStoreDict, self).__init__(value)
-        self.connection = None
+        self.connection = connection
         self.field = field
         self.loaded = loaded
+
+    def __copy__(self):
+        return self.__class__(self, self.field, self.loaded, self.connection)
 
     def prepare(self, connection):
         self.connection = connection
@@ -30,7 +34,7 @@ class HStoreDict(dict):
 
     def dumps(self):
         if self.field.default_key_type == 'json' or self.field.json_keys:
-            result = self.copy()
+            result = copy.copy(self)
             for key, item in self.items():
                 if (self.field.default_key_type == 'json' and not key in self.field.normal_keys) or key in self.field.json_keys:
                     result[key] = json.dumps(item, **self.field.dump_kwargs)
