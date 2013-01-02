@@ -64,9 +64,9 @@ You then treat the ``data`` field as simply a dictionary of string pairs::
     empty = Something.objects.create(name='empty')
     assert empty.data == {}
 
-    empty.data['a'] = '1'
+    empty.data['a'] = '3'
     empty.save()
-    assert Something.objects.get(name='something').data['a'] == '1'
+    assert Something.objects.get(name='empty').data['a'] == '3'
 
 You can issue indexed queries against hstore fields::
 
