@@ -68,7 +68,11 @@ class HStoreWhereNode(WhereNode):
                     raise ValueError('invalid value')
             elif lookup_type == 'contains':
                 if isinstance(param, dict):
-                    return ('%s @> %%s' % field, [param])
+                    values = param.values()
+                    if len(values) == 1 and isinstance(values[0], (list, tuple)):
+                        return ('%s->\'%s\' = ANY(%%s)' % (field, param.keys()[0]), [map(str, values[0])])
+                    else:
+                        return ('%s @> %%s' % field, [param])
                 elif isinstance(param, (list, tuple)):
                     if param:
                         return ('%s ?& %%s' % field, [param])

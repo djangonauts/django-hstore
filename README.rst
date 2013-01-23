@@ -36,7 +36,7 @@ First, update your settings module to specify the custom database backend::
             ...
         }
     }
-    
+
 **Note to South users:** If you keep getting errors like `There is no South
 database module 'south.db.None' for your database.`, add the following to
 `settings.py`::
@@ -85,8 +85,17 @@ You can issue indexed queries against hstore fields::
     # equivalence
     Something.objects.filter(data={'a': '1', 'b': '2'})
 
+    # comparision
+    Something.objects.filter(data__gt={'a': '1'})
+    Something.objects.filter(data__gte={'a': '1'})
+    Something.objects.filter(data__lt={'a': '2'})
+    Something.objects.filter(data__lte={'a': '2'})
+
     # subset by key/value mapping
     Something.objects.filter(data__contains={'a': '1'})
+
+    # subset by list of some key values
+    Something.objects.filter(data__contains={'a': ['1', '2']})
 
     # subset by list of keys
     Something.objects.filter(data__contains=['a', 'b'])

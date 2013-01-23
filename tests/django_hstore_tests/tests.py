@@ -26,7 +26,7 @@ class TestDictionaryField(TestCase):
         self.assertEqual(bag.data, {})
 
     def test_empty_querying(self):
-        bag = DataBag.objects.create(name='bag')
+        DataBag.objects.create(name='bag')
         self.assertTrue(DataBag.objects.get(data={}))
         self.assertTrue(DataBag.objects.filter(data={}))
         self.assertTrue(DataBag.objects.filter(data__contains={}))
@@ -111,6 +111,20 @@ class TestDictionaryField(TestCase):
             r = DataBag.objects.filter(data__contains={'v': bag.data['v'], 'v2': bag.data['v2']})
             self.assertEqual(len(r), 1)
             self.assertEqual(r[0], bag)
+
+    def test_value_in_subset_querying(self):
+        alpha, beta = self._create_bags()
+        r = DataBag.objects.filter(data__contains={'v': [alpha.data['v']]})
+        self.assertEqual(len(r), 1)
+        self.assertEqual(r[0], alpha)
+        r = DataBag.objects.filter(data__contains={'v': [alpha.data['v'], beta.data['v']]})
+        self.assertEqual(len(r), 2)
+        self.assertEqual(set(r), set([alpha, beta]))
+
+        # int values are ok
+        r = DataBag.objects.filter(data__contains={'v': [int(alpha.data['v'])]})
+        self.assertEqual(len(r), 1)
+        self.assertEqual(r[0], alpha)
 
     def test_key_value_gt_querying(self):
         alpha, beta = self._create_bags()
@@ -208,7 +222,7 @@ class TestReferencesField(TestCase):
         self.assertEqual(bag.refs, {})
 
     def test_empty_querying(self):
-        bag = RefsBag.objects.create(name='bag')
+        RefsBag.objects.create(name='bag')
         self.assertTrue(RefsBag.objects.get(refs={}))
         self.assertTrue(RefsBag.objects.filter(refs={}))
         self.assertTrue(RefsBag.objects.filter(refs__contains={}))
