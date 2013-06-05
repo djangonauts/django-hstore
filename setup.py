@@ -10,7 +10,7 @@ class TestCommand(test):
 
 setup(
     name='django-hstore',
-    version='1.1.1',
+    version='1.1.2',
     description="Support for PostgreSQL's hstore for Django.",
     long_description=open('README.rst').read(),
     author='Mikko Hellsing',
