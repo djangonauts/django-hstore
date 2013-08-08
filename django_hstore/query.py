@@ -1,24 +1,29 @@
 from django import VERSION
 from django.db import transaction
-from django.db.models.manager import Manager
 from django.db.models.query import QuerySet
 from django.db.models.sql.constants import SINGLE
 from django.db.models.sql.datastructures import EmptyResultSet
 from django.db.models.sql.query import Query
 from django.db.models.sql.subqueries import UpdateQuery
 from django.db.models.sql.where import EmptyShortCircuit, WhereNode
+
 from django.contrib.gis.db.models.query import GeoQuerySet
 from django.contrib.gis.db.models.sql import GeoQuery
 
 
 class literal_clause(object):
-
-
     def __init__(self, sql, params):
         self.clause = (sql, params)
 
     def as_sql(self, qn, connection):
         return self.clause
+
+
+try:
+    from django.db.models.sql.where import QueryWrapper # django <= 1.3
+except ImportError:
+    from django.db.models.query_utils import QueryWrapper # django >= 1.4
+
 
 def select_query(method):
 
@@ -30,17 +35,16 @@ def select_query(method):
 
     return selector
 
+
 def update_query(method):
 
     def updater(self, *args, **params):
         self._for_write = True
         query = method(self, self.query.clone(UpdateQuery), *args, **params)
-
         forced_managed = False
         if not transaction.is_managed(using=self.db):
             transaction.enter_transaction_management(using=self.db)
             forced_managed = True
-
         try:
             rows = query.get_compiler(self.db).execute_sql(None)
             if forced_managed:
@@ -50,20 +54,19 @@ def update_query(method):
         finally:
             if forced_managed:
                 transaction.leave_transaction_management(using=self.db)
-
         self._result_cache = None
         return rows
-
     updater.alters_data = True
     return updater
+
 
 class HStoreWhereNode(WhereNode):
 
 
     def make_atom(self, child, qn, connection):
         lvalue, lookup_type, value_annot, param = child
-        kwargs = VERSION[:2] >= (1, 3) and {'connection': connection} or {}
-        if lvalue.field.db_type(**kwargs) == 'hstore':
+        kwargs = {'connection': connection} if VERSION[:2] >= (1, 3) else {}
+        if lvalue and lvalue.field and hasattr(lvalue.field, 'db_type') and lvalue.field.db_type(**kwargs) == 'hstore':
             try:
                 lvalue, params = lvalue.process(lookup_type, param, connection)
             except EmptyShortCircuit:
@@ -88,16 +91,18 @@ class HStoreWhereNode(WhereNode):
                     raise ValueError('invalid value')
             else:
                 raise TypeError('invalid lookup type')
-        else:
-            return super(HStoreWhereNode, self).make_atom(child, qn, connection)
+        return super(HStoreWhereNode, self).make_atom(child, qn, connection)
+
 
 class HStoreQuery(Query):
 
     def __init__(self, model):
         super(HStoreQuery, self).__init__(model, HStoreWhereNode)
 
+
 class HStoreGeoQuery(GeoQuery, Query):
     pass
+
 
 class HStoreQuerySet(QuerySet):
 
@@ -108,48 +113,52 @@ class HStoreQuerySet(QuerySet):
 
     @select_query
     def hkeys(self, query, attr):
-        """Enumerates the keys in the specified hstore."""
-
+        """
+        Enumerates the keys in the specified hstore.
+        """
         query.add_extra({'_': 'akeys("%s")' % attr}, None, None, None, None, None)
         result = query.get_compiler(self.db).execute_sql(SINGLE)
         return (result[0] if result else [])
 
     @select_query
     def hpeek(self, query, attr, key):
-        """Peeks at a value of the specified key."""
-
+        """
+        Peeks at a value of the specified key.
+        """
         query.add_extra({'_': '%s -> %%s' % attr}, [key], None, None, None, None)
         result = query.get_compiler(self.db).execute_sql(SINGLE)
         if result and result[0]:
             field = self.model._meta.get_field_by_name(attr)[0]
             return field._value_to_python(result[0])
 
-    @update_query
-    def hremove(self, query, attr, keys):
-        """Removes the specified keys in the specified hstore."""
-
-        value = literal_clause('delete("%s", %%s)' % attr, [keys])
-        field, model, direct, m2m = self.model._meta.get_field_by_name(attr)
-        query.add_update_fields([(field, None, value)])
-        return query
-
     @select_query
     def hslice(self, query, attr, keys):
-        """Slices the specified key/value pairs."""
-
+        """
+        Slices the specified key/value pairs.
+        """
         query.add_extra({'_': 'slice("%s", %%s)' % attr}, [keys], None, None, None, None)
         result = query.get_compiler(self.db).execute_sql(SINGLE)
         if result and result[0]:
             field = self.model._meta.get_field_by_name(attr)[0]
             return dict((key, field._value_to_python(value)) for key, value in result[0].iteritems())
-        else:
-            return {}
+        return {}
+
+    @update_query
+    def hremove(self, query, attr, keys):
+        """
+        Removes the specified keys in the specified hstore.
+        """
+        value = QueryWrapper('delete("%s", %%s)' % attr, [keys])
+        field, model, direct, m2m = self.model._meta.get_field_by_name(attr)
+        query.add_update_fields([(field, None, value)])
+        return query
 
     @update_query
     def hupdate(self, query, attr, updates):
-        """Updates the specified hstore."""
-
-        value = literal_clause('"%s" || %%s' % attr, [updates])
+        """
+        Updates the specified hstore.
+        """
+        value = QueryWrapper('"%s" || %%s' % attr, [updates])
         field, model, direct, m2m = self.model._meta.get_field_by_name(attr)
         query.add_update_fields([(field, None, value)])
         return query
