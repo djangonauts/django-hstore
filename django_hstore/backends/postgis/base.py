@@ -9,6 +9,10 @@ from django.db.backends.postgresql_psycopg2.version import get_version
 from django_hstore.backends.postgis.creation import PostGISCreation
 from django.db.backends.util import truncate_name
 from psycopg2.extras import register_hstore
+try:
+    from django.db.backends.postgresql_psycopg2.version import get_version
+except ImportError:
+    get_version = lambda c: c._version[0] * 10**4 + c._version[1] * 10**2
 
 
 log = logging.getLogger(__name__)
@@ -25,14 +29,14 @@ class DatabaseCreation(PostGISCreation):
         try:
             sql = ''.join(open(path).readlines())
             # strip out comments
-            sql = COMMENTS.sub('', sql)
-            sql = COMMENTS2.sub('', sql)
+            sql = COMMENTS.sub('',sql)
+            sql = COMMENTS2.sub('',sql)
             # execute script line by line
             cursor = self.connection.cursor()
             self.set_autocommit()
             for l in re.split(r';', sql):
                 l = l.strip()
-                if len(l) > 0:
+                if len(l)>0:
                     try:
                         cursor.execute(l)
                     except Exception:
@@ -65,7 +69,7 @@ class DatabaseCreation(PostGISCreation):
         import glob
         import os
         # Quick Hack to run HSTORE sql script for test runs
-        sql = getattr(settings, 'HSTORE_SQL', None)
+        sql = getattr(settings,'HSTORE_SQL',None)
         if not sql:
             # Attempt to helpfully locate contrib SQL on typical installs
             for loc in (
@@ -85,7 +89,7 @@ class DatabaseCreation(PostGISCreation):
                 'C:/Program Files (x86)/PostgreSQL/*/share/contrib/hstore.sql',
             ):
                 files = glob.glob(loc)
-                if files and len(files) > 0:
+                if files and len(files)>0:
                     sql = sorted(files)[-1]
                     log.info("Found installed HSTORE script: %s" % (sql,))
                     break
