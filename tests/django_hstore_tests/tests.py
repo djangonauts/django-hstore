@@ -1,10 +1,11 @@
-from django.contrib.gis.geos import GEOSGeometry
-from .models import DataBag, Ref, RefsBag, Location, DefaultsModel, BadDefaultsModel
+from .models import DataBag, Ref, RefsBag, DefaultsModel, BadDefaultsModel, Location
 
 from django.db import transaction
 from django.db.models.aggregates import Count
 from django.db.utils import IntegrityError
 from django.utils.unittest import TestCase
+from django.contrib.gis.geos import GEOSGeometry
+import json
 
 
 class TestDictionaryField(TestCase):
@@ -31,7 +32,7 @@ class TestDictionaryField(TestCase):
         # create dictionaries with bits as dictionary keys (i.e. bag5 = { 'b0':'1', 'b2':'1'})
         for i in xrange(10):
             DataBag.objects.create(name='bag%d' % (i,),
-               data=dict(('b%d' % (bit,), '1') for bit in xrange(4) if (1 << bit) & i))
+                                   data=dict(('b%d' % (bit,), '1') for bit in xrange(4) if (1 << bit) & i))
 
     def test_empty_instantiation(self):
         bag = DataBag.objects.create(name='bag')
@@ -52,8 +53,8 @@ class TestDictionaryField(TestCase):
     def test_aggregates(self):
         self._create_bitfield_bags()
 
-        self.assertEqual(DataBag.objects.filter(data__contains={'b0':'1'}).aggregate(Count('id'))['id__count'], 5)
-        self.assertEqual(DataBag.objects.filter(data__contains={'b1':'1'}).aggregate(Count('id'))['id__count'], 4)
+        self.assertEqual(DataBag.objects.filter(data__contains={'b0': '1'}).aggregate(Count('id'))['id__count'], 5)
+        self.assertEqual(DataBag.objects.filter(data__contains={'b1': '1'}).aggregate(Count('id'))['id__count'], 4)
 
     def test_annotations(self):
         self._create_bitfield_bags()
@@ -65,13 +66,13 @@ class TestDictionaryField(TestCase):
 
         # Test cumulative successive filters for both dictionaries and other fields
         f = DataBag.objects.all()
-        self.assertEqual(10,f.count())
-        f = f.filter(data__contains={'b0':'1'})
-        self.assertEqual(5,f.count())
-        f = f.filter(data__contains={'b1':'1'})
-        self.assertEqual(2,f.count())
+        self.assertEqual(10, f.count())
+        f = f.filter(data__contains={'b0': '1'})
+        self.assertEqual(5, f.count())
+        f = f.filter(data__contains={'b1': '1'})
+        self.assertEqual(2, f.count())
         f = f.filter(name='bag3')
-        self.assertEqual(1,f.count())
+        self.assertEqual(1, f.count())
 
     def test_unicode_processing(self):
         greets = {
@@ -81,16 +82,17 @@ class TestDictionaryField(TestCase):
             u'he': u'\u05e9\u05dc\u05d5\u05dd, \u05e2\u05d5\u05dc\u05dd',
             u'jp': u'\u3053\u3093\u306b\u3061\u306f\u3001\u4e16\u754c',
             u'zh': u'\u4f60\u597d\uff0c\u4e16\u754c',
-            }
+        }
         DataBag.objects.create(name='multilang', data=greets)
         self.assertEqual(greets, DataBag.objects.get(name='multilang').data)
 
     def test_query_escaping(self):
         me = self
+
         def readwrite(s):
             # try create and query with potentially illegal characters in the field and dictionary key/value
-            o = DataBag.objects.create(name=s, data={ s: s })
-            me.assertEqual(o, DataBag.objects.get(name=s, data={ s: s }))
+            o = DataBag.objects.create(name=s, data={s: s})
+            me.assertEqual(o, DataBag.objects.get(name=s, data={s: s}))
         readwrite('\' select')
         readwrite('% select')
         readwrite('\\\' select')
@@ -100,9 +102,9 @@ class TestDictionaryField(TestCase):
         readwrite('* select')
 
     def test_replace_full_dictionary(self):
-        DataBag.objects.create(name='foo', data={ 'change': 'old value', 'remove': 'baz'})
+        DataBag.objects.create(name='foo', data={'change': 'old value', 'remove': 'baz'})
 
-        replacement = { 'change': 'new value', 'added': 'new'}
+        replacement = {'change': 'new value', 'added': 'new'}
         DataBag.objects.filter(name='foo').update(data=replacement)
         self.assertEqual(replacement, DataBag.objects.get(name='foo').data)
 
@@ -197,17 +199,31 @@ class TestDictionaryField(TestCase):
         else:
             self.assertTrue(False)
 
+    def test_serialization_deserialization(self):
+        alpha, beta = self._create_bags()
+        self.assertEqual(json.loads(str(DataBag.objects.get(name='alpha').data)), json.loads(str(alpha.data)))
+        self.assertEqual(json.loads(str(DataBag.objects.get(name='beta').data)), json.loads(str(beta.data)))
+
 
 class TestReferencesField(TestCase):
+    pnt1 = GEOSGeometry('POINT(65.5758316 57.1345383)')
+    pnt2 = GEOSGeometry('POINT(65.2316 57.3423233)')
+
     def setUp(self):
         Ref.objects.all().delete()
         RefsBag.objects.all().delete()
+        Location.objects.all().delete()
 
     def _create_bags(self):
         refs = [Ref.objects.create(name=str(i)) for i in range(4)]
         alpha = RefsBag.objects.create(name='alpha', refs={'0': refs[0], '1': refs[1]})
         beta = RefsBag.objects.create(name='beta', refs={'0': refs[2], '1': refs[3]})
         return alpha, beta, refs
+
+    def _create_locations(self):
+        loc1 = Location.objects.create(name='Location1', data={'prop1': '1', 'prop2': 'test_value'}, point=self.pnt1)
+        loc2 = Location.objects.create(name='Location2', data={'prop1': '2', 'prop2': 'test_value'}, point=self.pnt2)
+        return loc1, loc2
 
     def test_empty_instantiation(self):
         bag = RefsBag.objects.create(name='bag')
@@ -269,3 +285,17 @@ class TestReferencesField(TestCase):
         self.assertEqual(RefsBag.objects.filter(id=alpha.id).hslice(attr='refs', keys=['0']), {'0': refs[0]})
         self.assertEqual(RefsBag.objects.hslice(id=alpha.id, attr='refs', keys=['invalid']), {})
 
+    def test_location_create(self):
+        l1, l2 = self._create_locations()
+        loc_1 = Location.objects.get(point__contains=self.pnt1)
+        self.assertEqual(loc_1.data, {'prop1': '1', 'prop2': 'test_value'})
+        loc_2 = Location.objects.get(point__contains=self.pnt2)
+        self.assertEqual(loc_2.data, {'prop1': '2', 'prop2': 'test_value'})
+
+    def test_location_hupdate(self):
+        l1, l2 = self._create_locations()
+        Location.objects.filter(point__contains=self.pnt1).hupdate('data', {'prop1': '2'})
+        loc = Location.objects.exclude(point__contains=self.pnt2)[0]
+        self.assertEqual(loc.data, {'prop1': '2', 'prop2': 'test_value'})
+        loc = Location.objects.get(point__contains=self.pnt2)
+        self.assertNotEqual(loc.data, {'prop1': '1', 'prop2': 'test_value'})

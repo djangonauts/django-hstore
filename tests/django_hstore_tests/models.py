@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.gis.db import models as geomodels
+from django.contrib.gis.db import models as geo_models
 from django_hstore import hstore
 
 
@@ -34,12 +34,9 @@ class BadDefaultsModel(models.Model):
     a = hstore.DictionaryField(default=None)
 
 
-class Location(geomodels.Model):
-    name = geomodels.CharField(max_length=32)
-    data = hstore.DictionaryField(db_index=True)
-    point = geomodels.GeometryField(db_index=True)
+class Location(geo_models.Model):
+    name = geo_models.CharField(max_length=32)
+    data = hstore.DictionaryField()
+    point = geo_models.GeometryField()
 
-    objects = hstore.GeoManager()
-
-    def __unicode__(self):
-        return self.name
+    objects = hstore.HStoreGeoManager()

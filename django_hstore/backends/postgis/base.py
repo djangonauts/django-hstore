@@ -4,8 +4,9 @@ import sys
 import traceback
 from django import VERSION
 from django.conf import settings
-from django.db.backends.postgresql_psycopg2.base import *
+from django.contrib.gis.db.backends.postgis.base import *
 from django.db.backends.postgresql_psycopg2.version import get_version
+from django_hstore.backends.postgis.creation import PostGISCreation
 from django.db.backends.util import truncate_name
 from psycopg2.extras import register_hstore
 
@@ -16,7 +17,7 @@ COMMENTS = re.compile(r'/\*.*?\*/', re.MULTILINE | re.DOTALL)
 COMMENTS2 = re.compile(r'--.*?$', re.MULTILINE)
 
 
-class DatabaseCreation(DatabaseCreation):
+class DatabaseCreation(PostGISCreation):
     def executescript(self, path, title='SQL'):
         """
         Load up a SQL script file and execute.

@@ -1,9 +1,11 @@
 from django import VERSION
 from django.db import transaction
 from django.db.models.query import QuerySet
+from django.contrib.gis.db.models.query import GeoQuerySet
 from django.db.models.sql.constants import SINGLE
 from django.db.models.sql.datastructures import EmptyResultSet
 from django.db.models.sql.query import Query
+from django.contrib.gis.db.models.sql.query import GeoQuery
 from django.db.models.sql.subqueries import UpdateQuery
 from django.db.models.sql.where import EmptyShortCircuit, WhereNode
 
@@ -20,9 +22,9 @@ class literal_clause(object):
 
 
 try:
-    from django.db.models.sql.where import QueryWrapper # django <= 1.3
+    from django.db.models.sql.where import QueryWrapper  # django <= 1.3
 except ImportError:
-    from django.db.models.query_utils import QueryWrapper # django >= 1.4
+    from django.db.models.query_utils import QueryWrapper  # django >= 1.4
 
 
 def select_query(method):
@@ -61,7 +63,6 @@ def update_query(method):
 
 
 class HStoreWhereNode(WhereNode):
-
 
     def make_atom(self, child, qn, connection):
         lvalue, lookup_type, value_annot, param = child
@@ -162,6 +163,7 @@ class HStoreQuerySet(QuerySet):
         field, model, direct, m2m = self.model._meta.get_field_by_name(attr)
         query.add_update_fields([(field, None, value)])
         return query
+
 
 class HStoreGeoQuerySet(HStoreQuerySet, GeoQuerySet):
 

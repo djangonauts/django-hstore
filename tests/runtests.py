@@ -34,14 +34,14 @@ if __name__ == '__main__':
         'test_labels',
         nargs='*',
         help='Test labels.',
-        )
+    )
     parser.add_argument(
         '--noinput',
         dest='interactive',
         action='store_false',
         default=True,
         help='Do not prompt the user for input of any kind.',
-        )
+    )
     parser.add_argument(
         '--failfast',
         dest='failfast',
@@ -55,7 +55,6 @@ if __name__ == '__main__':
         verbosity=1,
         interactive=args.interactive,
         failfast=args.failfast
-        )
+    )
     if failures:
         sys.exit(bool(failures))
-
