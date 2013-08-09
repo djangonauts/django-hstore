@@ -15,7 +15,7 @@ def runtests(test_labels=None, verbosity=1, interactive=True, failfast=True):
         settings.configure(
             DATABASES={
                 'default': {
-                    'ENGINE': 'django_hstore.postgresql_psycopg2',
+                    'ENGINE': 'django_hstore.backends.postgresql_psycopg2',
                     'NAME': 'django_hstore',
                 },
             },

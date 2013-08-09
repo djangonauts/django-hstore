@@ -5,15 +5,41 @@ except ImportError:
 
 from django.forms import Field
 from django.contrib.admin.widgets import AdminTextareaWidget
+from django.utils.translation import ugettext_lazy as _
+from django.core.exceptions import ValidationError
+
 from django_hstore import util
+
+
+def validate_hstore(dictionary):
+    """ HSTORE validation """
+    # ensure valid JSON
+    try:
+        dictionary = json.loads(dictionary)
+    except json.scanner.JSONDecodeError as e:
+        raise ValidationError(_('Invalid JSON: %s') % e.message)
+    
+    # ensure is a dictionary
+    if not isinstance(dictionary, dict):
+        raise ValidationError(_('No lists or strings allowed, only dictionaries'))
+    
+    # convert any non string object into string
+    for key, value in dictionary.iteritems():
+        if isinstance(value, dict) or isinstance(value, list):
+            dictionary[key] = json.dumps(value)
+        elif isinstance(value, bool) or isinstance(value, int) or isinstance(value, float):
+            dictionary[key] = unicode(value).lower()
+    
+    return dictionary
 
 
 class JsonMixin(object):
     def to_python(self, value):
-        return json.loads(value)
+        return validate_hstore(value)
 
     def render(self, name, value, attrs=None):
-        value = json.dumps(value, sort_keys=True, indent=2)
+        if not isinstance(value, basestring):
+            value = json.dumps(value, sort_keys=True, indent=4)
         return super(JsonMixin, self).render(name, value, attrs)
 
 
