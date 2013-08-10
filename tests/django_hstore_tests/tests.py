@@ -55,6 +55,10 @@ class TestDictionaryField(TestCase):
         databag = DataBag.objects.create(name='dict', data={ 'dict': {'subkey': 'subvalue'} })
         databag = DataBag.objects.get(name='dict')
         self.assertEqual(json.loads(databag.data['dict']), {'subkey': 'subvalue'})
+        
+        databag.data['dict'] = {'subkey': True, 'list': ['a', 'b', False]}
+        databag.save()
+        self.assertEqual(json.loads(databag.data['dict']), {'subkey': True, 'list': ['a', 'b', False]})
     
     def test_boolean(self):
         databag = DataBag.objects.create(name='boolean', data={ 'boolean': True })

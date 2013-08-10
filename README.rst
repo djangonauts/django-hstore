@@ -112,6 +112,20 @@ You then treat the ``data`` field as simply a dictionary of string pairs::
     empty.save()
     assert Something.objects.get(name='something').data['a'] == '1'
 
+Booleans, integers, floats, lists and dictionaries will be converted to strings.
+Lists, dictionaries and booleans are converted into JSON formatted strings, so
+can be decoded if needed.
+
+    instance = Something.objects.create(name='something', data={'int': 1, 'bool': True})
+    
+    instance.data['int'] == '1'
+    instance.data['bool'] == 'true'
+    
+    import json
+    instance.data['dict'] = { 'list': ['a', False, 1] }
+    instance.data['dict'] == '{"list": ["a", false, 1]}'
+    json.loads(instance.data['dict']) == { 'list': ['a', False, 1] }
+
 You can issue indexed queries against hstore fields::
 
     # equivalence

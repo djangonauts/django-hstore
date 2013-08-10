@@ -26,14 +26,15 @@ class HStoreDictionary(dict):
         - ensure booleans, integers, floats, lists and dicts are converted to string
         - convert True and False objects to "true" and "false" so they can be
           decoded back with the json library if needed
-        - convert ' in " so that string representations of lists and dictionaries
-          can be decoded with the json library
+        - convert lists and dictionaries to json formatted strings
         - leave alone all other objects because they might be representation of django models
         """
         if isinstance(value, bool):
             return unicode(value).lower()
-        elif isinstance(value, int) or isinstance(value, float) or isinstance(value, list) or isinstance(value, dict):
-            return unicode(value).replace("'", '"')
+        elif isinstance(value, int) or isinstance(value, float):
+            return unicode(value)
+        elif isinstance(value, list) or isinstance(value, dict):
+            return json.dumps(value)
         else:
             return value
     
