@@ -3,8 +3,13 @@ django-hstore
 =============
 
 Django-hstore is a niche library which integrates the `hstore`_ extension of
-PostgreSQL into Django, assuming one is using Django 1.2+, PostgreSQL 9.0+, and
-Psycopg 2.3+.
+PostgreSQL into Django.
+
+Dependencies:
+
+ * **Django 1.2+**
+ * **PostgreSQL 9.0+**
+ * **Psycopg 2.3+**.
 
 =============
 Fork features
@@ -26,15 +31,24 @@ Limitations
 Running the tests
 =================
 
-Assuming one has the dependencies installed, and a PostgreSQL 9.0+ server up and
+Assuming one has the dependencies installed, and a **PostgreSQL 9.0+** server up and
 running::
 
-
-    DB_USER=<username> DB_PASS=<pass> POSTGIS_SQL=<path/to/postgis.sql> SPATIAL_REF_SQL=<path/to/spatial_ref_sys.sql> ./runtests
-    
-    or alternatively (TODO: check both work!)
-    
     python setup.py test
+
+You might need to tweak the DB settings according to your DB configuration.
+You can copy the file settings.py and create **local_settings.py**, which will
+be used instead of the default settings.py.
+
+If after running this command you get an **error** saying::
+    
+    type "hstore" does not exist
+
+Try this::
+
+    psql template1 -c 'create extension hstore;'
+
+More details here: `PostgreSQL error type hstore does not exist`_
 
 Usage
 =====
@@ -142,4 +156,4 @@ The hstore methods on manager pass all keyword arguments aside from ``attr`` and
 ``key`` to ``.filter()``.
 
 .. _hstore: http://www.postgresql.org/docs/9.1/interactive/hstore.html
-
+.. _PostgreSQL error type hstore does not exist: http://clarkdave.net/2012/09/postgresql-error-type-hstore-does-not-exist/

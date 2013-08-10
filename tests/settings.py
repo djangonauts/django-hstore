@@ -1,13 +1,11 @@
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django_hstore.backends.gis.postgresql_psycopg2',
-        'NAME': 'django_hstore_test',
+        'ENGINE': 'django_hstore.backends.postgis',
+        'NAME': 'django_hstore',
         'USER': 'postgres',
         'PASSWORD': 'postgres',
-        'HOST': 'localhost',
-        'PORT': '5432'
+        'HOST': '',
+        'PORT': ''
         },
     }
-
-INSTALLED_APPS = ['tests.app',]

@@ -4,6 +4,11 @@ import sys
 from os.path import abspath, dirname, join as pjoin
 from django.conf import settings
 
+try:
+    from . import local_settings
+except ImportError:
+    from . import settings as local_settings
+
 
 def runtests(test_labels=None, verbosity=1, interactive=True, failfast=True):
     here = abspath(dirname(__file__))
@@ -13,12 +18,7 @@ def runtests(test_labels=None, verbosity=1, interactive=True, failfast=True):
     test_labels = test_labels or labels
     if not settings.configured:
         settings.configure(
-            DATABASES={
-                'default': {
-                    'ENGINE': 'django_hstore.backends.postgresql_psycopg2',
-                    'NAME': 'django_hstore',
-                },
-            },
+            DATABASES=local_settings.DATABASES,
             INSTALLED_APPS=labels,
         )
     from django.test.utils import get_runner
