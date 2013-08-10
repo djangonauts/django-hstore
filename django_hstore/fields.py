@@ -13,9 +13,33 @@ class HStoreDictionary(dict):
     A dictionary subclass which implements hstore support.
     """
     def __init__(self, value=None, field=None, instance=None, **params):
+        # ensure values are acceptable
+        for key,val in value.iteritems():
+            value[key] = self.ensure_acceptable_value(val)
+        
         super(HStoreDictionary, self).__init__(value, **params)
         self.field = field
         self.instance = instance
+    
+    def ensure_acceptable_value(self, value):
+        """
+        - ensure booleans, integers, floats, lists and dicts are converted to string
+        - convert True and False objects to "true" and "false" so they can be
+          decoded back with the json library if needed
+        - convert ' in " so that string representations of lists and dictionaries
+          can be decoded with the json library
+        - leave alone all other objects because they might be representation of django models
+        """
+        if isinstance(value, bool):
+            return unicode(value).lower()
+        elif isinstance(value, int) or isinstance(value, float) or isinstance(value, list) or isinstance(value, dict):
+            return unicode(value).replace("'", '"')
+        else:
+            return value
+    
+    def __setitem__(self, *args, **kwargs):
+        args = (args[0], self.ensure_acceptable_value(args[1]))
+        super(self.__class__, self).__setitem__(*args, **kwargs)
 
     def remove(self, keys):
         """

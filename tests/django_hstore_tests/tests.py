@@ -34,6 +34,33 @@ class TestDictionaryField(TestCase):
             DataBag.objects.create(name='bag%d' % (i,),
                                    data=dict(('b%d' % (bit,), '1') for bit in xrange(4) if (1 << bit) & i))
 
+    def test_number(self):
+        databag = DataBag(name='number')
+        databag.data['num'] = 1
+        self.assertEqual(databag.data['num'], '1')
+        
+        databag.save()
+        databag = DataBag.objects.get(name='number')
+        self.assertEqual(databag.data['num'], '1')
+        
+        databag = DataBag(name='number', data={ 'num': 1 })
+        self.assertEqual(databag.data['num'], '1')
+    
+    def test_list(self):
+        databag = DataBag.objects.create(name='list', data={ 'list': ['a', 'b', 'c'] })
+        databag = DataBag.objects.get(name='list')
+        self.assertEqual(json.loads(databag.data['list']), ['a', 'b', 'c'])
+    
+    def test_dictionary(self):
+        databag = DataBag.objects.create(name='dict', data={ 'dict': {'subkey': 'subvalue'} })
+        databag = DataBag.objects.get(name='dict')
+        self.assertEqual(json.loads(databag.data['dict']), {'subkey': 'subvalue'})
+    
+    def test_boolean(self):
+        databag = DataBag.objects.create(name='boolean', data={ 'boolean': True })
+        databag = DataBag.objects.get(name='boolean')
+        self.assertEqual(json.loads(databag.data['boolean']), True)
+
     def test_empty_instantiation(self):
         bag = DataBag.objects.create(name='bag')
         self.assertTrue(isinstance(bag.data, dict))
