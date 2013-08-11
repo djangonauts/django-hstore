@@ -10,13 +10,13 @@ class TestCommand(test):
 
 setup(
     name='django-hstore',
-    version='1.1.2',
+    version='1.1.3',
     description="Support for PostgreSQL's hstore for Django.",
     long_description=open('README.rst').read(),
-    author='Jann Kleen',
-    author_email='jann@pocketvillage.com',
+    author='Federico Capoano',
+    author_email='federico[at]nemesisdesign[dot]net',
     license='BSD',
-    url='https://github.com/pocketvillage/django-hstore',
+    url='https://github.com/nemesisdesign/django-hstore',
     packages=find_packages(exclude=['tests', 'tests.*']),
     zip_safe=False,
     classifiers=[
