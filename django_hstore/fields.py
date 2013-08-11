@@ -50,10 +50,16 @@ class HStoreDictionary(dict):
         queryset.filter(pk=self.instance.pk).hremove(self.field.name, keys)
 
     def __str__(self):
-        return json.dumps(self)
+        if self:
+            return json.dumps(self)
+        else:
+            return ''
 
     def __unicode__(self):
-        return json.dumps(self)
+        if self:
+            return json.dumps(self)
+        else:
+            return ''
 
 
 class HStoreDescriptor(models.fields.subclassing.Creator):

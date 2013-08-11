@@ -11,11 +11,15 @@ from django.core.exceptions import ValidationError
 from django_hstore import util
 
 
-def validate_hstore(dictionary):
+def validate_hstore(string):
     """ HSTORE validation """
+    # if empty
+    if string == '' or string == 'null':
+        string = '{}'
+    
     # ensure valid JSON
     try:
-        dictionary = json.loads(dictionary)
+        dictionary = json.loads(string)
     except json.scanner.JSONDecodeError as e:
         raise ValidationError(_('Invalid JSON: %s') % e.message)
     
@@ -38,7 +42,9 @@ class JsonMixin(object):
         return validate_hstore(value)
 
     def render(self, name, value, attrs=None):
-        if not isinstance(value, basestring):
+        # return json representation of a meaningful value
+        # doesn't show anything for None, empty strings or empty dictionaries
+        if value and not isinstance(value, basestring):
             value = json.dumps(value, sort_keys=True, indent=4)
         return super(JsonMixin, self).render(name, value, attrs)
 
