@@ -5,7 +5,9 @@ except ImportError:
 
 from django.db import models, connection
 from django.utils.translation import ugettext_lazy as _
-from django_hstore import forms, util
+from django.core.exceptions import ValidationError
+
+from django_hstore import forms, util, exceptions
 
 
 class HStoreDictionary(dict):
@@ -13,6 +15,15 @@ class HStoreDictionary(dict):
     A dictionary subclass which implements hstore support.
     """
     def __init__(self, value=None, field=None, instance=None, **params):
+        if isinstance(value, basestring):
+            try:
+                value = json.loads(value)
+            except json.scanner.JSONDecodeError as e:
+                raise exceptions.HStoreDictionaryException(
+                    _('HStoreDictionary accepts only dictionaries or valid json formatted strings.\n%s') % e.message,
+                    json_error_message = e.message
+                )
+        
         # ensure values are acceptable
         for key,val in value.iteritems():
             value[key] = self.ensure_acceptable_value(val)
