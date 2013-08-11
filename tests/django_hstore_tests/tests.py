@@ -249,6 +249,17 @@ class TestDictionaryField(TestCase):
         self.assertEqual(loc.data, {'prop1': '2', 'prop2': 'test_value'})
         loc = Location.objects.get(point__contains=self.pnt2)
         self.assertNotEqual(loc.data, {'prop1': '1', 'prop2': 'test_value'})
+    
+    def test_location_contains(self):
+        l1, l2 = self._create_locations()
+        self.assertEqual(Location.objects.filter(data__contains={'prop1': '1'}).count(), 1)
+        self.assertEqual(Location.objects.filter(data__contains={'prop1': '2'}).count(), 1)
+    
+    def test_location_geomanager(self):
+        l1, l2 = self._create_locations()
+        d1 = Location.objects.filter(point__distance_lte=(self.pnt1, 70000))
+        self.assertEqual(d1.count(), 2)
+    
     def test_default(self):
         m = DefaultsModel()
         m.save()

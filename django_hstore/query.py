@@ -1,16 +1,15 @@
 from django import VERSION
 from django.db import transaction
 from django.db.models.query import QuerySet
-from django.contrib.gis.db.models.query import GeoQuerySet
 from django.db.models.sql.constants import SINGLE
 from django.db.models.sql.datastructures import EmptyResultSet
 from django.db.models.sql.query import Query
-from django.contrib.gis.db.models.sql.query import GeoQuery
 from django.db.models.sql.subqueries import UpdateQuery
 from django.db.models.sql.where import EmptyShortCircuit, WhereNode
 
 from django.contrib.gis.db.models.query import GeoQuerySet
-from django.contrib.gis.db.models.sql import GeoQuery
+from django.contrib.gis.db.models.sql.query import GeoQuery
+from django.contrib.gis.db.models.sql.where import GeoWhereNode, GeoConstraint
 
 
 class literal_clause(object):
@@ -104,6 +103,21 @@ class HStoreWhereNode(WhereNode):
             else:
                 raise TypeError('invalid lookup type')
         return super(HStoreWhereNode, self).make_atom(child, qn, connection)
+    
+    make_hstore_atom = make_atom
+
+
+class HStoreGeoWhereNode(HStoreWhereNode, GeoWhereNode):
+    
+    def make_atom(self, child, qn, connection):
+        lvalue, lookup_type, value_annot, params_or_value = child
+        
+        # if spatial query
+        if isinstance(lvalue, GeoConstraint):
+            return GeoWhereNode.make_atom(self, child, qn, connection)
+        
+        # else might be an HSTORE query
+        return HStoreWhereNode.make_atom(self, child, qn, connection)
 
 
 class HStoreQuery(Query):
@@ -113,11 +127,13 @@ class HStoreQuery(Query):
 
 
 class HStoreGeoQuery(GeoQuery, Query):
-    pass
+    
+    def __init__(self, *args, **kwargs):
+        model = kwargs.pop('model', None) or args[0]
+        super(HStoreGeoQuery, self).__init__(model, HStoreGeoWhereNode)
 
 
 class HStoreQuerySet(QuerySet):
-
 
     def __init__(self, model=None, query=None, using=None):
         query = query or HStoreQuery(model)
