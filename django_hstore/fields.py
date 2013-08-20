@@ -70,6 +70,14 @@ class HStoreField(models.Field):
         if isinstance(value, HStoreDict) and not value.loaded:
             value.field = self
             value.loads()
+        else:
+            try:
+                tmp = {}
+                for key, item in value.items():
+                    tmp[key] = json.loads(item)
+                value = tmp
+            except (ValueError, TypeError):
+                pass
         return value
 
     def get_default(self):
