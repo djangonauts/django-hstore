@@ -1,6 +1,8 @@
 from setuptools import setup, find_packages
 from setuptools.command.test import test
 
+from django_hstore import get_version
+
 
 class TestCommand(test):
     def run(self):
@@ -10,7 +12,7 @@ class TestCommand(test):
 
 setup(
     name='django-hstore',
-    version='1.1.3',
+    version=get_version(),
     description="Support for PostgreSQL's hstore for Django.",
     long_description=open('README.rst').read(),
     author='Federico Capoano',

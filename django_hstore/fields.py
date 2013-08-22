@@ -5,7 +5,6 @@ except ImportError:
 
 from django.db import models, connection
 from django.utils.translation import ugettext_lazy as _
-from django.core.exceptions import ValidationError
 
 from django_hstore import forms, util, exceptions
 
