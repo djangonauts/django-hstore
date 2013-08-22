@@ -2,13 +2,13 @@ import logging
 import re
 import sys
 import traceback
+
 from django import VERSION
 from django.conf import settings
-from django.contrib.gis.db.backends.postgis.base import *
-from django.db.backends.postgresql_psycopg2.version import get_version
-from django_hstore.backends.postgis.creation import PostGISCreation
+from django.contrib.gis.db.backends.postgis.base import DatabaseWrapper, PostGISCreation
 from django.db.backends.util import truncate_name
 from psycopg2.extras import register_hstore
+
 try:
     from django.db.backends.postgresql_psycopg2.version import get_version
 except ImportError:
@@ -51,10 +51,16 @@ class DatabaseCreation(PostGISCreation):
             print >> sys.stderr, message
             traceback.print_exc()
 
-    def install_hstore_contrib(self):
+    def _create_test_db(self, verbosity, autoclobber):
+        test_database_name = super(DatabaseCreation, self)._create_test_db(verbosity, autoclobber)
+        self.install_hstore_contrib(test_database_name)
+        register_hstore(self.connection.connection, globally=True, unicode=True)
+        
+        return test_database_name
+
+    def install_hstore_contrib(self, test_database_name):
         # point to test database
         self.connection.close()
-        test_database_name = self._get_test_db_name()
         self.connection.settings_dict["NAME"] = test_database_name
         # Test to see if HSTORE type was already installed
         cursor = self.connection.cursor()
@@ -100,11 +106,6 @@ class DatabaseCreation(PostGISCreation):
                 'You can explicitly locate it with the HSTORE_SQL property in django settings.'
             log.warning(message)
             print >> sys.stderr, message
-
-    def _create_test_db(self, verbosity, autoclobber):
-        super(DatabaseCreation, self)._create_test_db(verbosity, autoclobber)
-        self.install_hstore_contrib()
-        register_hstore(self.connection.connection, globally=True, unicode=True)
 
     def sql_indexes_for_field(self, model, f, style):
         kwargs = VERSION[:2] >= (1, 3) and {'connection': self.connection} or {}
