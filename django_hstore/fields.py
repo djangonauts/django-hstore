@@ -14,6 +14,11 @@ class HStoreDict(dict):
         self.field = field
         self.loaded = loaded
 
+    def __getstate__(self):
+        if self.connection:
+            return HStoreDict(self, self.field, self.loaded, connection=None)
+        return self
+
     def __copy__(self):
         return self.__class__(self, self.field, self.loaded, self.connection)
 
