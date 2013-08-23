@@ -15,9 +15,9 @@ class HStoreDict(dict):
         self.loaded = loaded
 
     def __getstate__(self):
-        if self.connection:
-            return HStoreDict(self, self.field, self.loaded, connection=None)
-        return self
+        if getattr(self, 'connection', None) is None:
+            return self
+        return HStoreDict(self, self.field, self.loaded, connection=None)
 
     def __copy__(self):
         return self.__class__(self, self.field, self.loaded, self.connection)
