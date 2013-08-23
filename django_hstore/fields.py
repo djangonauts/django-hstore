@@ -1,43 +1,76 @@
 from django.db import models, connection
+from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.translation import ugettext_lazy as _
 from django_hstore import forms, util
+from django.conf import settings
+import json
+import copy
 
 
-class HStoreDictionary(dict):
-    """
-    A dictionary subclass which implements hstore support.
-    """
-    def __init__(self, value=None, field=None, instance=None, **params):
-        super(HStoreDictionary, self).__init__(value, **params)
+class HStoreDict(dict):
+    def __init__(self, value, field=None, loaded=True, connection=None):
+        super(HStoreDict, self).__init__(value)
+        self.connection = connection
         self.field = field
-        self.instance = instance
+        self.loaded = loaded
 
-    def remove(self, keys):
-        """
-        Removes the specified keys from this dictionary.
-        """
-        queryset = self.instance._base_manager.get_query_set()
-        queryset.filter(pk=self.instance.pk).hremove(self.field.name, keys)
+    def __copy__(self):
+        return self.__class__(self, self.field, self.loaded, self.connection)
 
+    def prepare(self, connection):
+        self.connection = connection
 
-class HStoreDescriptor(models.fields.subclassing.Creator):
-    def __set__(self, obj, value):
-        value = self.field.to_python(value)
-        if isinstance(value, dict):
-            value = HStoreDictionary(
-                value=value, field=self.field, instance=obj
-                )
-        obj.__dict__[self.field.name] = value
+    def loads(self):
+        if self.loaded:
+            return self
+
+        if self.field.default_key_type == 'json' or self.field.json_keys:
+            for key, item in self.items():
+                if (self.field.default_key_type == 'json' and not key in self.field.normal_keys) or key in self.field.json_keys:
+                    self[key] = json.loads(item, **self.field.load_kwargs)
+
+        self.loaded = True
+        return self
+
+    def dumps(self):
+        if self.field.default_key_type == 'json' or self.field.json_keys:
+            result = copy.copy(self)
+            for key, item in self.items():
+                if (self.field.default_key_type == 'json' and not key in self.field.normal_keys) or key in self.field.json_keys:
+                    result[key] = json.dumps(item, **self.field.dump_kwargs)
+        else:
+            result = self
+        return result
+
+    def __str__(self):
+        if self.connection:
+            result = self.dumps()
+            from psycopg2.extras import HstoreAdapter
+            value = HstoreAdapter(result)
+            value.prepare(self.connection.connection)
+            return value.getquoted()
+        else:
+            return super(HStoreDict, self).__str__()
 
 
 class HStoreField(models.Field):
+    __metaclass__ = models.SubfieldBase
     def __init__(self, *args, **kwargs):
-        kwargs.setdefault('db_index', True)
+        self.dump_kwargs = kwargs.pop('dump_kwargs', {'cls': DjangoJSONEncoder})
+        self.load_kwargs = kwargs.pop('load_kwargs', {})
+        self.normal_keys = kwargs.pop('normal_keys', [])
+        self.json_keys = kwargs.pop('json_keys', [])
+        self.default_key_type = kwargs.pop('default_key_type', 'json')
+
+        if kwargs.get('db_index', False):
+            raise TypeError("'db_index' is not a valid argument for %s. Use 'python manage.py sqlhstoreindexes' instead." % self.__class__)
         super(HStoreField, self).__init__(*args, **kwargs)
 
-    def contribute_to_class(self, cls, name):
-        super(HStoreField, self).contribute_to_class(cls, name)
-        setattr(cls, self.name, HStoreDescriptor(self))
+    def to_python(self, value):
+        if isinstance(value, HStoreDict) and not value.loaded:
+            value.field = self
+            value.loads()
+        return value
 
     def get_default(self):
         """
@@ -45,7 +78,9 @@ class HStoreField(models.Field):
         """
         if self.has_default():
             if callable(self.default):
-                return self.default()
+                return HStoreDict(self.default(), self)
+            elif isinstance(self.default, dict):
+                return HStoreDict(self.default, self)
             return self.default
         if (
             not self.empty_strings_allowed or
@@ -55,7 +90,21 @@ class HStoreField(models.Field):
                 )
             ):
             return None
-        return {}
+        return HStoreDict({}, self)
+
+    def get_prep_value(self, value):
+        if isinstance(value, dict) and not isinstance(value, HStoreDict):
+            return HStoreDict(value, self)
+        else:
+            return value
+
+    def get_db_prep_value(self, value, connection, prepared=False):
+        if not prepared:
+            value = self.get_prep_value(value)
+            if isinstance(value, HStoreDict):
+                value.prepare(connection)
+                return value.dumps()
+        return value
 
     def value_to_string(self, obj):
         return self._get_val_from_obj(obj)
@@ -105,3 +154,9 @@ class ReferencesField(HStoreField):
     def _value_to_python(self, value):
         return util.acquire_reference(value)
 
+if settings.DATABASES['default']['ENGINE'] == 'django.db.backends.sqlite3':
+    try:
+        from jsonfield.fields import JSONField
+        DictionaryField = JSONField
+    except ImportError:
+        pass
