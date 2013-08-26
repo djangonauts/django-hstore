@@ -1,4 +1,4 @@
-from .models import DataBag, Ref, RefsBag, DefaultsModel, BadDefaultsModel, Location
+from .models import DataBag, Ref, RefsBag, DefaultsModel, BadDefaultsModel, Location, NullableRefsBag
 
 from django.db import transaction
 from django.db.models.aggregates import Count
@@ -303,6 +303,30 @@ class TestReferencesField(TestCase):
         bag = RefsBag.objects.create(name='bag')
         self.assertTrue(isinstance(bag.refs, dict))
         self.assertEqual(bag.refs, {})
+    
+    def test_unsaved_empty_instantiation(self):
+        bag = RefsBag(name='bag')
+        self.assertEqual(bag.refs.get('idontexist', 'default'), 'default')
+        self.assertTrue(isinstance(bag.refs, dict))
+    
+    def test_unsave_empty_instantiation_of_nullable_ref(self):
+        bag = NullableRefsBag(name='bag')
+        self.assertEqual(bag.refs.get('idontexist', 'default'), 'default')
+        self.assertTrue(isinstance(bag.refs, dict))
+    
+    def test_simple_retrieval(self):
+        alpha, beta, refs = self._create_bags()
+        alpha = RefsBag.objects.get(name='alpha')
+        self.assertEqual(Ref.objects.get(name='0'), alpha.refs['0'])
+    
+    def test_simple_retrieval_get(self):
+        alpha, beta, refs = self._create_bags()
+        alpha = RefsBag.objects.get(name='alpha')
+        self.assertEqual(Ref.objects.get(name='0'), alpha.refs.get('0'))
+        
+        # try getting a non existent key
+        self.assertEqual(alpha.refs.get('idontexist', 'default'), 'default')
+        self.assertEqual(alpha.refs.get('idontexist'), None)
 
     def test_empty_querying(self):
         RefsBag.objects.create(name='bag')

@@ -51,6 +51,10 @@ class HStoreDictionary(dict):
     def __setitem__(self, *args, **kwargs):
         args = (args[0], self.ensure_acceptable_value(args[1]))
         super(HStoreDictionary, self).__setitem__(*args, **kwargs)
+    
+    def update(self, *args, **kwargs):
+        for key, value in dict(*args, **kwargs).iteritems():
+            self[key] = value
 
     def remove(self, keys):
         """
@@ -85,6 +89,12 @@ class HStoreReferenceDictionary(HStoreDictionary):
             return reference
         # otherwise just return the relation
         return value
+    
+    def get(self, key, default=None):
+        try:
+            return self.__getitem__(key)
+        except KeyError:
+            return default
 
 
 class HStoreDescriptor(models.fields.subclassing.Creator):
@@ -172,7 +182,7 @@ class ReferencesField(HStoreField):
         return util.serialize_references(value)
 
     def to_python(self, value):
-        return value
+        return value if isinstance(value, dict) else HStoreReferenceDictionary({})
 
     def _value_to_python(self, value):
         return util.acquire_reference(value)

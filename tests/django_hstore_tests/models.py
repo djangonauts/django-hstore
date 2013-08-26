@@ -24,6 +24,11 @@ class RefsBag(HStoreModel):
     refs = hstore.ReferencesField()
 
 
+class NullableRefsBag(HStoreModel):
+    name = models.CharField(max_length=32)
+    refs = hstore.ReferencesField(null=True, blank=True)
+
+
 class DefaultsModel(models.Model):
     a = hstore.DictionaryField(default={})
     b = hstore.DictionaryField(default=None, null=True)
