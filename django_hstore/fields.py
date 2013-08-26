@@ -50,7 +50,7 @@ class HStoreDictionary(dict):
     
     def __setitem__(self, *args, **kwargs):
         args = (args[0], self.ensure_acceptable_value(args[1]))
-        super(self.__class__, self).__setitem__(*args, **kwargs)
+        super(HStoreDictionary, self).__setitem__(*args, **kwargs)
 
     def remove(self, keys):
         """
@@ -72,11 +72,36 @@ class HStoreDictionary(dict):
             return ''
 
 
+class HStoreReferenceDictionary(HStoreDictionary):
+    """
+    A dictionary which adds support to storing references to models
+    """
+    def __getitem__(self, *args, **kwargs):
+        value = super(self.__class__, self).__getitem__(*args, **kwargs)
+        # if value is a string it needs to be converted to model instance
+        if isinstance(value, basestring):
+            reference = util.acquire_reference(value)
+            self.__setitem__(args[0], reference)
+            return reference
+        # otherwise just return the relation
+        return value
+
+
 class HStoreDescriptor(models.fields.subclassing.Creator):
     def __set__(self, obj, value):
         value = self.field.to_python(value)
         if isinstance(value, dict):
             value = HStoreDictionary(
+                value=value, field=self.field, instance=obj
+            )
+        obj.__dict__[self.field.name] = value
+
+
+class HStoreReferenceDescriptor(models.fields.subclassing.Creator):
+    def __set__(self, obj, value):
+        value = self.field.to_python(value)
+        if isinstance(value, dict):
+            value = HStoreReferenceDictionary(
                 value=value, field=self.field, instance=obj
             )
         obj.__dict__[self.field.name] = value
@@ -129,6 +154,10 @@ class DictionaryField(HStoreField):
 
 class ReferencesField(HStoreField):
     description = _("A python dictionary of references to model instances in an hstore field.")
+    
+    def contribute_to_class(self, cls, name):
+        super(ReferencesField, self).contribute_to_class(cls, name)
+        setattr(cls, self.name, HStoreReferenceDescriptor(self))
 
     def formfield(self, **params):
         params['form_class'] = forms.ReferencesField
@@ -143,7 +172,7 @@ class ReferencesField(HStoreField):
         return util.serialize_references(value)
 
     def to_python(self, value):
-        return util.unserialize_references(value)
+        return value
 
     def _value_to_python(self, value):
         return util.acquire_reference(value)
