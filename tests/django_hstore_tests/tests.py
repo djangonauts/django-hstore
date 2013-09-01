@@ -327,6 +327,20 @@ class TestReferencesField(TestCase):
         # try getting a non existent key
         self.assertEqual(alpha.refs.get('idontexist', 'default'), 'default')
         self.assertEqual(alpha.refs.get('idontexist'), None)
+    
+    def test_hremove(self):
+        alpha, beta, refs = self._create_bags()
+        self.assertEqual(RefsBag.objects.get(name='alpha').refs['0'], alpha.refs['0'])
+        self.assertEqual(RefsBag.objects.get(name='alpha').refs['1'], alpha.refs['1'])
+        self.assertTrue(RefsBag.objects.get(name='alpha').refs.has_key('0'))
+        RefsBag.objects.filter(name='alpha').hremove('refs', '0')
+        self.assertFalse(RefsBag.objects.get(name='alpha').refs.has_key('0'))
+        self.assertTrue(RefsBag.objects.get(name='alpha').refs.has_key('1'))
+        
+        self.assertEqual(RefsBag.objects.get(name='beta').refs['0'], beta.refs['0'])
+        self.assertEqual(RefsBag.objects.get(name='beta').refs['1'], beta.refs['1'])
+        RefsBag.objects.filter(name='beta').hremove('refs', ['0', '1'])
+        self.assertEqual(RefsBag.objects.get(name='beta').refs, {})
 
     def test_empty_querying(self):
         RefsBag.objects.create(name='bag')

@@ -20,15 +20,21 @@ def identify_instance(instance):
 
 def serialize_references(references):
     refs = {}
+    # if None or string return empty dict
     if references is None or isinstance(references, basestring):
         return {}
-    for key, instance in references.iteritems():
-        if not isinstance(instance, basestring):
-            refs[key] = identify_instance(instance)
+    # if dictionary do serialization
+    elif isinstance(references, dict):
+        for key, instance in references.iteritems():
+            if not isinstance(instance, basestring):
+                refs[key] = identify_instance(instance)
+            else:
+                refs[key] = instance
         else:
-            refs[key] = instance
+            return refs
+    # else just return the object, might be doing some other operation and we don't want to interfere
     else:
-        return refs
+        return references
 
 
 def unserialize_references(references):
