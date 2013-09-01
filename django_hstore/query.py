@@ -66,17 +66,20 @@ class HStoreWhereNode(WhereNode):
     def make_atom(self, child, qn, connection):
         lvalue, lookup_type, value_annot, param = child
         kwargs = {'connection': connection} if VERSION[:2] >= (1, 3) else {}
+        
         if lvalue and lvalue.field and hasattr(lvalue.field, 'db_type') and lvalue.field.db_type(**kwargs) == 'hstore':
             try:
                 lvalue, params = lvalue.process(lookup_type, param, connection)
             except EmptyShortCircuit:
                 raise EmptyResultSet
             field = self.sql_for_columns(lvalue, qn, connection)
+            
             if lookup_type == 'exact':
                 if isinstance(param, dict):
                     return ('%s = %%s' % field, [param])
                 else:
                     raise ValueError('invalid value')
+            
             elif lookup_type in ('gt', 'gte', 'lt', 'lte'):
                 if isinstance(param, dict) and len(param) == 1:
                     sign = (lookup_type[0] == 'g' and '>%s' or '<%s') % (
@@ -84,7 +87,8 @@ class HStoreWhereNode(WhereNode):
                     return ('%s->\'%s\' %s %%s' % (field, param.keys()[0], sign), param.values())
                 else:
                     raise ValueError('invalid value')
-            elif lookup_type == 'contains':
+            
+            elif lookup_type in ['contains', 'icontains']:
                 if isinstance(param, dict):
                     values = param.values()
                     if len(values) == 1 and isinstance(values[0], (list, tuple)):
@@ -92,16 +96,21 @@ class HStoreWhereNode(WhereNode):
                     else:
                         return ('%s @> %%s' % field, [param])
                 elif isinstance(param, (list, tuple)):
+                    if len(param) < 2:
+                        return ('%s ? %%s' % field, [param[0]])
                     if param:
                         return ('%s ?& %%s' % field, [param])
                     else:
                         raise ValueError('invalid value')
                 elif isinstance(param, basestring):
-                    return ('%s ? %%s' % field, [param])
+                    # if looking for a string perform the normal text lookup
+                    # that is: look for occurence of string in all the keys
+                    pass
                 else:
                     raise ValueError('invalid value')
             else:
                 raise TypeError('invalid lookup type')
+        
         return super(HStoreWhereNode, self).make_atom(child, qn, connection)
     
     make_hstore_atom = make_atom

@@ -200,9 +200,23 @@ class TestDictionaryField(TestCase):
     def test_single_key_querying(self):
         alpha, beta = self._create_bags()
         for key in ('v', 'v2'):
-            self.assertEqual(DataBag.objects.filter(data__contains=key).count(), 2)
+            self.assertEqual(DataBag.objects.filter(data__contains=[key]).count(), 2)
         for key in ('n1', 'n2'):
-            self.assertEqual(DataBag.objects.filter(data__contains=key).count(), 0)
+            self.assertEqual(DataBag.objects.filter(data__contains=[key]).count(), 0)
+    
+    def test_simple_text_icontains_querying(self):
+        alpha, beta = self._create_bags()
+        gamma = DataBag.objects.create(name='gamma', data={'theKey': 'someverySpecialValue', 'v2': '3'})
+        
+        self.assertEqual(DataBag.objects.filter(data__contains='very').count(), 1)
+        self.assertEqual(DataBag.objects.filter(data__contains='very')[0].name, 'gamma')
+        self.assertEqual(DataBag.objects.filter(data__icontains='specialvalue').count(), 1)
+        self.assertEqual(DataBag.objects.filter(data__icontains='specialvalue')[0].name, 'gamma')
+        
+        self.assertEqual(DataBag.objects.filter(data__contains='the').count(), 1)
+        self.assertEqual(DataBag.objects.filter(data__contains='the')[0].name, 'gamma')
+        self.assertEqual(DataBag.objects.filter(data__icontains='eke').count(), 1)
+        self.assertEqual(DataBag.objects.filter(data__icontains='eke')[0].name, 'gamma')
 
     def test_hkeys(self):
         alpha, beta = self._create_bags()
@@ -327,20 +341,6 @@ class TestReferencesField(TestCase):
         # try getting a non existent key
         self.assertEqual(alpha.refs.get('idontexist', 'default'), 'default')
         self.assertEqual(alpha.refs.get('idontexist'), None)
-    
-    def test_hremove(self):
-        alpha, beta, refs = self._create_bags()
-        self.assertEqual(RefsBag.objects.get(name='alpha').refs['0'], alpha.refs['0'])
-        self.assertEqual(RefsBag.objects.get(name='alpha').refs['1'], alpha.refs['1'])
-        self.assertTrue(RefsBag.objects.get(name='alpha').refs.has_key('0'))
-        RefsBag.objects.filter(name='alpha').hremove('refs', '0')
-        self.assertFalse(RefsBag.objects.get(name='alpha').refs.has_key('0'))
-        self.assertTrue(RefsBag.objects.get(name='alpha').refs.has_key('1'))
-        
-        self.assertEqual(RefsBag.objects.get(name='beta').refs['0'], beta.refs['0'])
-        self.assertEqual(RefsBag.objects.get(name='beta').refs['1'], beta.refs['1'])
-        RefsBag.objects.filter(name='beta').hremove('refs', ['0', '1'])
-        self.assertEqual(RefsBag.objects.get(name='beta').refs, {})
 
     def test_empty_querying(self):
         RefsBag.objects.create(name='bag')
@@ -377,9 +377,9 @@ class TestReferencesField(TestCase):
     def test_single_key_querying(self):
         alpha, beta, refs = self._create_bags()
         for key in ('0', '1'):
-            self.assertEqual(RefsBag.objects.filter(refs__contains=key).count(), 2)
+            self.assertEqual(RefsBag.objects.filter(refs__contains=[key]).count(), 2)
         for key in ('n1', 'n2'):
-            self.assertEqual(RefsBag.objects.filter(refs__contains=key).count(), 0)
+            self.assertEqual(RefsBag.objects.filter(refs__contains=[key]).count(), 0)
 
     def test_hkeys(self):
         alpha, beta, refs = self._create_bags()
@@ -390,6 +390,20 @@ class TestReferencesField(TestCase):
         self.assertEqual(RefsBag.objects.hpeek(id=alpha.id, attr='refs', key='0'), refs[0])
         self.assertEqual(RefsBag.objects.filter(id=alpha.id).hpeek(attr='refs', key='0'), refs[0])
         self.assertEqual(RefsBag.objects.hpeek(id=alpha.id, attr='refs', key='invalid'), None)
+    
+    def test_hremove(self):
+        alpha, beta, refs = self._create_bags()
+        self.assertEqual(RefsBag.objects.get(name='alpha').refs['0'], alpha.refs['0'])
+        self.assertEqual(RefsBag.objects.get(name='alpha').refs['1'], alpha.refs['1'])
+        self.assertTrue(RefsBag.objects.get(name='alpha').refs.has_key('0'))
+        RefsBag.objects.filter(name='alpha').hremove('refs', '0')
+        self.assertFalse(RefsBag.objects.get(name='alpha').refs.has_key('0'))
+        self.assertTrue(RefsBag.objects.get(name='alpha').refs.has_key('1'))
+        
+        self.assertEqual(RefsBag.objects.get(name='beta').refs['0'], beta.refs['0'])
+        self.assertEqual(RefsBag.objects.get(name='beta').refs['1'], beta.refs['1'])
+        RefsBag.objects.filter(name='beta').hremove('refs', ['0', '1'])
+        self.assertEqual(RefsBag.objects.get(name='beta').refs, {})
 
     def test_hslice(self):
         alpha, beta, refs = self._create_bags()

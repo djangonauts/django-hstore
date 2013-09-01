@@ -125,6 +125,7 @@ can be decoded if needed.
     instance.data['dict'] = { 'list': ['a', False, 1] }
     instance.data['dict'] == '{"list": ["a", false, 1]}'
     json.loads(instance.data['dict']) == { 'list': ['a', False, 1] }
+    >>> True
 
 You can issue indexed queries against hstore fields::
 
@@ -147,7 +148,20 @@ You can issue indexed queries against hstore fields::
     Something.objects.filter(data__contains=['a', 'b'])
 
     # subset by single key
-    Something.objects.filter(data__contains='a')
+    Something.objects.filter(data__contains=['a'])
+
+You can still do classic django "contains" lookups as you would normally do for normal text
+fields if you were looking for a particular string. In this case, the HSTORE field
+will be converted to text and the lookup will be performed on all the keys and all the values::
+
+    Something.objects.create(data={ 'some_key': 'some crazy Value' })
+
+    # classic text lookup (look up for occurence of string in all the keys)
+    Something.objects.filter(data__contains='crazy')
+    Something.objects.filter(data__contains='some_key')
+    # classic case insensitive text looup
+    Something.objects.filter(data__icontains='value')
+    Something.objects.filter(data__icontains='SOME_KEY')
 
 You can also take advantage of some db-side functionality by using the manager::
 
