@@ -3,6 +3,7 @@ from django.db import transaction
 from django.db.models.aggregates import Count
 from django.db.utils import IntegrityError, DatabaseError
 from django.utils.unittest import TestCase
+import pickle
 
 
 class TestDictionaryField(TestCase):
@@ -19,6 +20,14 @@ class TestDictionaryField(TestCase):
         for i in xrange(10):
             DataBag.objects.create(name='bag%d' % (i,),
                data=dict(('b%d' % (bit,), '1') for bit in xrange(4) if (1 << bit) & i))
+
+    def test_is_pickable(self):
+        m = DefaultsModel()
+        m.save()
+        try:
+            pickle.dumps(m)
+        except TypeError, e:
+            self.fail('pickle of DefaultsModel failed: %s' % e)
 
     def test_empty_instantiation(self):
         bag = DataBag.objects.create(name='bag')

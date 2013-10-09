@@ -9,10 +9,6 @@ Psycopg 2.3+.
 Limitations
 ===========
 
-- Due to how Django implements its ORM, you will need to use the custom
-  ``postgresql_psycopg2`` backend defined in this package, which naturally will
-  prevent you from dropping in other django extensions which require a custom
-  backend (unless you fork and combine).
 - PostgreSQL's implementation of hstore has no concept of type; it stores a
   mapping of string keys to string values. This library makes no attempt to
   coerce keys or values to strings.
@@ -28,14 +24,13 @@ running::
 Usage
 =====
 
-First, update your settings module to specify the custom database backend::
+First, add django_hstore to installed apps in settings module::
 
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django_hstore.postgresql_psycopg2',
-            ...
-        }
-    }
+    INSTALLED_APPS = (
+        ...
+        'django_hstore',
+        ..
+    )
     
 **Note to South users:** If you keep getting errors like `There is no South
 database module 'south.db.None' for your database.`, add the following to

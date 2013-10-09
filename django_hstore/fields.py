@@ -16,8 +16,10 @@ class HStoreDict(dict):
 
     def __getstate__(self):
         if self.connection:
-            return HStoreDict(self, self.field, self.loaded, connection=None)
-        return self
+            d = dict(self.__dict__)
+            d['connection'] = None
+            return d
+        return self.__dict__
 
     def __copy__(self):
         return self.__class__(self, self.field, self.loaded, self.connection)
@@ -75,14 +77,6 @@ class HStoreField(models.Field):
         if isinstance(value, HStoreDict) and not value.loaded:
             value.field = self
             value.loads()
-        else:
-            try:
-                tmp = {}
-                for key, item in value.items():
-                    tmp[key] = json.loads(item)
-                value = tmp
-            except (ValueError, TypeError):
-                pass
         return value
 
     def get_default(self):
