@@ -7,26 +7,26 @@ PostgreSQL into Django.
 
 Dependencies:
 
- * **Django 1.2+**
+ * **Django 1.4+**
  * **PostgreSQL 9.0+**
  * **Psycopg 2.3+**.
+
+Extras:
+
+ * **Postgis compatibility**
 
 =============
 Fork features
 =============
 
-This fork aims to support spatial querysets. Now supported only Postgis backend.
+This fork aims to support spatial querysets. Now supported only **Postgis** backend.
 
 Limitations
 ===========
 
-- Due to how Django implements its ORM, you will need to use the custom
-  ``postgresql_psycopg2`` or ``postgis`` backend defined in this package,
-  which naturally will prevent you from dropping in other django extensions
-  which require a custom backend (unless you fork and combine).
 - PostgreSQL's implementation of hstore has no concept of type; it stores a
-  mapping of string keys to string values. This library makes no attempt to
-  coerce keys or values to strings.
+  mapping of string keys to string values.
+  Values are stored as strings in the database regarding of their original type.
 
 Running the tests
 =================
@@ -53,17 +53,14 @@ More details here: `PostgreSQL error type hstore does not exist`_
 Usage
 =====
 
-First, update your settings module to specify the custom database backend::
+First, add django_hstore to installed apps in settings module::
 
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django_hstore.backends.postgresql_psycopg2',
-            # or
-            # 'ENGINE': 'django_hstore.backends.postgis',
-            ...
-        }
-    }
-
+    INSTALLED_APPS = (
+        ...
+        'django_hstore',
+        ..
+    )
+    
 **Note to South users:** If you keep getting errors like `There is no South
 database module 'south.db.None' for your database.`, add the following to
 `settings.py`::

@@ -20,7 +20,7 @@ def validate_hstore(string):
     # ensure valid JSON
     try:
         dictionary = json.loads(string)
-    except json.scanner.JSONDecodeError as e:
+    except ValueError as e:
         raise ValidationError(_('Invalid JSON: %s') % e.message)
     
     # ensure is a dictionary

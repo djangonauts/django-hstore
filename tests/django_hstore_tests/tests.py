@@ -1,11 +1,15 @@
-from .models import DataBag, Ref, RefsBag, DefaultsModel, BadDefaultsModel, Location, NullableRefsBag
+import json
+import pickle
 
 from django.db import transaction
 from django.db.models.aggregates import Count
-from django.db.utils import IntegrityError
+from django.db.utils import IntegrityError, DatabaseError
 from django.utils.unittest import TestCase
-from django.contrib.gis.geos import GEOSGeometry
-import json
+
+from django_hstore.fields import HStoreDictionary
+from django_hstore.exceptions import HStoreDictionaryException
+
+from .models import *
 
 
 class TestDictionaryField(TestCase):
@@ -13,20 +17,11 @@ class TestDictionaryField(TestCase):
         DataBag.objects.all().delete()
         Ref.objects.all().delete()
         RefsBag.objects.all().delete()
-        Location.objects.all().delete()
-        
-    pnt1 = GEOSGeometry('POINT(65.5758316 57.1345383)')
-    pnt2 = GEOSGeometry('POINT(65.2316 57.3423233)')
 
     def _create_bags(self):
         alpha = DataBag.objects.create(name='alpha', data={'v': '1', 'v2': '3'})
         beta = DataBag.objects.create(name='beta', data={'v': '2', 'v2': '4'})
         return alpha, beta
-
-    def _create_locations(self):
-        loc1 = Location.objects.create(name='Location1', data={'prop1': '1', 'prop2': 'test_value'}, point=self.pnt1)
-        loc2 = Location.objects.create(name='Location2', data={'prop1': '2', 'prop2': 'test_value'}, point=self.pnt2)
-        return loc1, loc2
 
     def _create_bitfield_bags(self):
         # create dictionaries with bits as dictionary keys (i.e. bag5 = { 'b0':'1', 'b2':'1'})
@@ -64,6 +59,14 @@ class TestDictionaryField(TestCase):
         databag = DataBag.objects.create(name='boolean', data={ 'boolean': True })
         databag = DataBag.objects.get(name='boolean')
         self.assertEqual(json.loads(databag.data['boolean']), True)
+
+    def test_is_pickable(self):
+        m = DefaultsModel()
+        m.save()
+        try:
+            pickle.dumps(m)
+        except TypeError, e:
+            self.fail('pickle of DefaultsModel failed: %s' % e)
 
     def test_empty_instantiation(self):
         bag = DataBag.objects.create(name='bag')
@@ -250,29 +253,6 @@ class TestDictionaryField(TestCase):
         self.assertEqual(DataBag.objects.get(name='alpha').data, alpha.data)
         DataBag.objects.filter(name='alpha').hupdate('data', {'v2': '10', 'v3': '20'})
         self.assertEqual(DataBag.objects.get(name='alpha').data, {'v': '1', 'v2': '10', 'v3': '20'})
-
-    def test_location_create(self):
-        l1, l2 = self._create_locations()
-        other_loc = Location.objects.get(point__contains=self.pnt1)
-        self.assertEqual(other_loc.data, {'prop1': '1', 'prop2': 'test_value'})
-
-    def test_location_hupdate(self):
-        l1, l2 = self._create_locations()
-        Location.objects.filter(point__contains=self.pnt1).hupdate('data', {'prop1': '2'})
-        loc = Location.objects.exclude(point__contains=self.pnt2)[0]
-        self.assertEqual(loc.data, {'prop1': '2', 'prop2': 'test_value'})
-        loc = Location.objects.get(point__contains=self.pnt2)
-        self.assertNotEqual(loc.data, {'prop1': '1', 'prop2': 'test_value'})
-    
-    def test_location_contains(self):
-        l1, l2 = self._create_locations()
-        self.assertEqual(Location.objects.filter(data__contains={'prop1': '1'}).count(), 1)
-        self.assertEqual(Location.objects.filter(data__contains={'prop1': '2'}).count(), 1)
-    
-    def test_location_geomanager(self):
-        l1, l2 = self._create_locations()
-        d1 = Location.objects.filter(point__distance_lte=(self.pnt1, 70000))
-        self.assertEqual(d1.count(), 2)
     
     def test_default(self):
         m = DefaultsModel()
@@ -286,32 +266,53 @@ class TestDictionaryField(TestCase):
             transaction.rollback()
         else:
             self.assertTrue(False)
-
+    
     def test_serialization_deserialization(self):
         alpha, beta = self._create_bags()
         self.assertEqual(json.loads(str(DataBag.objects.get(name='alpha').data)), json.loads(str(alpha.data)))
         self.assertEqual(json.loads(str(DataBag.objects.get(name='beta').data)), json.loads(str(beta.data)))
+    
+    def test_hstoredictionaryexception(self):
+        # ok
+        HStoreDictionary({})
+        
+        # json object string allowed
+        HStoreDictionary('{}')
+        
+        # non-json string not allowed
+        with self.assertRaises(HStoreDictionaryException):
+            HStoreDictionary('wrong')
+        
+        # list not allowed
+        with self.assertRaises(HStoreDictionaryException):
+            HStoreDictionary(['wrong'])
+        
+        # json array string representation not allowed
+        with self.assertRaises(HStoreDictionaryException):
+            HStoreDictionary('["wrong"]')
+        
+        # number not allowed
+        with self.assertRaises(HStoreDictionaryException):
+            HStoreDictionary(3)
+    
+    def test_hstoredictionary_unicoce_vs_str(self):
+        d = HStoreDictionary({ 'test': 'test' })
+        
+        self.assertEqual(d.__str__(), d.__unicode__())
+        self.assertEqual(str(d), unicode(d))
 
 
 class TestReferencesField(TestCase):
-    pnt1 = GEOSGeometry('POINT(65.5758316 57.1345383)')
-    pnt2 = GEOSGeometry('POINT(65.2316 57.3423233)')
 
     def setUp(self):
         Ref.objects.all().delete()
         RefsBag.objects.all().delete()
-        Location.objects.all().delete()
 
     def _create_bags(self):
         refs = [Ref.objects.create(name=str(i)) for i in range(4)]
         alpha = RefsBag.objects.create(name='alpha', refs={'0': refs[0], '1': refs[1]})
         beta = RefsBag.objects.create(name='beta', refs={'0': refs[2], '1': refs[3]})
         return alpha, beta, refs
-
-    def _create_locations(self):
-        loc1 = Location.objects.create(name='Location1', data={'prop1': '1', 'prop2': 'test_value'}, point=self.pnt1)
-        loc2 = Location.objects.create(name='Location2', data={'prop1': '2', 'prop2': 'test_value'}, point=self.pnt2)
-        return loc1, loc2
 
     def test_empty_instantiation(self):
         bag = RefsBag.objects.create(name='bag')
@@ -411,17 +412,67 @@ class TestReferencesField(TestCase):
         self.assertEqual(RefsBag.objects.filter(id=alpha.id).hslice(attr='refs', keys=['0']), {'0': refs[0]})
         self.assertEqual(RefsBag.objects.hslice(id=alpha.id, attr='refs', keys=['invalid']), {})
 
-    def test_location_create(self):
-        l1, l2 = self._create_locations()
-        loc_1 = Location.objects.get(point__contains=self.pnt1)
-        self.assertEqual(loc_1.data, {'prop1': '1', 'prop2': 'test_value'})
-        loc_2 = Location.objects.get(point__contains=self.pnt2)
-        self.assertEqual(loc_2.data, {'prop1': '2', 'prop2': 'test_value'})
 
-    def test_location_hupdate(self):
-        l1, l2 = self._create_locations()
-        Location.objects.filter(point__contains=self.pnt1).hupdate('data', {'prop1': '2'})
-        loc = Location.objects.exclude(point__contains=self.pnt2)[0]
-        self.assertEqual(loc.data, {'prop1': '2', 'prop2': 'test_value'})
-        loc = Location.objects.get(point__contains=self.pnt2)
-        self.assertNotEqual(loc.data, {'prop1': '1', 'prop2': 'test_value'})
+if GEODJANGO:
+    from django.contrib.gis.geos import GEOSGeometry
+
+    class TestDictionaryFieldPlusGIS(TestCase):
+        """ Test DictionaryField with gis backend """
+        
+        def setUp(self):
+            Location.objects.all().delete()
+            
+        pnt1 = GEOSGeometry('POINT(65.5758316 57.1345383)')
+        pnt2 = GEOSGeometry('POINT(65.2316 57.3423233)')
+    
+        def _create_locations(self):
+            loc1 = Location.objects.create(name='Location1', data={'prop1': '1', 'prop2': 'test_value'}, point=self.pnt1)
+            loc2 = Location.objects.create(name='Location2', data={'prop1': '2', 'prop2': 'test_value'}, point=self.pnt2)
+            return loc1, loc2
+        
+        def test_location_create(self):
+            l1, l2 = self._create_locations()
+            other_loc = Location.objects.get(point__contains=self.pnt1)
+            self.assertEqual(other_loc.data, {'prop1': '1', 'prop2': 'test_value'})
+        
+        def test_location_hupdate(self):
+            l1, l2 = self._create_locations()
+            Location.objects.filter(point__contains=self.pnt1).hupdate('data', {'prop1': '2'})
+            loc = Location.objects.exclude(point__contains=self.pnt2)[0]
+            self.assertEqual(loc.data, {'prop1': '2', 'prop2': 'test_value'})
+            loc = Location.objects.get(point__contains=self.pnt2)
+            self.assertNotEqual(loc.data, {'prop1': '1', 'prop2': 'test_value'})
+        
+        def test_location_contains(self):
+            l1, l2 = self._create_locations()
+            self.assertEqual(Location.objects.filter(data__contains={'prop1': '1'}).count(), 1)
+            self.assertEqual(Location.objects.filter(data__contains={'prop1': '2'}).count(), 1)
+        
+        def test_location_geomanager(self):
+            l1, l2 = self._create_locations()
+            d1 = Location.objects.filter(point__distance_lte=(self.pnt1, 70000))
+            self.assertEqual(d1.count(), 2)
+    
+    
+    class TestReferencesFieldPlusGIS(TestDictionaryFieldPlusGIS):
+        """ Test ReferenceField with gis backend """
+        
+        def _create_locations(self):
+            loc1 = Location.objects.create(name='Location1', data={'prop1': '1', 'prop2': 'test_value'}, point=self.pnt1)
+            loc2 = Location.objects.create(name='Location2', data={'prop1': '2', 'prop2': 'test_value'}, point=self.pnt2)
+            return loc1, loc2
+    
+        def test_location_create(self):
+            l1, l2 = self._create_locations()
+            loc_1 = Location.objects.get(point__contains=self.pnt1)
+            self.assertEqual(loc_1.data, {'prop1': '1', 'prop2': 'test_value'})
+            loc_2 = Location.objects.get(point__contains=self.pnt2)
+            self.assertEqual(loc_2.data, {'prop1': '2', 'prop2': 'test_value'})
+        
+        def test_location_hupdate(self):
+            l1, l2 = self._create_locations()
+            Location.objects.filter(point__contains=self.pnt1).hupdate('data', {'prop1': '2'})
+            loc = Location.objects.exclude(point__contains=self.pnt2)[0]
+            self.assertEqual(loc.data, {'prop1': '2', 'prop2': 'test_value'})
+            loc = Location.objects.get(point__contains=self.pnt2)
+            self.assertNotEqual(loc.data, {'prop1': '1', 'prop2': 'test_value'})
