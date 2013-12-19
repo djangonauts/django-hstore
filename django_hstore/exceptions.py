@@ -3,7 +3,7 @@ django_hstore.exceptions
 """
 
 
-class HStoreDictionaryException(Exception):
+class HStoreDictException(Exception):
     
     json_error_message = None
     

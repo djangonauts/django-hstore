@@ -6,8 +6,8 @@ from django.db.models.aggregates import Count
 from django.db.utils import IntegrityError, DatabaseError
 from django.utils.unittest import TestCase
 
-from django_hstore.fields import HStoreDictionary
-from django_hstore.exceptions import HStoreDictionaryException
+from django_hstore.fields import HStoreDict
+from django_hstore.exceptions import HStoreDictException
 
 from .models import *
 
@@ -274,29 +274,29 @@ class TestDictionaryField(TestCase):
     
     def test_hstoredictionaryexception(self):
         # ok
-        HStoreDictionary({})
+        HStoreDict({})
         
         # json object string allowed
-        HStoreDictionary('{}')
+        HStoreDict('{}')
         
         # non-json string not allowed
-        with self.assertRaises(HStoreDictionaryException):
-            HStoreDictionary('wrong')
+        with self.assertRaises(HStoreDictException):
+            HStoreDict('wrong')
         
         # list not allowed
-        with self.assertRaises(HStoreDictionaryException):
-            HStoreDictionary(['wrong'])
+        with self.assertRaises(HStoreDictException):
+            HStoreDict(['wrong'])
         
         # json array string representation not allowed
-        with self.assertRaises(HStoreDictionaryException):
-            HStoreDictionary('["wrong"]')
+        with self.assertRaises(HStoreDictException):
+            HStoreDict('["wrong"]')
         
         # number not allowed
-        with self.assertRaises(HStoreDictionaryException):
-            HStoreDictionary(3)
+        with self.assertRaises(HStoreDictException):
+            HStoreDict(3)
     
     def test_hstoredictionary_unicoce_vs_str(self):
-        d = HStoreDictionary({ 'test': 'test' })
+        d = HStoreDict({ 'test': 'test' })
         
         self.assertEqual(d.__str__(), d.__unicode__())
         self.assertEqual(str(d), unicode(d))

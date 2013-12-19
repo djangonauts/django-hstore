@@ -8,7 +8,7 @@ from django_hstore import forms, util, exceptions
 from django.utils.translation import ugettext_lazy as _
 
 
-class HStoreDictionary(dict):
+class HStoreDict(dict):
     """
     A dictionary subclass which implements hstore support.
     """
@@ -20,22 +20,22 @@ class HStoreDictionary(dict):
             try:
                 value = json.loads(value)
             except ValueError as e:
-                raise exceptions.HStoreDictionaryException(
-                    'HStoreDictionary accepts only valid json formatted strings.',
+                raise exceptions.HStoreDictException(
+                    'HStoreDict accepts only valid json formatted strings.',
                     json_error_message=e.message
                 )
         
         # allow dictionaries only
         if not isinstance(value, dict):
-            raise exceptions.HStoreDictionaryException(
-                'HStoreDictionary accepts only dictionary objects or json formatted string representations of json objects'
+            raise exceptions.HStoreDictException(
+                'HStoreDict accepts only dictionary objects or json formatted string representations of json objects'
             )
         
         # ensure values are acceptable
         for key, val in value.iteritems():
             value[key] = self.ensure_acceptable_value(val)
         
-        super(HStoreDictionary, self).__init__(value, **params)
+        super(HStoreDict, self).__init__(value, **params)
         self.field = field
         self.instance = instance
         
@@ -45,7 +45,7 @@ class HStoreDictionary(dict):
     
     def __setitem__(self, *args, **kwargs):
         args = (args[0], self.ensure_acceptable_value(args[1]))
-        super(HStoreDictionary, self).__setitem__(*args, **kwargs)
+        super(HStoreDict, self).__setitem__(*args, **kwargs)
     
     def __str__(self):
         if self:
@@ -98,7 +98,7 @@ class HStoreDictionary(dict):
         queryset.filter(pk=self.instance.pk).hremove(self.field.name, keys)
 
 
-class HStoreReferenceDictionary(HStoreDictionary):
+class HStoreReferenceDictionary(HStoreDict):
     """
     A dictionary which adds support to storing references to models
     """
@@ -123,7 +123,7 @@ class HStoreDescriptor(models.fields.subclassing.Creator):
     def __set__(self, obj, value):
         value = self.field.to_python(value)
         if isinstance(value, dict):
-            value = HStoreDictionary(
+            value = HStoreDict(
                 value=value, field=self.field, instance=obj
             )
         obj.__dict__[self.field.name] = value
@@ -163,24 +163,24 @@ class HStoreField(models.Field):
         """
         if self.has_default():
             if callable(self.default):
-                return HStoreDictionary(self.default(), self)
+                return HStoreDict(self.default(), self)
             elif isinstance(self.default, dict):
-                return HStoreDictionary(self.default, self)
+                return HStoreDict(self.default, self)
             return self.default
         if (not self.empty_strings_allowed or (self.null and not connection.features.interprets_empty_strings_as_nulls)):
             return None
-        return HStoreDictionary({}, self)
+        return HStoreDict({}, self)
 
     def get_prep_value(self, value):
-        if isinstance(value, dict) and not isinstance(value, HStoreDictionary):
-            return HStoreDictionary(value, self)
+        if isinstance(value, dict) and not isinstance(value, HStoreDict):
+            return HStoreDict(value, self)
         else:
             return value
 
     def get_db_prep_value(self, value, connection, prepared=False):
         if not prepared:
             value = self.get_prep_value(value)
-            if isinstance(value, HStoreDictionary):
+            if isinstance(value, HStoreDict):
                 value.prepare(connection)
                 #return value.dumps()
         return value

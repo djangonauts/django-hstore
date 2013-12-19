@@ -57,14 +57,14 @@ def register_hstore(conn_or_curs, globally=False, unicode=False,
     import psycopg2
     import sys
     import re as regex
-    from .fields import HStoreDictionary
+    from .fields import HStoreDict
 
     def cast(s, cur, _bsdec=regex.compile(r"\\(.)")):
         if sys.version_info[0] < 3 and unicode:
             result = HstoreAdapter.parse_unicode(s, cur)
         else:
             result = HstoreAdapter.parse(s, cur, _bsdec)
-        return HStoreDictionary(result)
+        return HStoreDict(result)
 
     if oid is None:
         oid = HstoreAdapter.get_oids(conn_or_curs)
