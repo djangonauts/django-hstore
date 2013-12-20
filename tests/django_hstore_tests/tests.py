@@ -279,6 +279,10 @@ class TestDictionaryField(TestCase):
         # json object string allowed
         HStoreDict('{}')
         
+        # None is ok, will be converted to empty dict
+        HStoreDict(None)
+        HStoreDict()
+        
         # non-json string not allowed
         with self.assertRaises(HStoreDictException):
             HStoreDict('wrong')

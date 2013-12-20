@@ -24,11 +24,13 @@ class HStoreDict(dict):
                     'HStoreDict accepts only valid json formatted strings.',
                     json_error_message=e.message
                 )
+        elif value is None:
+            value = {}
         
         # allow dictionaries only
         if not isinstance(value, dict):
             raise exceptions.HStoreDictException(
-                'HStoreDict accepts only dictionary objects or json formatted string representations of json objects'
+                'HStoreDict accepts only dictionary objects, None and json formatted string representations of json objects'
             )
         
         # ensure values are acceptable
