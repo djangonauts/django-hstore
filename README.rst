@@ -72,7 +72,7 @@ If you use the awsome `django-grappelli`_ there's a nice admin widget that makes
 
 Each time a key or a value is modified the underlying textarea is updated:
 
-.. figure:: https://raw.github.com/nemesisdesign/django-hstore/master/docs/hstore-widget-raw.png.png
+.. figure:: https://raw.github.com/nemesisdesign/django-hstore/master/docs/hstore-widget-raw.png
 
 =====
 Usage
@@ -227,8 +227,8 @@ Here's an example with the `ReferenceContainer` model defined in the **Model fie
     r.refs['some_object']
     '<AnotherModel: AnotherModel some_object>'
     
-Database is queried only when references are accessed directly.
-Once references have been retrieve they will be stored for any eventual subsequent access::
+The database is queried only when references are accessed directly.
+Once references have been retrieved they will be stored for any eventual subsequent access::
 
     r = ReferenceContainer.objects.get(name='test')
     # this won't query the database
