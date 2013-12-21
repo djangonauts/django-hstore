@@ -1,0 +1,56 @@
+{% load i18n %}
+<script type="text/html" id="hstore-row-template">
+    <div class="form-row field-data">
+        <div>
+            <input type="text" placeholder="{% trans 'key' %}" value="<%= key %>" style="min-width:150px;">
+            &nbsp; <strong>:</strong> &nbsp;&nbsp;
+            <input style="min-width:300px;"
+                   value="<%= value %>"
+                   type="text"
+                   placeholder="{% trans 'value' %}">
+            &nbsp;&nbsp;
+            <a href="#" class="remove-row" title="{% trans 'remove row' %}">
+                <img src="{{ STATIC_URL }}admin/img/icon_deletelink.gif" width="10" height="10">
+            </a>
+        </div>
+    </div>
+</script>
+
+<script type="text/html" id="hstore-ui-template">
+    <div class="hstore">
+        <h2><%= label %></h2>
+        
+        <% if(help && help != '') { %>
+        <div class="form-row">
+            <p class="help"><%= help %></p></div>
+        </div>
+        <% } %>
+        
+        <div class="hstore-rows">
+            <% for(key in data){ %>
+                <%= _.template($('#hstore-row-template').html(), { 'key': key, 'value': data[key] }) %>
+            <% } %>
+        </div>
+        
+        <div class="form-row field-data hstore-textarea" style="display:none">
+            <div>
+                <label for="id_data" class="required">{% trans 'Raw textarea' %}:</label>
+                <textarea class="vLargeTextField" cols="40" id="id_<%= id %>" name="<%= name %>" rows="10"><%= value %></textarea>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <a href="#" class="add-row" title="{% trans 'Add another row' %}">
+                <img src="{{ STATIC_URL }}admin/img/icon_addlink.gif" width="10" height="10" alt="{% trans 'Add Another' %}">
+                {% trans "Add row" %}
+            </a>
+            
+            <a href="#" class="hstore-toggle-txtarea" title="{% trans 'toggle textarea' %}" style="float:right">
+                <img src="{{ STATIC_URL }}admin/img/icon_changelink.gif" width="10" height="10" alt="{% trans 'toggle textarea' %}">
+                {% trans 'toggle textarea' %}
+            </a>
+        </div>
+    </div>
+</script>
+
+<script>django.jQuery(function() { initDjangoHStoreWidget('{{ field_name }}') });</script>

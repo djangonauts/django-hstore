@@ -8,20 +8,13 @@ from django.conf import settings
 
 
 __all__ = [
-    'DefaultAdminHStoreWidget',
-    'GrappelliHStoreWidget',
     'AdminHStoreWidget'
 ]
 
 
-class DefaultAdminHStoreWidget(AdminTextareaWidget):
-    pass
-
-
-class GrappelliHStoreWidget(AdminTextareaWidget):
+class BaseAdminHStoreWidget(AdminTextareaWidget):
     """
-    Widget that displays the HStore contents
-    in a nice interactive admin UI for django-grappelli
+    Base admin widget class for default-admin and grappelli-admin widgets
     """
     @property
     def media(self):
@@ -31,7 +24,7 @@ class GrappelliHStoreWidget(AdminTextareaWidget):
         ]
         
         internal_js = [
-            "django_hstore/hstore-grappelli-widget.js"
+            "django_hstore/hstore-%s-widget.js" % self.admin_style
         ]
         
         js = external_js + [static("admin/js/%s" % path) for path in internal_js]
@@ -40,12 +33,15 @@ class GrappelliHStoreWidget(AdminTextareaWidget):
     
     def render(self, name, value, attrs=None):
         # get default HTML from AdminTextareaWidget
-        html = super(GrappelliHStoreWidget, self).render(name, value, attrs)
+        html = super(BaseAdminHStoreWidget, self).render(name, value, attrs)
         
         # prepare template context
-        template_context = Context({ 'field_name': name })
+        template_context = Context({
+            'field_name': name,
+            'STATIC_URL': settings.STATIC_URL
+        })
         # get template object
-        template = get_template('hstore_grappelli_widget.html')
+        template = get_template('hstore_%s_widget.html' % self.admin_style)
         # render additional html
         additional_html = template.render(template_context)
         
@@ -56,7 +52,24 @@ class GrappelliHStoreWidget(AdminTextareaWidget):
         return html
 
 
+class DefaultAdminHStoreWidget(BaseAdminHStoreWidget):
+    """
+    Widget that displays the HStore contents
+    in the default django-admin with a nice interactive UI
+    """
+    admin_style = 'default'
+
+
+class GrappelliAdminHStoreWidget(BaseAdminHStoreWidget):
+    """
+    Widget that displays the HStore contents
+    in the django-admin with a nice interactive UI
+    designed for django-grappelli
+    """
+    admin_style = 'grappelli'
+
+
 if 'grappelli' in settings.INSTALLED_APPS:
-    AdminHStoreWidget = GrappelliHStoreWidget
+    AdminHStoreWidget = GrappelliAdminHStoreWidget
 else:
     AdminHStoreWidget = DefaultAdminHStoreWidget
