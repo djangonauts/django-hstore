@@ -15,46 +15,32 @@ Dependencies:
 Extras:
 
  * **Postgis compatibility**
+ * nice admin widget for **django-grappelli**
 
-=============
-Fork features
-=============
+.. figure:: https://raw.github.com/nemesisdesign/django-hstore/master/docs/hstore-widget.png
 
-This fork aims to support spatial querysets. Now supported only **Postgis** backend.
-
+===========
 Limitations
 ===========
 
-- PostgreSQL's implementation of hstore has no concept of type; it stores a
-  mapping of string keys to string values.
-  Values are stored as strings in the database regarding of their original type.
+PostgreSQL's implementation of hstore has no concept of type; it stores a
+mapping of string keys to string values.
 
-Running the tests
-=================
+Values are stored as strings in the database regarding of their original type.
 
-Assuming one has the dependencies installed, and a **PostgreSQL 9.0+** server up and
-running::
+=======
+Install
+=======
 
-    python setup.py test
+Install using pip (you need git) by running::
 
-You might need to tweak the DB settings according to your DB configuration.
-You can copy the file settings.py and create **local_settings.py**, which will
-be used instead of the default settings.py.
+    pip install -e git+git://github.com/nemesisdesign/django-hstore#egg=django-hstore
 
-If after running this command you get an **error** saying::
-    
-    type "hstore" does not exist
-
-Try this::
-
-    psql template1 -c 'create extension hstore;'
-
-More details here: `PostgreSQL error type hstore does not exist`_
-
-Usage
+=====
+Setup
 =====
 
-First, add django_hstore to installed apps in settings module::
+First, add **django_hstore** to your `settings.INSTALLED_APPS`::
 
     INSTALLED_APPS = (
         ...
@@ -62,11 +48,35 @@ First, add django_hstore to installed apps in settings module::
         ..
     )
     
-**Note to South users:** If you keep getting errors like `There is no South
+Second, collect static files (needed for the grappelli admin widget) with::
+
+    python manage.py collectstatic
+
+===================
+Note to South users
+===================
+
+If you keep getting errors like `There is no South
 database module 'south.db.None' for your database.`, add the following to
 `settings.py`::
 
     SOUTH_DATABASE_ADAPTERS = {'default': 'south.db.postgresql_psycopg2'}
+
+======================
+Grappelli Admin widget
+======================
+
+If you use the awsome `django-grappelli`_ there's a nice admin widget that makes the field more user-friendly.
+
+.. figure:: https://raw.github.com/nemesisdesign/django-hstore/master/docs/hstore-widget.png
+
+Each time a key or a value is modified the underlying textarea is updated:
+
+.. figure:: https://raw.github.com/nemesisdesign/django-hstore/master/docs/hstore-widget-raw.png.png
+
+=====
+Usage
+=====
 
 The library provides three principal classes:
 
@@ -82,6 +92,9 @@ The library provides three principal classes:
 ``django_hstore.hstore.HStoreGeoManager``
     An additional ORM manager to provide Geodjango functionality as well.
 
+------------
+Model fields
+------------
 
 Model definition is straightforward::
 
@@ -90,13 +103,22 @@ Model definition is straightforward::
 
     class Something(models.Model):
         name = models.CharField(max_length=32)
-        data = hstore.DictionaryField()
+        data = hstore.DictionaryField()  # can pass attributes like null, blank, ecc.
         
         objects = hstore.HStoreManager()
-        # or objects = hstore.HStoreGeoManager()
+        # or objects = hstore.HStoreGeoManager() if using postgis
 
-        def __unicode__(self):
-            return self.name
+ReferenceField model field is also straightforward::
+
+    class ReferenceContainer(HStoreModel):
+        name = models.CharField(max_length=32)
+        refs = hstore.ReferencesField()
+        
+        objects = hstore.HStoreManager()
+
+----------
+Python API
+----------
 
 You then treat the ``data`` field as simply a dictionary of string pairs::
 
@@ -161,6 +183,10 @@ will be converted to text and the lookup will be performed on all the keys and a
     Something.objects.filter(data__icontains='value')
     Something.objects.filter(data__icontains='SOME_KEY')
 
+--------------
+HSTORE manager
+--------------
+
 You can also take advantage of some db-side functionality by using the manager::
 
     # identify the keys present in an hstore field
@@ -181,5 +207,73 @@ You can also take advantage of some db-side functionality by using the manager::
 The hstore methods on manager pass all keyword arguments aside from ``attr`` and
 ``key`` to ``.filter()``.
 
+--------------------
+ReferenceField Usage
+--------------------
+
+**ReferenceField** is a field that allows to reference other database objects
+without using a classic ManyToMany relationship.
+
+Here's an example with the `ReferenceContainer` model defined in the **Model fields** section::
+
+    r = ReferenceContainer(name='test')
+    r.refs['another_object'] = AnotherModel.objects.get(slug='another-object')
+    r.refs['some_object'] = AnotherModel.objects.get(slug='some-object')
+    r.save()
+    
+    r = ReferenceContainer.objects.get(name='test')
+    r.refs['another_object']
+    '<AnotherModel: AnotherModel object>'
+    r.refs['some_object']
+    '<AnotherModel: AnotherModel some_object>'
+    
+Database is queried only when references are accessed directly.
+Once references have been retrieve they will be stored for any eventual subsequent access::
+
+    r = ReferenceContainer.objects.get(name='test')
+    # this won't query the database
+    r.refs
+    { u'another_object': u'myapp.models.AnotherModel:1', u'some_object': u'myapp.models.AnotherModel:2' }
+    
+    # this will query the database
+    r.refs['another_object']
+    '<AnotherModel: AnotherModel object>'
+    
+    # retrieved reference is now visible also when calling the HStoreDict object:
+    r.refs
+    { u'another_object': <AnotherModel: AnotherModel object>, u'some_object': u'myapp.models.AnotherModel:2' }
+
+==================
+Management command
+==================
+
+TODO: document or remove this feature::
+
+    manage.py sqlhstoreindexes <app_name>
+
+=================
+Running the tests
+=================
+
+Assuming one has the dependencies installed, and a **PostgreSQL 9.0+** server up and
+running::
+
+    python setup.py test
+
+You might need to tweak the DB settings according to your DB configuration.
+You can copy the file settings.py and create **local_settings.py**, which will
+be used instead of the default settings.py.
+
+If after running this command you get an **error** saying::
+    
+    type "hstore" does not exist
+
+Try this::
+
+    psql template1 -c 'create extension hstore;'
+
+More details here: `PostgreSQL error type hstore does not exist`_
+
 .. _hstore: http://www.postgresql.org/docs/9.1/interactive/hstore.html
 .. _PostgreSQL error type hstore does not exist: http://clarkdave.net/2012/09/postgresql-error-type-hstore-does-not-exist/
+.. _django-grappelli: http://grappelliproject.com/

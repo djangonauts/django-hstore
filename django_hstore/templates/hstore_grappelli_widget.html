@@ -1,0 +1,49 @@
+{% load i18n%}
+<script type="text/html" id="hstore-row-template">
+    <div class="l-2c-fluid l-d-4 grp-row grp-cells">
+        <div class="c-1 grp-cell">
+            <input type="text" placeholder="{% trans 'key' %}" value="<%= key %>" style="min-width:150px;">
+        </div>
+        <div class="c-2 grp-cell">
+            <input style="min-width:300px;float:left" value="<%= value %>" type="text" placeholder="{% trans 'value' %}">
+            
+            <ul class="grp-tools" style="float:left;position:static;margin:0 0 0 15px">
+                <li><a href="#" class="grp-icon grp-remove-handler" title="{% trans 'Delete Item' %}"></a></li>
+            </ul>
+        </div>
+    </div>
+</script>
+
+<script type="text/html" id="hstore-ui-template">
+    <div class="grp-module hstore">
+        <h2><%= label %></h2>
+        
+        <ul class="grp-tools">
+            <li><a href="#" class="grp-text hstore-toggle-txtarea">toggle textarea</a></li>
+            <li><a href="#" class="grp-icon grp-add-handler"></a></li>
+        </ul>
+        
+        <div class="grp-row"><p class="grp-description"><%= help %></p></div>
+        
+        <div class="l-2c-fluid l-d-4 grp-row grp-cells hstore-textarea" style="display:none">
+            <div class="c-1 grp-cell">
+                <label for="id_data">{% trans 'Raw textarea' %}</label>
+            </div>
+            <div class="c-2 grp-cell">
+                <textarea class="vLargeTextField" cols="40" id="id_<%= id %>" name="<%= name %>" rows="10"><%= value %></textarea>
+            </div>
+        </div>
+        
+        <div class="hstore-rows">
+            <% for(key in data){ %>
+                <%= _.template($('#hstore-row-template').html(), { 'key': key, 'value': data[key] }) %>
+            <% } %>
+        </div>
+        
+        <div class="grp-row">
+            <a href="#" class="grp-button grp-add-link">+ Add row</a>
+        </div>
+    </div>
+</script>
+
+<script>django.jQuery(function() { initDjangoHStoreGrappelliWidget('{{ field_name }}') });</script>

@@ -144,9 +144,6 @@ class HStoreReferenceDescriptor(models.fields.subclassing.Creator):
 class HStoreField(models.Field):
     """ HStore Base Field """
     
-    # TODO: wtf?
-    #__metaclass__ = models.SubfieldBase
-    
     def __init__(self, *args, **kwargs):
         # cannot index the entire field, but internal values are indexable
         if kwargs.get('db_index', False):
@@ -154,7 +151,6 @@ class HStoreField(models.Field):
         
         super(HStoreField, self).__init__(*args, **kwargs)
     
-    # TODO, anything changes?
     def contribute_to_class(self, cls, name):
         super(HStoreField, self).contribute_to_class(cls, name)
         setattr(cls, self.name, HStoreDescriptor(self))
@@ -184,7 +180,6 @@ class HStoreField(models.Field):
             value = self.get_prep_value(value)
             if isinstance(value, HStoreDict):
                 value.prepare(connection)
-                #return value.dumps()
         return value
 
     def value_to_string(self, obj):

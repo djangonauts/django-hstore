@@ -4,7 +4,9 @@ import pickle
 from django.db import transaction
 from django.db.models.aggregates import Count
 from django.db.utils import IntegrityError, DatabaseError
-from django.utils.unittest import TestCase
+from django.core.urlresolvers import reverse
+from django.test import TestCase
+from django.contrib.auth.models import User
 
 from django_hstore.fields import HStoreDict
 from django_hstore.exceptions import HStoreDictException
@@ -304,6 +306,23 @@ class TestDictionaryField(TestCase):
         
         self.assertEqual(d.__str__(), d.__unicode__())
         self.assertEqual(str(d), unicode(d))
+    
+    def test_admin_widget(self):
+        alpha, beta = self._create_bags()
+        
+        # create admin user
+        admin = User.objects.create(username='admin', password='tester', is_staff=True, is_superuser=True, is_active=True)
+        admin.set_password('tester')
+        admin.save()
+        # login as admin
+        self.client.login(username='admin', password='tester')
+        
+        # access admin change form page
+        url = reverse('admin:django_hstore_tests_databag_change', args=[alpha.id])
+        response = self.client.get(url)
+        # ensure textarea with id="id_data" is there
+        self.assertContains(response, 'textarea')
+        self.assertContains(response, 'id_data')
 
 
 class TestReferencesField(TestCase):

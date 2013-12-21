@@ -18,7 +18,7 @@ setup(
     author='Federico Capoano (nemesisdesign)',
     license='BSD',
     url='https://github.com/nemesisdesign/django-hstore',
-    packages=find_packages(exclude=['tests', 'tests.*']),
+    packages=find_packages(exclude=['tests', 'tests.*', 'docs', 'docs.*']),
     zip_safe=False,
     classifiers=[
         'Development Status :: 3 - Alpha',

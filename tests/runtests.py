@@ -19,7 +19,13 @@ def runtests(test_labels=None, verbosity=1, interactive=True, failfast=True):
     if not settings.configured:
         settings.configure(
             DATABASES=local_settings.DATABASES,
-            INSTALLED_APPS=labels,
+            INSTALLED_APPS=labels + [
+                'django.contrib.auth',
+                'django.contrib.contenttypes',
+                'django.contrib.sessions',
+                'django.contrib.admin',
+            ],
+            ROOT_URLCONF='urls',
         )
     from django.test.utils import get_runner
     TestRunner = get_runner(settings)

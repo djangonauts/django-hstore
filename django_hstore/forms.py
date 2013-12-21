@@ -8,7 +8,8 @@ from django.contrib.admin.widgets import AdminTextareaWidget
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ValidationError
 
-from django_hstore import util
+from .widgets import AdminHStoreWidget
+from . import utils
 
 
 def validate_hstore(string):
@@ -49,14 +50,14 @@ class JsonMixin(object):
         return super(JsonMixin, self).render(name, value, attrs)
 
 
-class DictionaryFieldWidget(JsonMixin, AdminTextareaWidget):
+class DictionaryFieldWidget(JsonMixin, AdminHStoreWidget):
     pass
 
 
-class ReferencesFieldWidget(JsonMixin, AdminTextareaWidget):
+class ReferencesFieldWidget(JsonMixin, AdminHStoreWidget):
 
     def render(self, name, value, attrs=None):
-        value = util.serialize_references(value)
+        value = utils.serialize_references(value)
         return super(ReferencesFieldWidget, self).render(name, value, attrs)
 
 
@@ -79,4 +80,4 @@ class ReferencesField(JsonMixin, Field):
 
     def to_python(self, value):
         value = super(ReferencesField, self).to_python(value)
-        return util.unserialize_references(value)
+        return utils.unserialize_references(value)

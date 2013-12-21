@@ -6,6 +6,7 @@ from django.core.management.base import AppCommand
 from django.core.management.sql import sql_indexes
 from django.db import connections, DEFAULT_DB_ALIAS, models
 
+
 class Command(AppCommand):
     help = "Prints the CREATE INDEX SQL statements for hstore fields in the given model module name(s)."
 
@@ -49,4 +50,3 @@ class Command(AppCommand):
                 clauses.append(sql)
         clauses.append(';')
         return [ ' '.join(clauses) ]
-
