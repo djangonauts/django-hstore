@@ -144,13 +144,6 @@ class HStoreReferenceDescriptor(models.fields.subclassing.Creator):
 class HStoreField(models.Field):
     """ HStore Base Field """
     
-    def __init__(self, *args, **kwargs):
-        # cannot index the entire field, but internal values are indexable
-        if kwargs.get('db_index', False):
-            raise TypeError("'db_index' is not a valid argument for %s. Use 'python manage.py sqlhstoreindexes' instead." % self.__class__)
-        
-        super(HStoreField, self).__init__(*args, **kwargs)
-    
     def contribute_to_class(self, cls, name):
         super(HStoreField, self).contribute_to_class(cls, name)
         setattr(cls, self.name, HStoreDescriptor(self))
