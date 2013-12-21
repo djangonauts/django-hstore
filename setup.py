@@ -1,16 +1,34 @@
-from distutils.core import setup
+from setuptools import setup, find_packages
+from setuptools.command.test import test
+
+from django_hstore import get_version
+
+
+class TestCommand(test):
+    def run(self):
+        from tests.runtests import runtests
+        runtests()
+
 
 setup(
     name='django-hstore',
-    version='1.0.0',
+    version=get_version(),
     description="Support for PostgreSQL's hstore for Django.",
     long_description=open('README.rst').read(),
-    author='Jordan McCoy',
-    author_email='mccoy.jordan@gmail.com',
+    author='Federico Capoano (nemesisdesign)',
     license='BSD',
-    url='http://github.com/jordanm/django-hstore',
-    packages=[
-        'django_hstore',
-        'django_hstore.postgresql_psycopg2',
+    url='https://github.com/nemesisdesign/django-hstore',
+    packages=find_packages(exclude=['tests', 'tests.*', 'docs', 'docs.*']),
+    zip_safe=False,
+    classifiers=[
+        'Development Status :: 3 - Alpha',
+        'Environment :: Web Environment',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: BSD License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python',
+        'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
+        'Framework :: Django',
     ],
+    cmdclass={"test": TestCommand},
 )

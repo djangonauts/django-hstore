@@ -3,4 +3,5 @@
 *.swp
 dist
 build
-
+.idea
+tests/local_settings.py

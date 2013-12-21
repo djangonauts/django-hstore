@@ -1,49 +1,83 @@
 try:
-    import yaml
-    def _to_python(value):
-        return yaml.load(value)
-    def _to_text(value):
-        return yaml.dump(value, default_flow_style=False)
+    import simplejson as json
 except ImportError:
-    try:
-        import json
-    except ImportError:
-        from django.utils import simplejson as json
-    def _to_python(value):
-        return json.loads(value)
-    def _to_text(value):
-        return json.dumps(value, sort_keys=True, indent=2)
+    import json
 
-from django.contrib.admin.widgets import AdminTextareaWidget
 from django.forms import Field
+from django.contrib.admin.widgets import AdminTextareaWidget
+from django.utils.translation import ugettext_lazy as _
+from django.core.exceptions import ValidationError
 
-from django_hstore import util
+from .widgets import AdminHStoreWidget
+from . import utils
 
-class DictionaryFieldWidget(AdminTextareaWidget):
+
+def validate_hstore(string):
+    """ HSTORE validation """
+    # if empty
+    if string == '' or string == 'null':
+        string = '{}'
+    
+    # ensure valid JSON
+    try:
+        dictionary = json.loads(string)
+    except ValueError as e:
+        raise ValidationError(_('Invalid JSON: %s') % e.message)
+    
+    # ensure is a dictionary
+    if not isinstance(dictionary, dict):
+        raise ValidationError(_('No lists or strings allowed, only dictionaries'))
+    
+    # convert any non string object into string
+    for key, value in dictionary.iteritems():
+        if isinstance(value, dict) or isinstance(value, list):
+            dictionary[key] = json.dumps(value)
+        elif isinstance(value, bool) or isinstance(value, int) or isinstance(value, float):
+            dictionary[key] = unicode(value).lower()
+    
+    return dictionary
+
+
+class JsonMixin(object):
+    def to_python(self, value):
+        return validate_hstore(value)
+
     def render(self, name, value, attrs=None):
-        return super(DictionaryFieldWidget, self).render(name, _to_text(value), attrs)
+        # return json representation of a meaningful value
+        # doesn't show anything for None, empty strings or empty dictionaries
+        if value and not isinstance(value, basestring):
+            value = json.dumps(value, sort_keys=True, indent=4)
+        return super(JsonMixin, self).render(name, value, attrs)
 
-class DictionaryField(Field):
-    """A dictionary form field."""
 
+class DictionaryFieldWidget(JsonMixin, AdminHStoreWidget):
+    pass
+
+
+class ReferencesFieldWidget(JsonMixin, AdminHStoreWidget):
+
+    def render(self, name, value, attrs=None):
+        value = utils.serialize_references(value)
+        return super(ReferencesFieldWidget, self).render(name, value, attrs)
+
+
+class DictionaryField(JsonMixin, Field):
+    """
+    A dictionary form field.
+    """
     def __init__(self, **params):
         params['widget'] = DictionaryFieldWidget
         super(DictionaryField, self).__init__(**params)
 
-    def to_python(self, value):
-        return _to_python(value)
 
-class ReferencesFieldWidget(AdminTextareaWidget):
-    def render(self, name, value, attrs=None):
-        value = util.serialize_references(value)
-        return super(ReferencesFieldWidget, self).render(name, _to_text(value), attrs)
-
-class ReferencesField(Field):
-    """A references form field."""
-
+class ReferencesField(JsonMixin, Field):
+    """
+    A references form field.
+    """
     def __init__(self, **params):
         params['widget'] = ReferencesFieldWidget
         super(ReferencesField, self).__init__(**params)
 
     def to_python(self, value):
-        return util.unserialize_references(_to_python(value))
+        value = super(ReferencesField, self).to_python(value)
+        return utils.unserialize_references(value)

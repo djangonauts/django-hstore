@@ -1,0 +1,24 @@
+language: python
+
+services:
+  - postgresql
+
+python:
+#  - "3.3"
+  - "2.7"
+  - "2.6"
+
+branches:
+  only:
+    - master 
+
+# command to install requirements
+install:
+  - pip install -r requirements.txt --use-mirrors
+  - python setup.py -q install
+
+before_script:
+  - psql -c 'CREATE DATABASE django_hstore;' -U postgres
+
+# command to run tests, e.g. python setup.py test
+script: python setup.py test
