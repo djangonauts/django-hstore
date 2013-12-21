@@ -27,10 +27,10 @@
         
         <div class="l-2c-fluid l-d-4 grp-row grp-cells hstore-textarea" style="display:none">
             <div class="c-1 grp-cell">
-                <label for="id_data">{% trans 'Raw textarea' %}</label>
+                <label for="<%= id %>">{% trans 'Raw textarea' %}</label>
             </div>
             <div class="c-2 grp-cell">
-                <textarea class="vLargeTextField" cols="40" id="id_<%= id %>" name="<%= name %>" rows="10"><%= value %></textarea>
+                <textarea class="vLargeTextField" cols="40" id="<%= id %>" name="<%= name %>" rows="10"><%= value %></textarea>
             </div>
         </div>
         
