@@ -7,14 +7,22 @@ var initDjangoHStoreWidget = function(hstore_field_name) {
         var hstore_field_id = 'id_'+hstore_field_name,
             original_textarea = $('#'+hstore_field_id),
             original_container = original_textarea.parents('.form-row, .grp-row'),
-            json_data = JSON.parse(original_textarea.val()),
-            hstore_field_data = {
-                'id': hstore_field_id,
-                'label': original_container.find('label').text(),
-                'name': hstore_field_name,
-                'value': original_textarea.val(),
-                'help': original_container.find('.grp-help, .help').text(),
-                'data': json_data
+            json_data = {};
+        
+        
+        // manage case in which textarea is blank 
+        try{
+            json_data = JSON.parse(original_textarea.val())
+        }
+        catch(e){}
+        
+        var hstore_field_data = {
+                "id": hstore_field_id,
+                "label": original_container.find('label').text(),
+                "name": hstore_field_name,
+                "value": original_textarea.val(),
+                "help": original_container.find('.grp-help, .help').text(),
+                "data": json_data
             },
             // compile template
             ui_html = $('#hstore-ui-template').html(),
@@ -29,6 +37,7 @@ var initDjangoHStoreWidget = function(hstore_field_name) {
         }
         
         return compiled_ui_html;
+        
     };
     
     // generate UI
@@ -68,8 +77,9 @@ var initDjangoHStoreWidget = function(hstore_field_name) {
     });
     
     // add row link
-    $hstore.delegate('.add-row', 'click', function(e) {
+    $hstore.delegate('a.add-row, .add-row a', 'click', function(e) {
         e.preventDefault();
+        console.log(empty_row);
         $(this).parents('.hstore').find('.hstore-rows').append(empty_row);
     });
     
