@@ -24,7 +24,7 @@ class BaseAdminHStoreWidget(AdminTextareaWidget):
         ]
         
         internal_js = [
-            "django_hstore/hstore-%s-widget.js" % self.admin_style
+            "django_hstore/hstore-widget.js"
         ]
         
         js = external_js + [static("admin/js/%s" % path) for path in internal_js]
