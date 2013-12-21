@@ -5,7 +5,10 @@
             <input type="text" placeholder="{% trans 'key' %}" value="<%= key %>" style="min-width:150px;">
         </div>
         <div class="c-2 grp-cell">
-            <input style="min-width:300px;float:left" value="<%= value %>" type="text" placeholder="{% trans 'value' %}">
+            <input style="min-width:300px;float:left"
+                   value="<%= _.escape(value) %>"
+                   type="text"
+                   placeholder="{% trans 'value' %}">
             
             <ul class="grp-tools" style="float:left;position:static;margin:0 0 0 15px">
                 <li><a href="#" class="grp-icon grp-remove-handler remove-row" title="{% trans 'remove row' %}"></a></li>

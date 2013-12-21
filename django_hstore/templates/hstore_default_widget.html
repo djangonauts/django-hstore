@@ -5,7 +5,7 @@
             <input type="text" placeholder="{% trans 'key' %}" value="<%= key %>" style="min-width:150px;">
             &nbsp; <strong>:</strong> &nbsp;&nbsp;
             <input style="min-width:300px;"
-                   value="<%= value %>"
+                   value="<%= _.escape(value) %>"
                    type="text"
                    placeholder="{% trans 'value' %}">
             &nbsp;&nbsp;
