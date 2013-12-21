@@ -1,7 +1,7 @@
 from optparse import make_option
 
 from django import VERSION
-from django.db.backends.util import truncate_name
+from django.db.backends.utils import truncate_name
 from django.core.management.base import AppCommand
 from django.core.management.sql import sql_indexes
 from django.db import connections, DEFAULT_DB_ALIAS, models

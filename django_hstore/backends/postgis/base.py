@@ -6,7 +6,7 @@ import traceback
 from django import VERSION
 from django.conf import settings
 from django.contrib.gis.db.backends.postgis.base import DatabaseWrapper, PostGISCreation
-from django.db.backends.util import truncate_name
+from django.db.backends.utils import truncate_name
 from psycopg2.extras import register_hstore
 
 try:

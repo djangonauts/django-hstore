@@ -4,7 +4,7 @@ except ImportError:
     import json
 
 from django.db import models, connection
-from django_hstore import forms, util, exceptions
+from django_hstore import forms, utils, exceptions
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -108,7 +108,7 @@ class HStoreReferenceDictionary(HStoreDict):
         value = super(self.__class__, self).__getitem__(*args, **kwargs)
         # if value is a string it needs to be converted to model instance
         if isinstance(value, basestring):
-            reference = util.acquire_reference(value)
+            reference = utils.acquire_reference(value)
             self.__setitem__(args[0], reference)
             return reference
         # otherwise just return the relation
@@ -212,17 +212,17 @@ class ReferencesField(HStoreField):
 
     def get_prep_lookup(self, lookup, value):
         if isinstance(value, dict):
-            return util.serialize_references(value)
+            return utils.serialize_references(value)
         return value
 
     def get_prep_value(self, value):
-        return util.serialize_references(value)
+        return utils.serialize_references(value)
 
     def to_python(self, value):
         return value if isinstance(value, dict) else HStoreReferenceDictionary({})
 
     def _value_to_python(self, value):
-        return util.acquire_reference(value)
+        return utils.acquire_reference(value)
 
 
 # south compatibility

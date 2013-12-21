@@ -6,7 +6,7 @@ from django import VERSION
 from django.conf import settings
 from django.db.backends.postgresql_psycopg2.base import *
 from django.db.backends.postgresql_psycopg2.version import get_version
-from django.db.backends.util import truncate_name
+from django.db.backends.utils import truncate_name
 from psycopg2.extras import register_hstore
 try:
     from django.db.backends.postgresql_psycopg2.version import get_version

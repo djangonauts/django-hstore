@@ -2,7 +2,7 @@ from django.db.backends.signals import connection_created
 from django.db.backends.postgresql_psycopg2.base import DatabaseWrapper
 from django.contrib.gis.db.backends.postgis.base import DatabaseWrapper as GeoDatabaseWrapper
 
-from .util import register_hstore
+from .utils import register_hstore
 
 
 def register_hstore_extension(sender, connection, *args, **kwargs):
