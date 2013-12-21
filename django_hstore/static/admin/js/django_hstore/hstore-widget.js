@@ -2,26 +2,37 @@ var initDjangoHStoreWidget = function(hstore_field_name) {
 
     $ = django.jQuery;
     
-    var hstore_field_id = 'id_'+hstore_field_name,
-        original_textarea = $('#'+hstore_field_id),
-        original_container = original_textarea.parents('.form-row, .grp-row'),
-        json_data = JSON.parse(original_textarea.val()),
-        hstore_field_data = {
-            'id': hstore_field_id,
-            'label': original_container.find('label').text(),
-            'name': hstore_field_name,
-            'value': original_textarea.val(),
-            'help': original_container.find('.grp-help, .help').text(),
-            'data': json_data
-        },
-        // compile template
-        ui_html = $('#hstore-ui-template').html(),
-        compiled_ui_html = _.template(ui_html, hstore_field_data);
+    // reusable function that compiles the UI
+    var compileUI = function(params){
+        var hstore_field_id = 'id_'+hstore_field_name,
+            original_textarea = $('#'+hstore_field_id),
+            original_container = original_textarea.parents('.form-row, .grp-row'),
+            json_data = JSON.parse(original_textarea.val()),
+            hstore_field_data = {
+                'id': hstore_field_id,
+                'label': original_container.find('label').text(),
+                'name': hstore_field_name,
+                'value': original_textarea.val(),
+                'help': original_container.find('.grp-help, .help').text(),
+                'data': json_data
+            },
+            // compile template
+            ui_html = $('#hstore-ui-template').html(),
+            compiled_ui_html = _.template(ui_html, hstore_field_data);
+        
+        // this is just to DRY up a bit
+        if(params && params.replace_original === true){
+            // remove original textarea to avoid having two textareas with same ID
+            original_textarea.remove();
+            // inject compiled template and hide original
+            original_container.after(compiled_ui_html).hide();
+        }
+        
+        return compiled_ui_html;
+    };
     
-    // remove original textarea to avoid having two textareas with same ID
-    original_textarea.remove();
-    // inject compiled template and hide original
-    original_container.after(compiled_ui_html).hide();
+    // generate UI
+    compileUI({ replace_original: true });
     
     // cache other objects that we'll reuse
     var row_html = $('#hstore-row-template').html(),
@@ -72,6 +83,16 @@ var initDjangoHStoreWidget = function(hstore_field_name) {
             add_row = container.find('.add-row');
         
         if(raw_textarea.is(':visible')) {
+            try{
+                // update rows
+                hstore_rows.html(
+                    $(compileUI()).find('.hstore-rows').html()
+                );
+            }
+            catch(e){
+                alert('invalid JSON:\n'+e);
+                return;
+            }
             raw_textarea.hide();
             hstore_rows.show();
             add_row.show();
@@ -82,6 +103,8 @@ var initDjangoHStoreWidget = function(hstore_field_name) {
             add_row.hide();
         }
     });
+    
+    window.compileUI = compileUI;
     
     // update textarea whenever a field changes
     $hstore.delegate('input[type=text]', 'keyup', function() {
