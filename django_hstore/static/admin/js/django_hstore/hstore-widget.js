@@ -52,7 +52,6 @@ var initDjangoHStoreWidget = function(hstore_field_name, inline_prefix) {
         
         // this is just to DRY up a bit
         if(params && params.replace_original === true){
-            console.log('replace');
             // remove original textarea to avoid having two textareas with same ID
             original_textarea.remove();
             // inject compiled template and hide original
@@ -96,8 +95,6 @@ var initDjangoHStoreWidget = function(hstore_field_name, inline_prefix) {
         $(this).parents('.form-row, .grp-row').eq(0).remove();
         updateTextarea($hstore);
     });
-    
-    console.log($hstore.length);
     
     // add row link
     $hstore.delegate('a.add-row, .add-row a', 'click', function(e) {

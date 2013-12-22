@@ -32,6 +32,7 @@ class BaseAdminHStoreWidget(AdminTextareaWidget):
         css = {
             'all': [static("admin/css/django-hstore-widget.css")]
         }
+        
         return forms.Media(js=js, css=css)
     
     def render(self, name, value, attrs=None):
