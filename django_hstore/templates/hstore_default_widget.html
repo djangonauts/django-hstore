@@ -1,5 +1,5 @@
 {% load i18n %}
-<script type="text/html" id="hstore-row-template">
+<script type="text/html" id="hstore-row-template-{{ field_name }}" class="hstore-row-template-inline">
     <div class="form-row field-data">
         <div>
             <input type="text" placeholder="{% trans 'key' %}" value="<%= key %>" style="min-width:150px;">
@@ -16,19 +16,19 @@
     </div>
 </script>
 
-<script type="text/html" id="hstore-ui-template">
-    <div class="hstore">
+<script type="text/html" id="hstore-ui-template-{{ field_name }}"{% if '__prefix__' in field_name %} class="hstore-ui-template-inline"{% endif %}>
+    <div class="hstore" id="hstore-{{ field_name }}">
         <h2><%= label %></h2>
         
         <% if(help && help != '') { %>
         <div class="form-row">
-            <p class="help"><%= help %></p></div>
+            <p class="help" style="margin:0;padding:0"><%= help %></p>
         </div>
         <% } %>
         
         <div class="hstore-rows">
             <% for(key in data){ %>
-                <%= _.template($('#hstore-row-template').html(), { 'key': key, 'value': data[key] }) %>
+                <%= _.template($('.hstore-row-template-inline').eq(0).html(), { 'key': key, 'value': data[key] }) %>
             <% } %>
         </div>
         

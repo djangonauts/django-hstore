@@ -1,5 +1,5 @@
 {% load i18n %}
-<script type="text/html" id="hstore-row-template">
+<script type="text/html" id="hstore-row-template-{{ field_name }}" class="hstore-row-template-inline">
     <div class="l-2c-fluid l-d-4 grp-row grp-cells">
         <div class="c-1 grp-cell">
             <input type="text" placeholder="{% trans 'key' %}" value="<%= key %>" style="min-width:150px;">
@@ -11,22 +11,24 @@
                    placeholder="{% trans 'value' %}">
             
             <ul class="grp-tools" style="float:left;position:static;margin:0 0 0 15px">
-                <li><a href="#" class="grp-icon grp-remove-handler remove-row" title="{% trans 'remove row' %}"></a></li>
+                <li><a href="#" class="icons-sprite hstore-remove-handler remove-row" title="{% trans 'remove row' %}"></a></li>
             </ul>
         </div>
     </div>
 </script>
 
-<script type="text/html" id="hstore-ui-template">
-    <div class="grp-module hstore">
+<script type="text/html" id="hstore-ui-template-{{ field_name }}"{% if '__prefix__' in field_name %} class="hstore-ui-template-inline"{% endif %}>
+    <div class="grp-module hstore" id="hstore-{{ field_name }}">
         <h2><%= label %></h2>
         
         <ul class="grp-tools">
             <li><a href="#" class="grp-text hstore-toggle-txtarea">{% trans 'toggle textarea' %}</a></li>
-            <li class="add-row"><a href="#" class="grp-icon grp-add-handler"></a></li>
+            <li class="add-row"><a href="#" class="icons-sprite hstore-add-handler"></a></li>
         </ul>
         
+        <% if(help && help != '') { %>
         <div class="grp-row"><p class="grp-description"><%= help %></p></div>
+        <% } %>
         
         <div class="l-2c-fluid l-d-4 grp-row grp-cells hstore-textarea" style="display:none">
             <div class="c-1 grp-cell">
@@ -39,7 +41,7 @@
         
         <div class="hstore-rows">
             <% for(key in data){ %>
-                <%= _.template($('#hstore-row-template').html(), { 'key': key, 'value': data[key] }) %>
+                <%= _.template($('.hstore-row-template-inline').eq(0).html(), { 'key': key, 'value': data[key] }) %>
             <% } %>
         </div>
         

@@ -29,9 +29,17 @@ class BaseAdminHStoreWidget(AdminTextareaWidget):
         
         js = external_js + [static("admin/js/%s" % path) for path in internal_js]
         
-        return forms.Media(js=js)
+        css = {
+            'all': [static("admin/css/django-hstore-widget.css")]
+        }
+        return forms.Media(js=js, css=css)
     
     def render(self, name, value, attrs=None):
+        if attrs is None:
+            attrs = {}
+        # it's called "original" because it will be replaced by a copy
+        attrs['class'] = 'hstore-original-textarea'
+        
         # get default HTML from AdminTextareaWidget
         html = super(BaseAdminHStoreWidget, self).render(name, value, attrs)
         
