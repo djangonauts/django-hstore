@@ -15,8 +15,10 @@ Dependencies:
 Extras:
 
  * **Postgis compatibility**
+ * usable **admin widget**
  * nice admin widget for **django-grappelli**
 
+.. figure:: https://raw.github.com/nemesisdesign/django-hstore/master/docs/deafult-admin-widget.png
 .. figure:: https://raw.github.com/nemesisdesign/django-hstore/master/docs/hstore-widget.png
 
 ===========
@@ -62,15 +64,25 @@ database module 'south.db.None' for your database.`, add the following to
 
     SOUTH_DATABASE_ADAPTERS = {'default': 'south.db.postgresql_psycopg2'}
 
+============
+Admin widget
+============
+
+django-hstore ships a nice admin widget that makes the field more user-friendly.
+
+.. figure:: https://raw.github.com/nemesisdesign/django-hstore/master/docs/deafult-admin-widget.png
+
+Each time a key or a value is modified the underlying textarea is updated:
+
+.. figure:: https://raw.github.com/nemesisdesign/django-hstore/master/docs/deafult-admin-widget-raw.png
+
 ======================
 Grappelli Admin widget
 ======================
 
-If you use the awsome `django-grappelli`_ there's a nice admin widget that makes the field more user-friendly.
+If you use the awsome `django-grappelli`_ there's an even nicer looking widget for you too!
 
 .. figure:: https://raw.github.com/nemesisdesign/django-hstore/master/docs/hstore-widget.png
-
-Each time a key or a value is modified the underlying textarea is updated:
 
 .. figure:: https://raw.github.com/nemesisdesign/django-hstore/master/docs/hstore-widget-raw.png
 
