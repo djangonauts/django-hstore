@@ -8,12 +8,17 @@ python:
   - "2.7"
   - "2.6"
 
+env:
+  - DJANGO_VERSION=1.5.5
+  - DJANGO_VERSION=1.6.1
+
 branches:
   only:
     - master 
 
 # command to install requirements
 install:
+  - pip install Django==$DJANGO_VERSION
   - pip install -r requirements.txt --use-mirrors
   - python setup.py -q install
 

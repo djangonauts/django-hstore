@@ -8,7 +8,7 @@ PostgreSQL into Django.
 
 Dependencies:
 
- * **Django 1.4+**
+ * **Django 1.4, 1.5 and 1.6**
  * **PostgreSQL 9.0+**
  * **Psycopg 2.3+**.
 
