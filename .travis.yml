@@ -16,6 +16,12 @@ branches:
   only:
     - master 
 
+before_install:
+ - sudo add-apt-repository -r -y ppa:ubuntugis/ppa
+ - sudo apt-get update
+ - sudo apt-get remove --purge postgresql-9.1-postgis-2.1 postgresql-9.1-postgis-scripts
+ - sudo apt-get install postgresql-9.1-postgis libgeoip1
+
 # command to install requirements
 install:
   - pip install Django==$DJANGO_VERSION
@@ -23,7 +29,10 @@ install:
   - python setup.py -q install
 
 before_script:
-  - psql -c 'CREATE DATABASE django_hstore;' -U postgres
+  - find / -name postgis.sql || true
+  - curl https://raw.github.com/django/django/1.5.5/docs/ref/contrib/gis/install/create_template_postgis-debian.sh | sh
+  - createdb -T template_postgis django_hstore
 
 # command to run tests, e.g. python setup.py test
-script: python setup.py test
+script:
+  - python setup.py test
