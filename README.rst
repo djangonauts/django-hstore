@@ -1,8 +1,13 @@
 =============
 django-hstore
 =============
+
 .. image:: https://travis-ci.org/nemesisdesign/django-hstore.png
    :target: https://travis-ci.org/nemesisdesign/django-hstore
+
+.. image:: https://coveralls.io/repos/nemesisdesign/django-hstore/badge.png
+  :target: https://coveralls.io/r/nemesisdesign/django-hstore
+
 Django-hstore is a niche library which integrates the `hstore`_ extension of
 PostgreSQL into Django.
 

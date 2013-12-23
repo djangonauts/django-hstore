@@ -26,6 +26,7 @@ before_install:
 install:
   - pip install Django==$DJANGO_VERSION
   - pip install -r requirements.txt --use-mirrors
+  - pip install coverage coveralls --use-mirrors
   - python setup.py -q install
 
 before_script:
@@ -35,4 +36,7 @@ before_script:
 
 # command to run tests, e.g. python setup.py test
 script:
-  - python setup.py test
+  - coverage run --source django_hstore,django_hstore_tests setup.py test
+
+after_success:
+  coveralls
