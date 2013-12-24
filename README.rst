@@ -23,7 +23,12 @@ Extras:
  * usable **admin widget**
  * nice admin widget for **django-grappelli**
 
+admin widget screenshot:
+
 .. figure:: https://raw.github.com/nemesisdesign/django-hstore/master/docs/deafult-admin-widget.png
+
+grappelli admin widget screenshot:
+
 .. figure:: https://raw.github.com/nemesisdesign/django-hstore/master/docs/hstore-widget.png
 
 ===========
@@ -55,7 +60,7 @@ First, add **django_hstore** to your `settings.INSTALLED_APPS`::
         ..
     )
     
-Second, collect static files (needed for the grappelli admin widget) with::
+Second, collect static files (needed for the admin widget) with::
 
     python manage.py collectstatic
 
@@ -88,6 +93,8 @@ Grappelli Admin widget
 If you use the awsome `django-grappelli`_ there's an even nicer looking widget for you too!
 
 .. figure:: https://raw.github.com/nemesisdesign/django-hstore/master/docs/hstore-widget.png
+
+Each time a key or a value is modified the underlying textarea is updated:
 
 .. figure:: https://raw.github.com/nemesisdesign/django-hstore/master/docs/hstore-widget-raw.png
 
@@ -259,14 +266,6 @@ Once references have been retrieved they will be stored for any eventual subsequ
     # retrieved reference is now visible also when calling the HStoreDict object:
     r.refs
     { u'another_object': <AnotherModel: AnotherModel object>, u'some_object': u'myapp.models.AnotherModel:2' }
-
-==================
-Management command
-==================
-
-TODO: document or remove this feature::
-
-    manage.py sqlhstoreindexes <app_name>
 
 =================
 Running the tests
