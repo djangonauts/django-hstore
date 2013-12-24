@@ -12,21 +12,26 @@ from .widgets import AdminHStoreWidget
 from . import utils
 
 
-def validate_hstore(string):
+def validate_hstore(value):
     """ HSTORE validation """
     # if empty
-    if string == '' or string == 'null':
-        string = '{}'
+    if value == '' or value == 'null':
+        value = '{}'
     
     # ensure valid JSON
     try:
-        dictionary = json.loads(string)
+        # convert strings to dictionaries
+        if isinstance(value, basestring):
+            dictionary = json.loads(value)
+        # if not a string we'll check at the next control if it's a dict
+        else:
+            dictionary = value
     except ValueError as e:
         raise ValidationError(_('Invalid JSON: %s') % e.message)
     
     # ensure is a dictionary
     if not isinstance(dictionary, dict):
-        raise ValidationError(_('No lists or strings allowed, only dictionaries'))
+        raise ValidationError(_('No lists or values allowed, only dictionaries'))
     
     # convert any non string object into string
     for key, value in dictionary.iteritems():
@@ -39,6 +44,7 @@ def validate_hstore(string):
 
 
 class JsonMixin(object):
+    
     def to_python(self, value):
         return validate_hstore(value)
 

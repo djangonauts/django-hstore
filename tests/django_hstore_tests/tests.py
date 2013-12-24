@@ -5,11 +5,14 @@ from django.db import transaction
 from django.db.models.aggregates import Count
 from django.db.utils import IntegrityError, DatabaseError
 from django.core.urlresolvers import reverse
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.contrib.auth.models import User
 
+from django_hstore import get_version
 from django_hstore.fields import HStoreDict
 from django_hstore.exceptions import HStoreDictException
+from django_hstore.utils import unserialize_references, serialize_references, acquire_reference
 
 from .models import *
 
@@ -307,6 +310,37 @@ class TestDictionaryField(TestCase):
         self.assertEqual(d.__str__(), d.__unicode__())
         self.assertEqual(str(d), unicode(d))
     
+    def test_hstore_model_field_validation(self):
+        d = DataBag()
+        
+        with self.assertRaises(ValidationError):
+            d.full_clean()
+        
+        d.data = 'test'
+        
+        with self.assertRaises(ValidationError):
+            d.full_clean()
+        
+        d.data = '["test"]'
+        
+        with self.assertRaises(ValidationError):
+            d.full_clean()
+        
+        d.data = ["test"]
+        
+        with self.assertRaises(ValidationError):
+            d.full_clean()
+        
+        d.data = {
+            'a': 1,
+            'b': 2.2,
+            'c': ['a', 'b'],
+            'd': { 'test': 'test' }
+        }
+        
+        with self.assertRaises(ValidationError):
+            d.full_clean()
+    
     def test_admin_widget(self):
         alpha, beta = self._create_bags()
         
@@ -323,6 +357,9 @@ class TestDictionaryField(TestCase):
         # ensure textarea with id="id_data" is there
         self.assertContains(response, 'textarea')
         self.assertContains(response, 'id_data')
+    
+    def test_get_version(self):
+        get_version()
 
 
 class TestReferencesField(TestCase):
@@ -434,7 +471,42 @@ class TestReferencesField(TestCase):
         self.assertEqual(RefsBag.objects.hslice(id=alpha.id, attr='refs', keys=['0']), {'0': refs[0]})
         self.assertEqual(RefsBag.objects.filter(id=alpha.id).hslice(attr='refs', keys=['0']), {'0': refs[0]})
         self.assertEqual(RefsBag.objects.hslice(id=alpha.id, attr='refs', keys=['invalid']), {})
-
+    
+    def test_admin_reference_field(self):
+        alpha, beta, refs = self._create_bags()
+        
+        # create admin user
+        admin = User.objects.create(username='admin', password='tester', is_staff=True, is_superuser=True, is_active=True)
+        admin.set_password('tester')
+        admin.save()
+        # login as admin
+        self.client.login(username='admin', password='tester')
+        
+        # access admin change form page
+        url = reverse('admin:django_hstore_tests_refsbag_change', args=[alpha.id])
+        response = self.client.get(url)
+        # ensure textarea with id="id_data" is there
+        self.assertContains(response, 'textarea')
+        self.assertContains(response, 'id_refs')
+    
+    def test_unserialize_references_edge_cases(self):
+        alpha, beta, refs = self._create_bags()
+        
+        refs = unserialize_references(alpha.refs)
+        # repeat
+        refs = unserialize_references(alpha.refs)
+        self.assertEquals(len(unserialize_references(refs).keys()), 2)
+        self.assertEquals(unserialize_references(None), {})
+    
+    def test_serialize_references_edge_cases(self):
+        self.assertEquals(serialize_references(None), {})
+        self.assertEquals(serialize_references({ 'test': 'test' }), { 'test': 'test' })
+    
+    def test_acquire_references_edge_cases(self):
+        with self.assertRaises(ValueError):
+            acquire_reference(None)
+        with self.assertRaises(ValueError):
+            acquire_reference(None)
 
 if GEODJANGO:
     from django.contrib.gis.geos import GEOSGeometry
