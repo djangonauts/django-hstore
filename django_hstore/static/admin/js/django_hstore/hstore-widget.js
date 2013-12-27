@@ -29,14 +29,20 @@ var initDjangoHStoreWidget = function(hstore_field_name, inline_prefix) {
     var compileUI = function(params){
         var hstore_field_id = 'id_'+hstore_field_name,
             original_textarea = $('#'+hstore_field_id),
+            original_value = original_textarea.val(),
             original_container = original_textarea.parents('.form-row, .grp-row').eq(0),
             json_data = {};
         
-        // manage case in which textarea is blank 
-        try{
-            json_data = JSON.parse(original_textarea.val())
+        if(original_value !== ''){
+            // manage case in which textarea is blank 
+            try{
+                json_data = JSON.parse(original_value);
+            }
+            catch(e){
+                alert('invalid JSON:\n'+e);
+                return false;
+            }
         }
-        catch(e){}
         
         var hstore_field_data = {
                 "id": hstore_field_id,
@@ -111,16 +117,26 @@ var initDjangoHStoreWidget = function(hstore_field_name, inline_prefix) {
             add_row = $hstore.find('.add-row');
         
         if(raw_textarea.is(':visible')) {
-            try{
-                // update rows
-                hstore_rows.html(
-                    $(compileUI()).find('.hstore-rows').html()
-                );
-            }
-            catch(e){
-                alert('invalid JSON:\n'+e);
+            
+            var compiled_ui = compileUI();
+            
+            // in case of JSON error
+            if(compiled_ui === false){
                 return;
             }
+            
+            // jquery < 1.8
+            try{
+                var $ui = $(compiled_ui);
+            }
+            // jquery >= 1.8
+            catch(e){
+                var $ui = $($.parseHTML(compiled_ui));
+            }
+            
+            // update rows with only relevant content
+            hstore_rows.html($ui.find('.hstore-rows').html());
+            
             raw_textarea.hide();
             hstore_rows.show();
             add_row.show();
