@@ -11,6 +11,8 @@ django-hstore
 Django-hstore is a niche library which integrates the `hstore`_ extension of
 PostgreSQL into Django.
 
+Mailing List: https://groups.google.com/forum/#!forum/django-hstore
+
 Dependencies:
 
 * **Django 1.4, 1.5 and 1.6**
@@ -30,8 +32,6 @@ admin widget screenshot:
 grappelli admin widget screenshot:
 
 .. figure:: https://raw.github.com/djangonauts/django-hstore/master/docs/hstore-widget.png
-
-Mailing list: https://groups.google.com/forum/#!forum/django-hstore
 
 ===========
 Limitations
