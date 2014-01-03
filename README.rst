@@ -2,11 +2,11 @@
 django-hstore
 =============
 
-.. image:: https://travis-ci.org/nemesisdesign/django-hstore.png
-   :target: https://travis-ci.org/nemesisdesign/django-hstore
+.. image:: https://travis-ci.org/djangonauts/django-hstore.png
+   :target: https://travis-ci.org/djangonauts/django-hstore
 
-.. image:: https://coveralls.io/repos/nemesisdesign/django-hstore/badge.png
-  :target: https://coveralls.io/r/nemesisdesign/django-hstore
+.. image:: https://coveralls.io/repos/djangonauts/django-hstore/badge.png
+  :target: https://coveralls.io/r/djangonauts/django-hstore
 
 Django-hstore is a niche library which integrates the `hstore`_ extension of
 PostgreSQL into Django.
@@ -25,11 +25,13 @@ Extras:
 
 admin widget screenshot:
 
-.. figure:: https://raw.github.com/nemesisdesign/django-hstore/master/docs/deafult-admin-widget.png
+.. figure:: https://raw.github.com/djangonauts/django-hstore/master/docs/deafult-admin-widget.png
 
 grappelli admin widget screenshot:
 
-.. figure:: https://raw.github.com/nemesisdesign/django-hstore/master/docs/hstore-widget.png
+.. figure:: https://raw.github.com/djangonauts/django-hstore/master/docs/hstore-widget.png
+
+Mailing list: https://groups.google.com/forum/#!forum/django-hstore
 
 ===========
 Limitations
@@ -46,7 +48,7 @@ Install
 
 Install using pip (you need git) by running::
 
-    pip install -e git+git://github.com/nemesisdesign/django-hstore#egg=django-hstore
+    pip install -e git+git://github.com/djangonauts/django-hstore#egg=django-hstore
 
 =====
 Setup
@@ -59,10 +61,20 @@ First, add **django_hstore** to your `settings.INSTALLED_APPS`::
         'django_hstore',
         ..
     )
-    
+
 Second, collect static files (needed for the admin widget) with::
 
     python manage.py collectstatic
+
+===========================
+Upgrade from older versions
+===========================
+
+In **version 1.2.x** some internals have been changed in order to simplify usage and prevent errors.
+
+Values are automatically converted to strings, fields costantly validate input and so on.
+
+If you are upgrading from an older version ensure your application code works as expected. If it doesn't you will either have to update your code or tie your application's requirement to the older version of django-hstore (1.1.1).
 
 ===================
 Note to South users
@@ -80,11 +92,11 @@ Admin widget
 
 django-hstore ships a nice admin widget that makes the field more user-friendly.
 
-.. figure:: https://raw.github.com/nemesisdesign/django-hstore/master/docs/deafult-admin-widget.png
+.. figure:: https://raw.github.com/djangonauts/django-hstore/master/docs/deafult-admin-widget.png
 
 Each time a key or a value is modified the underlying textarea is updated:
 
-.. figure:: https://raw.github.com/nemesisdesign/django-hstore/master/docs/deafult-admin-widget-raw.png
+.. figure:: https://raw.github.com/djangonauts/django-hstore/master/docs/deafult-admin-widget-raw.png
 
 ======================
 Grappelli Admin widget
@@ -92,11 +104,11 @@ Grappelli Admin widget
 
 If you use the awsome `django-grappelli`_ there's an even nicer looking widget for you too!
 
-.. figure:: https://raw.github.com/nemesisdesign/django-hstore/master/docs/hstore-widget.png
+.. figure:: https://raw.github.com/djangonauts/django-hstore/master/docs/hstore-widget.png
 
 Each time a key or a value is modified the underlying textarea is updated:
 
-.. figure:: https://raw.github.com/nemesisdesign/django-hstore/master/docs/hstore-widget-raw.png
+.. figure:: https://raw.github.com/djangonauts/django-hstore/master/docs/hstore-widget-raw.png
 
 =====
 Usage
@@ -128,7 +140,7 @@ Model definition is straightforward::
     class Something(models.Model):
         name = models.CharField(max_length=32)
         data = hstore.DictionaryField()  # can pass attributes like null, blank, ecc.
-        
+
         objects = hstore.HStoreManager()
         # or objects = hstore.HStoreGeoManager() if using postgis
 
@@ -137,7 +149,7 @@ ReferenceField model field is also straightforward::
     class ReferenceContainer(HStoreModel):
         name = models.CharField(max_length=32)
         refs = hstore.ReferencesField()
-        
+
         objects = hstore.HStoreManager()
 
 ----------
@@ -161,10 +173,10 @@ Lists, dictionaries and booleans are converted into JSON formatted strings, so
 can be decoded if needed.
 
     instance = Something.objects.create(name='something', data={'int': 1, 'bool': True})
-    
+
     instance.data['int'] == '1'
     instance.data['bool'] == 'true'
-    
+
     import json
     instance.data['dict'] = { 'list': ['a', False, 1] }
     instance.data['dict'] == '{"list": ["a", false, 1]}'
@@ -244,13 +256,13 @@ Here's an example with the `ReferenceContainer` model defined in the **Model fie
     r.refs['another_object'] = AnotherModel.objects.get(slug='another-object')
     r.refs['some_object'] = AnotherModel.objects.get(slug='some-object')
     r.save()
-    
+
     r = ReferenceContainer.objects.get(name='test')
     r.refs['another_object']
     '<AnotherModel: AnotherModel object>'
     r.refs['some_object']
     '<AnotherModel: AnotherModel some_object>'
-    
+
 The database is queried only when references are accessed directly.
 Once references have been retrieved they will be stored for any eventual subsequent access::
 
@@ -258,11 +270,11 @@ Once references have been retrieved they will be stored for any eventual subsequ
     # this won't query the database
     r.refs
     { u'another_object': u'myapp.models.AnotherModel:1', u'some_object': u'myapp.models.AnotherModel:2' }
-    
+
     # this will query the database
     r.refs['another_object']
     '<AnotherModel: AnotherModel object>'
-    
+
     # retrieved reference is now visible also when calling the HStoreDict object:
     r.refs
     { u'another_object': <AnotherModel: AnotherModel object>, u'some_object': u'myapp.models.AnotherModel:2' }
@@ -281,7 +293,7 @@ You can copy the file settings.py and create **local_settings.py**, which will
 be used instead of the default settings.py.
 
 If after running this command you get an **error** saying::
-    
+
     type "hstore" does not exist
 
 Try this::
@@ -293,3 +305,20 @@ More details here: `PostgreSQL error type hstore does not exist`_
 .. _hstore: http://www.postgresql.org/docs/9.1/interactive/hstore.html
 .. _PostgreSQL error type hstore does not exist: http://clarkdave.net/2012/09/postgresql-error-type-hstore-does-not-exist/
 .. _django-grappelli: http://grappelliproject.com/
+
+=================
+How to contribute
+=================
+
+1. Join the mailing List: `django-hstore mailing list`_ and announce your intentions
+2. Follow `PEP8, Style Guide for Python Code`_
+3. Fork this repo
+4. Write code
+5. Write tests for your code
+6. Ensure all tests pass
+7. Ensure test coverage is not under 90%
+8. Document your changes
+9. Send pull request
+
+.. _PEP8, Style Guide for Python Code: http://www.python.org/dev/peps/pep-0008/
+.. _django-hstore mailing list: https://groups.google.com/forum/#!forum/django-hstore
