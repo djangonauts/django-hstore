@@ -13,15 +13,15 @@ PostgreSQL into Django.
 
 Dependencies:
 
- * **Django 1.4, 1.5 and 1.6**
- * **PostgreSQL 9.0+**
- * **Psycopg 2.3+**.
+* **Django 1.4, 1.5 and 1.6**
+* **PostgreSQL 9.0+**
+* **Psycopg 2.3+**.
 
 Extras:
 
- * **Postgis compatibility**
- * usable **admin widget**
- * nice admin widget for **django-grappelli**
+* **Postgis compatibility**
+* usable **admin widget**
+* nice admin widget for **django-grappelli**
 
 admin widget screenshot:
 
@@ -46,7 +46,9 @@ Values are stored as strings in the database regarding of their original type.
 Install
 =======
 
-Install using pip (you need git) by running::
+Install using pip (you need git) by running:
+
+.. code-block:: bash
 
     pip install -e git+git://github.com/djangonauts/django-hstore#egg=django-hstore
 
@@ -54,7 +56,9 @@ Install using pip (you need git) by running::
 Setup
 =====
 
-First, add **django_hstore** to your `settings.INSTALLED_APPS`::
+First, add **django_hstore** to your `settings.INSTALLED_APPS`:
+
+.. code-block:: python
 
     INSTALLED_APPS = (
         ...
@@ -62,7 +66,9 @@ First, add **django_hstore** to your `settings.INSTALLED_APPS`::
         ..
     )
 
-Second, collect static files (needed for the admin widget) with::
+Second, collect static files (needed for the admin widget) with:
+
+.. code-block:: bash
 
     python manage.py collectstatic
 
@@ -82,7 +88,9 @@ Note to South users
 
 If you keep getting errors like `There is no South
 database module 'south.db.None' for your database.`, add the following to
-`settings.py`::
+`settings.py`:
+
+.. code-block:: python
 
     SOUTH_DATABASE_ADAPTERS = {'default': 'south.db.postgresql_psycopg2'}
 
@@ -132,7 +140,9 @@ The library provides three principal classes:
 Model fields
 ------------
 
-Model definition is straightforward::
+Model definition is straightforward:
+
+.. code-block:: python
 
     from django.db import models
     from django_hstore import hstore
@@ -144,7 +154,9 @@ Model definition is straightforward::
         objects = hstore.HStoreManager()
         # or objects = hstore.HStoreGeoManager() if using postgis
 
-ReferenceField model field is also straightforward::
+ReferenceField model field is also straightforward:
+
+.. code-block:: python
 
     class ReferenceContainer(HStoreModel):
         name = models.CharField(max_length=32)
@@ -156,7 +168,9 @@ ReferenceField model field is also straightforward::
 Python API
 ----------
 
-You then treat the ``data`` field as simply a dictionary of string pairs::
+You then treat the ``data`` field as simply a dictionary of string pairs:
+
+.. code-block:: python
 
     instance = Something.objects.create(name='something', data={'a': '1', 'b': '2'})
     assert instance.data['a'] == '1'
@@ -170,7 +184,9 @@ You then treat the ``data`` field as simply a dictionary of string pairs::
 
 Booleans, integers, floats, lists and dictionaries will be converted to strings.
 Lists, dictionaries and booleans are converted into JSON formatted strings, so
-can be decoded if needed.
+can be decoded if needed:
+
+.. code-block:: python
 
     instance = Something.objects.create(name='something', data={'int': 1, 'bool': True})
 
@@ -183,7 +199,9 @@ can be decoded if needed.
     json.loads(instance.data['dict']) == { 'list': ['a', False, 1] }
     >>> True
 
-You can issue indexed queries against hstore fields::
+You can issue indexed queries against hstore fields:
+
+.. code-block:: python
 
     # equivalence
     Something.objects.filter(data={'a': '1', 'b': '2'})
@@ -208,7 +226,9 @@ You can issue indexed queries against hstore fields::
 
 You can still do classic django "contains" lookups as you would normally do for normal text
 fields if you were looking for a particular string. In this case, the HSTORE field
-will be converted to text and the lookup will be performed on all the keys and all the values::
+will be converted to text and the lookup will be performed on all the keys and all the values:
+
+.. code-block:: python
 
     Something.objects.create(data={ 'some_key': 'some crazy Value' })
 
@@ -223,7 +243,9 @@ will be converted to text and the lookup will be performed on all the keys and a
 HSTORE manager
 --------------
 
-You can also take advantage of some db-side functionality by using the manager::
+You can also take advantage of some db-side functionality by using the manager:
+
+.. code-block:: python
 
     # identify the keys present in an hstore field
     >>> Something.objects.hkeys(id=instance.id, attr='data')
@@ -250,7 +272,9 @@ ReferenceField Usage
 **ReferenceField** is a field that allows to reference other database objects
 without using a classic ManyToMany relationship.
 
-Here's an example with the `ReferenceContainer` model defined in the **Model fields** section::
+Here's an example with the `ReferenceContainer` model defined in the **Model fields** section:
+
+.. code-block:: python
 
     r = ReferenceContainer(name='test')
     r.refs['another_object'] = AnotherModel.objects.get(slug='another-object')
@@ -264,7 +288,9 @@ Here's an example with the `ReferenceContainer` model defined in the **Model fie
     '<AnotherModel: AnotherModel some_object>'
 
 The database is queried only when references are accessed directly.
-Once references have been retrieved they will be stored for any eventual subsequent access::
+Once references have been retrieved they will be stored for any eventual subsequent access:
+
+.. code-block:: python
 
     r = ReferenceContainer.objects.get(name='test')
     # this won't query the database
@@ -284,7 +310,9 @@ Running the tests
 =================
 
 Assuming one has the dependencies installed, and a **PostgreSQL 9.0+** server up and
-running::
+running:
+
+.. code-block:: bash
 
     python setup.py test
 
@@ -296,7 +324,9 @@ If after running this command you get an **error** saying::
 
     type "hstore" does not exist
 
-Try this::
+Try this:
+
+.. code-block:: bash
 
     psql template1 -c 'create extension hstore;'
 
