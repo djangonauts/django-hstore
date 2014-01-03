@@ -152,13 +152,14 @@ Model definition is straightforward:
         data = hstore.DictionaryField()  # can pass attributes like null, blank, ecc.
 
         objects = hstore.HStoreManager()
-        # or objects = hstore.HStoreGeoManager() if using postgis
+        # IF YOU ARE USING POSTGIS:
+        # objects = hstore.HStoreGeoManager()
 
 ReferenceField model field is also straightforward:
 
 .. code-block:: python
 
-    class ReferenceContainer(HStoreModel):
+    class ReferenceContainer(models.Model):
         name = models.CharField(max_length=32)
         refs = hstore.ReferencesField()
 
@@ -206,7 +207,7 @@ You can issue indexed queries against hstore fields:
     # equivalence
     Something.objects.filter(data={'a': '1', 'b': '2'})
 
-    # comparision
+    # comparison (greater than, less than or equal to, ecc)
     Something.objects.filter(data__gt={'a': '1'})
     Something.objects.filter(data__gte={'a': '1'})
     Something.objects.filter(data__lt={'a': '2'})
