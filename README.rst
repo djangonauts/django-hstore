@@ -353,3 +353,7 @@ How to contribute
 
 .. _PEP8, Style Guide for Python Code: http://www.python.org/dev/peps/pep-0008/
 .. _django-hstore mailing list: https://groups.google.com/forum/#!forum/django-hstore
+
+
+.. image:: https://d2weczhvl823v0.cloudfront.net/djangonauts/django-hstore/trend.png
+   :target: https://bitdeli.com/free
