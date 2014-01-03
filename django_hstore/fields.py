@@ -4,8 +4,8 @@ except ImportError:
     import json
 
 from django.db import models, connection
-from django_hstore import forms, utils, exceptions
 from django.utils.translation import ugettext_lazy as _
+from . import forms, utils, exceptions
 
 
 class HStoreDict(dict):
@@ -143,6 +143,10 @@ class HStoreReferenceDescriptor(models.fields.subclassing.Creator):
 
 class HStoreField(models.Field):
     """ HStore Base Field """
+    
+    def validate(self, value, *args):
+        super(HStoreField, self).validate(value, *args)
+        forms.validate_hstore(value)
     
     def contribute_to_class(self, cls, name):
         super(HStoreField, self).contribute_to_class(cls, name)

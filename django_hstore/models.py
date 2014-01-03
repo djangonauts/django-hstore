@@ -10,7 +10,12 @@ def register_hstore_extension(sender, connection, *args, **kwargs):
     # experimental
     cursor = connection.cursor()
     cursor.execute("CREATE EXTENSION IF NOT EXISTS hstore")
-    connection.commit_unless_managed()
+    try:
+        connection.connection.commit_unless_managed()
+    # it seems django 1.6 does not have this attribute anymore
+    # probably due to changes to the transaction internals
+    except AttributeError:
+        pass
     # register hstore extension
     register_hstore(connection.connection, globally=True, unicode=True)
 
