@@ -2,6 +2,7 @@ from __future__ import unicode_literals, absolute_import
 
 from django import VERSION
 from django.db import transaction
+from django.utils import six
 from django.db.models.query import QuerySet
 from django.db.models.sql.constants import SINGLE
 from django.db.models.sql.datastructures import EmptyResultSet
@@ -65,6 +66,7 @@ def update_query(method):
 
 class HStoreWhereNode(WhereNode):
 
+    # FIXME: this method shuld be more clear.
     def make_atom(self, child, qn, connection):
         lvalue, lookup_type, value_annot, param = child
         kwargs = {'connection': connection} if VERSION[:2] >= (1, 3) else {}
@@ -73,43 +75,51 @@ class HStoreWhereNode(WhereNode):
             try:
                 lvalue, params = lvalue.process(lookup_type, param, connection)
             except EmptyShortCircuit:
-                raise EmptyResultSet
+                raise EmptyResultSet()
+
             field = self.sql_for_columns(lvalue, qn, connection)
 
             if lookup_type == 'exact':
                 if isinstance(param, dict):
-                    return ('%s = %%s' % field, [param])
-                else:
-                    raise ValueError('invalid value')
+                    return ('{0} = %s'.format(field), [param])
+
+                raise ValueError('invalid value')
 
             elif lookup_type in ('gt', 'gte', 'lt', 'lte'):
                 if isinstance(param, dict) and len(param) == 1:
-                    sign = (lookup_type[0] == 'g' and '>%s' or '<%s') % (
-                        lookup_type[-1] == 'e' and '=' or '')
-                    return ('%s->\'%s\' %s %%s' % (field, param.keys()[0], sign), param.values())
-                else:
-                    raise ValueError('invalid value')
+                    sign = (lookup_type[0] == 'g' and '>%s' or '<%s') % (lookup_type[-1] == 'e' and '=' or '')
+                    param_keys = list(param.keys())
+                    return ('%s->\'%s\' %s %%s' % (field, param_keys[0], sign), param.values())
+
+                raise ValueError('invalid value')
 
             elif lookup_type in ['contains', 'icontains']:
                 if isinstance(param, dict):
-                    values = param.values()
+                    values = list(param.values())
+                    keys = list(param.keys())
+
                     if len(values) == 1 and isinstance(values[0], (list, tuple)):
-                        return ('%s->\'%s\' = ANY(%%s)' % (field, param.keys()[0]), [map(str, values[0])])
-                    else:
-                        return ('%s @> %%s' % field, [param])
+                        return ('%s->\'%s\' = ANY(%%s)' % (field, keys[0]), [[str(x) for x in values[0]]])
+
+                    return ('%s @> %%s' % field, [param])
+
                 elif isinstance(param, (list, tuple)):
                     if len(param) < 2:
                         return ('%s ? %%s' % field, [param[0]])
+
                     if param:
                         return ('%s ?& %%s' % field, [param])
-                    else:
-                        raise ValueError('invalid value')
-                elif isinstance(param, basestring):
+
+                    raise ValueError('invalid value')
+
+                elif isinstance(param, six.string_types):
                     # if looking for a string perform the normal text lookup
                     # that is: look for occurence of string in all the keys
                     pass
+
                 else:
                     raise ValueError('invalid value')
+
             else:
                 raise TypeError('invalid lookup type')
 
@@ -179,7 +189,7 @@ class HStoreQuerySet(QuerySet):
         result = query.get_compiler(self.db).execute_sql(SINGLE)
         if result and result[0]:
             field = self.model._meta.get_field_by_name(attr)[0]
-            return dict((key, field._value_to_python(value)) for key, value in result[0].iteritems())
+            return dict((key, field._value_to_python(value)) for key, value in result[0].items())
         return {}
 
     @update_query

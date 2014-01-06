@@ -6,11 +6,15 @@ except ImportError:
     import json
 
 from django.db import models, connection
+from django.utils import six
+from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
+
 from . import forms, utils, exceptions
+from .compat import UnicodeMixin
 
 
-class HStoreDict(dict):
+class HStoreDict(UnicodeMixin, dict):
     """
     A dictionary subclass which implements hstore support.
     """
@@ -18,13 +22,13 @@ class HStoreDict(dict):
     def __init__(self, value=None, field=None, instance=None, connection=None, **params):
         # if passed value is string
         # ensure is json formatted
-        if isinstance(value, basestring):
+        if isinstance(value, six.string_types):
             try:
                 value = json.loads(value)
             except ValueError as e:
                 raise exceptions.HStoreDictException(
                     'HStoreDict accepts only valid json formatted strings.',
-                    json_error_message=e.message
+                    json_error_message=force_text(e)
                 )
         elif value is None:
             value = {}
@@ -36,7 +40,7 @@ class HStoreDict(dict):
             )
 
         # ensure values are acceptable
-        for key, val in value.iteritems():
+        for key, val in value.items():
             value[key] = self.ensure_acceptable_value(val)
 
         super(HStoreDict, self).__init__(value, **params)
@@ -51,14 +55,12 @@ class HStoreDict(dict):
         args = (args[0], self.ensure_acceptable_value(args[1]))
         super(HStoreDict, self).__setitem__(*args, **kwargs)
 
-    def __str__(self):
-        if self:
-            return json.dumps(self)
-        else:
-            return ''
-
+    # This method is used both for python3 and python2
+    # thanks to UnicodeMixin
     def __unicode__(self):
-        return unicode(self.__str__())
+        if self:
+            return force_text(json.dumps(self))
+        return u''
 
     def __getstate__(self):
         if self.connection:
@@ -83,11 +85,11 @@ class HStoreDict(dict):
         - leave alone all other objects because they might be representation of django models
         """
         if isinstance(value, bool):
-            return unicode(value).lower()
+            return force_text(value).lower()
         elif isinstance(value, int) or isinstance(value, float):
-            return unicode(value)
+            return force_text(value)
         elif isinstance(value, list) or isinstance(value, dict):
-            return json.dumps(value)
+            return force_text(json.dumps(value))
         else:
             return value
 
@@ -109,7 +111,7 @@ class HStoreReferenceDictionary(HStoreDict):
     def __getitem__(self, *args, **kwargs):
         value = super(self.__class__, self).__getitem__(*args, **kwargs)
         # if value is a string it needs to be converted to model instance
-        if isinstance(value, basestring):
+        if isinstance(value, six.string_types):
             reference = utils.acquire_reference(value)
             self.__setitem__(args[0], reference)
             return reference
