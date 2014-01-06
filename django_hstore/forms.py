@@ -17,7 +17,7 @@ def validate_hstore(value):
     # if empty
     if value == '' or value == 'null':
         value = '{}'
-    
+
     # ensure valid JSON
     try:
         # convert strings to dictionaries
@@ -28,23 +28,23 @@ def validate_hstore(value):
             dictionary = value
     except ValueError as e:
         raise ValidationError(_('Invalid JSON: %s') % e.message)
-    
+
     # ensure is a dictionary
     if not isinstance(dictionary, dict):
         raise ValidationError(_('No lists or values allowed, only dictionaries'))
-    
+
     # convert any non string object into string
     for key, value in dictionary.iteritems():
         if isinstance(value, dict) or isinstance(value, list):
             dictionary[key] = json.dumps(value)
         elif isinstance(value, bool) or isinstance(value, int) or isinstance(value, float):
             dictionary[key] = unicode(value).lower()
-    
+
     return dictionary
 
 
 class JsonMixin(object):
-    
+
     def to_python(self, value):
         return validate_hstore(value)
 

@@ -66,20 +66,20 @@ class HStoreWhereNode(WhereNode):
     def make_atom(self, child, qn, connection):
         lvalue, lookup_type, value_annot, param = child
         kwargs = {'connection': connection} if VERSION[:2] >= (1, 3) else {}
-        
+
         if lvalue and lvalue.field and hasattr(lvalue.field, 'db_type') and lvalue.field.db_type(**kwargs) == 'hstore':
             try:
                 lvalue, params = lvalue.process(lookup_type, param, connection)
             except EmptyShortCircuit:
                 raise EmptyResultSet
             field = self.sql_for_columns(lvalue, qn, connection)
-            
+
             if lookup_type == 'exact':
                 if isinstance(param, dict):
                     return ('%s = %%s' % field, [param])
                 else:
                     raise ValueError('invalid value')
-            
+
             elif lookup_type in ('gt', 'gte', 'lt', 'lte'):
                 if isinstance(param, dict) and len(param) == 1:
                     sign = (lookup_type[0] == 'g' and '>%s' or '<%s') % (
@@ -87,7 +87,7 @@ class HStoreWhereNode(WhereNode):
                     return ('%s->\'%s\' %s %%s' % (field, param.keys()[0], sign), param.values())
                 else:
                     raise ValueError('invalid value')
-            
+
             elif lookup_type in ['contains', 'icontains']:
                 if isinstance(param, dict):
                     values = param.values()
@@ -110,21 +110,21 @@ class HStoreWhereNode(WhereNode):
                     raise ValueError('invalid value')
             else:
                 raise TypeError('invalid lookup type')
-        
+
         return super(HStoreWhereNode, self).make_atom(child, qn, connection)
-    
+
     make_hstore_atom = make_atom
 
 
 class HStoreGeoWhereNode(HStoreWhereNode, GeoWhereNode):
-    
+
     def make_atom(self, child, qn, connection):
         lvalue, lookup_type, value_annot, params_or_value = child
-        
+
         # if spatial query
         if isinstance(lvalue, GeoConstraint):
             return GeoWhereNode.make_atom(self, child, qn, connection)
-        
+
         # else might be an HSTORE query
         return HStoreWhereNode.make_atom(self, child, qn, connection)
 
@@ -136,7 +136,7 @@ class HStoreQuery(Query):
 
 
 class HStoreGeoQuery(GeoQuery, Query):
-    
+
     def __init__(self, *args, **kwargs):
         model = kwargs.pop('model', None) or args[0]
         super(HStoreGeoQuery, self).__init__(model, HStoreGeoWhereNode)

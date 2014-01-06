@@ -22,28 +22,28 @@ class BaseAdminHStoreWidget(AdminTextareaWidget):
         external_js = [
             "//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js"
         ]
-        
+
         internal_js = [
             "django_hstore/hstore-widget.js"
         ]
-        
+
         js = external_js + [static("admin/js/%s" % path) for path in internal_js]
-        
+
         css = {
             'all': [static("admin/css/django-hstore-widget.css")]
         }
-        
+
         return forms.Media(js=js, css=css)
-    
+
     def render(self, name, value, attrs=None):
         if attrs is None:
             attrs = {}
         # it's called "original" because it will be replaced by a copy
         attrs['class'] = 'hstore-original-textarea'
-        
+
         # get default HTML from AdminTextareaWidget
         html = super(BaseAdminHStoreWidget, self).render(name, value, attrs)
-        
+
         # prepare template context
         template_context = Context({
             'field_name': name,
@@ -53,11 +53,11 @@ class BaseAdminHStoreWidget(AdminTextareaWidget):
         template = get_template('hstore_%s_widget.html' % self.admin_style)
         # render additional html
         additional_html = template.render(template_context)
-        
+
         # append additional HTML and mark as safe
         html = html + additional_html
         html = mark_safe(html)
-        
+
         return html
 
 
