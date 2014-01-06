@@ -1,3 +1,5 @@
+from __future__ import unicode_literals, absolute_import
+
 from django import forms
 from django.contrib.admin.widgets import AdminTextareaWidget
 from django.contrib.admin.templatetags.admin_static import static

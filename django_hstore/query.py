@@ -1,3 +1,5 @@
+from __future__ import unicode_literals, absolute_import
+
 from django import VERSION
 from django.db import transaction
 from django.db.models.query import QuerySet

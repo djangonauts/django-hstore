@@ -1,3 +1,5 @@
+from __future__ import unicode_literals, absolute_import
+
 try:
     import simplejson as json
 except ImportError:
