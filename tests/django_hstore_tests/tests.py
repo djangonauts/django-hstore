@@ -70,7 +70,7 @@ class TestDictionaryField(TestCase):
         m.save()
         try:
             pickle.dumps(m)
-        except TypeError, e:
+        except TypeError as e:
             self.fail('pickle of DefaultsModel failed: %s' % e)
 
     def test_empty_instantiation(self):
