@@ -24,6 +24,7 @@ def runtests(test_labels=None, verbosity=1, interactive=True, failfast=True):
                 'django.contrib.contenttypes',
                 'django.contrib.sessions',
                 'django.contrib.admin',
+                'django.contrib.gis',
             ],
             ROOT_URLCONF='urls',
         )

@@ -8,6 +8,7 @@ from django.core.urlresolvers import reverse
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.contrib.auth.models import User
+from django.utils.encoding import force_text
 
 from django_hstore import get_version
 from django_hstore.fields import HStoreDict
@@ -30,9 +31,9 @@ class TestDictionaryField(TestCase):
 
     def _create_bitfield_bags(self):
         # create dictionaries with bits as dictionary keys (i.e. bag5 = { 'b0':'1', 'b2':'1'})
-        for i in xrange(10):
+        for i in range(10):
             DataBag.objects.create(name='bag%d' % (i,),
-                                   data=dict(('b%d' % (bit,), '1') for bit in xrange(4) if (1 << bit) & i))
+                                   data=dict(('b%d' % (bit,), '1') for bit in range(4) if (1 << bit) & i))
 
     def test_number(self):
         databag = DataBag(name='number')
@@ -168,12 +169,12 @@ class TestDictionaryField(TestCase):
 
     def test_value_in_subset_querying(self):
         alpha, beta = self._create_bags()
-        r = DataBag.objects.filter(data__contains={'v': [alpha.data['v']]})
-        self.assertEqual(len(r), 1)
-        self.assertEqual(r[0], alpha)
-        r = DataBag.objects.filter(data__contains={'v': [alpha.data['v'], beta.data['v']]})
-        self.assertEqual(len(r), 2)
-        self.assertEqual(set(r), set([alpha, beta]))
+        res = DataBag.objects.filter(data__contains={'v': [alpha.data['v']]})
+        self.assertEqual(len(res), 1)
+        self.assertEqual(res[0], alpha)
+        res = DataBag.objects.filter(data__contains={'v': [alpha.data['v'], beta.data['v']]})
+        self.assertEqual(len(res), 2)
+        self.assertEqual(set(res), set([alpha, beta]))
 
         # int values are ok
         r = DataBag.objects.filter(data__contains={'v': [int(alpha.data['v'])]})
@@ -306,9 +307,7 @@ class TestDictionaryField(TestCase):
 
     def test_hstoredictionary_unicoce_vs_str(self):
         d = HStoreDict({ 'test': 'test' })
-
         self.assertEqual(d.__str__(), d.__unicode__())
-        self.assertEqual(str(d), unicode(d))
 
     def test_hstore_model_field_validation(self):
         d = DataBag()
@@ -456,10 +455,10 @@ class TestReferencesField(TestCase):
         alpha, beta, refs = self._create_bags()
         self.assertEqual(RefsBag.objects.get(name='alpha').refs['0'], alpha.refs['0'])
         self.assertEqual(RefsBag.objects.get(name='alpha').refs['1'], alpha.refs['1'])
-        self.assertTrue(RefsBag.objects.get(name='alpha').refs.has_key('0'))
+        self.assertIn("0", RefsBag.objects.get(name='alpha').refs)
         RefsBag.objects.filter(name='alpha').hremove('refs', '0')
-        self.assertFalse(RefsBag.objects.get(name='alpha').refs.has_key('0'))
-        self.assertTrue(RefsBag.objects.get(name='alpha').refs.has_key('1'))
+        self.assertNotIn("0", RefsBag.objects.get(name='alpha').refs)
+        self.assertIn("1", RefsBag.objects.get(name='alpha').refs)
 
         self.assertEqual(RefsBag.objects.get(name='beta').refs['0'], beta.refs['0'])
         self.assertEqual(RefsBag.objects.get(name='beta').refs['1'], beta.refs['1'])
