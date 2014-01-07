@@ -88,10 +88,10 @@ def register_hstore(conn_or_curs, globally=False, unicode=False,
         else:
             array_oid = tuple([x for x in array_oid if x])
 
-    HSTORE = _ext.new_type(oid, "HSTORE", cast)
+    HSTORE = _ext.new_type(oid, str("HSTORE"), cast)
     _ext.register_type(HSTORE, not globally and conn_or_curs or None)
     _ext.register_adapter(dict, HstoreAdapter)
 
     if array_oid:
-        HSTOREARRAY = _ext.new_array_type(array_oid, "HSTOREARRAY", HSTORE)
+        HSTOREARRAY = _ext.new_array_type(array_oid, str("HSTOREARRAY"), HSTORE)
         _ext.register_type(HSTOREARRAY, not globally and conn_or_curs or None)
