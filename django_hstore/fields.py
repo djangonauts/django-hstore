@@ -1,77 +1,81 @@
+from __future__ import unicode_literals, absolute_import
+
 try:
     import simplejson as json
 except ImportError:
     import json
 
 from django.db import models, connection
+from django.utils import six
+from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
+
 from . import forms, utils, exceptions
+from .compat import UnicodeMixin
 
 
-class HStoreDict(dict):
+class HStoreDict(UnicodeMixin, dict):
     """
     A dictionary subclass which implements hstore support.
     """
-    
+
     def __init__(self, value=None, field=None, instance=None, connection=None, **params):
         # if passed value is string
         # ensure is json formatted
-        if isinstance(value, basestring):
+        if isinstance(value, six.string_types):
             try:
                 value = json.loads(value)
             except ValueError as e:
                 raise exceptions.HStoreDictException(
                     'HStoreDict accepts only valid json formatted strings.',
-                    json_error_message=e.message
+                    json_error_message=force_text(e)
                 )
         elif value is None:
             value = {}
-        
+
         # allow dictionaries only
         if not isinstance(value, dict):
             raise exceptions.HStoreDictException(
                 'HStoreDict accepts only dictionary objects, None and json formatted string representations of json objects'
             )
-        
+
         # ensure values are acceptable
-        for key, val in value.iteritems():
+        for key, val in value.items():
             value[key] = self.ensure_acceptable_value(val)
-        
+
         super(HStoreDict, self).__init__(value, **params)
         self.field = field
         self.instance = instance
-        
+
         # attribute that make possible
         # to use django_hstore without a custom backend
         self.connection = connection
-    
+
     def __setitem__(self, *args, **kwargs):
         args = (args[0], self.ensure_acceptable_value(args[1]))
         super(HStoreDict, self).__setitem__(*args, **kwargs)
-    
-    def __str__(self):
-        if self:
-            return json.dumps(self)
-        else:
-            return ''
-    
+
+    # This method is used both for python3 and python2
+    # thanks to UnicodeMixin
     def __unicode__(self):
-        return unicode(self.__str__())
-    
+        if self:
+            return force_text(json.dumps(self))
+        return u''
+
     def __getstate__(self):
         if self.connection:
             d = dict(self.__dict__)
             d['connection'] = None
             return d
         return self.__dict__
-    
+
     def __copy__(self):
         return self.__class__(self, self.field, self.connection)
-    
+
     def update(self, *args, **kwargs):
         for key, value in dict(*args, **kwargs).iteritems():
             self[key] = value
-    
+
     def ensure_acceptable_value(self, value):
         """
         - ensure booleans, integers, floats, lists and dicts are converted to string
@@ -81,14 +85,14 @@ class HStoreDict(dict):
         - leave alone all other objects because they might be representation of django models
         """
         if isinstance(value, bool):
-            return unicode(value).lower()
+            return force_text(value).lower()
         elif isinstance(value, int) or isinstance(value, float):
-            return unicode(value)
+            return force_text(value)
         elif isinstance(value, list) or isinstance(value, dict):
-            return json.dumps(value)
+            return force_text(json.dumps(value))
         else:
             return value
-    
+
     def prepare(self, connection):
         self.connection = connection
 
@@ -107,13 +111,13 @@ class HStoreReferenceDictionary(HStoreDict):
     def __getitem__(self, *args, **kwargs):
         value = super(self.__class__, self).__getitem__(*args, **kwargs)
         # if value is a string it needs to be converted to model instance
-        if isinstance(value, basestring):
+        if isinstance(value, six.string_types):
             reference = utils.acquire_reference(value)
             self.__setitem__(args[0], reference)
             return reference
         # otherwise just return the relation
         return value
-    
+
     def get(self, key, default=None):
         try:
             return self.__getitem__(key)
@@ -143,11 +147,11 @@ class HStoreReferenceDescriptor(models.fields.subclassing.Creator):
 
 class HStoreField(models.Field):
     """ HStore Base Field """
-    
+
     def validate(self, value, *args):
         super(HStoreField, self).validate(value, *args)
         forms.validate_hstore(value)
-    
+
     def contribute_to_class(self, cls, name):
         super(HStoreField, self).contribute_to_class(cls, name)
         setattr(cls, self.name, HStoreDescriptor(self))
@@ -205,7 +209,7 @@ class DictionaryField(HStoreField):
 
 class ReferencesField(HStoreField):
     description = _("A python dictionary of references to model instances in an hstore field.")
-    
+
     def contribute_to_class(self, cls, name):
         super(ReferencesField, self).contribute_to_class(cls, name)
         setattr(cls, self.name, HStoreReferenceDescriptor(self))

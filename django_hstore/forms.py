@@ -1,11 +1,15 @@
+from __future__ import unicode_literals, absolute_import
+
 try:
     import simplejson as json
 except ImportError:
     import json
 
 from django.forms import Field
+from django.utils import six
 from django.contrib.admin.widgets import AdminTextareaWidget
 from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext
 from django.core.exceptions import ValidationError
 
 from .widgets import AdminHStoreWidget
@@ -17,41 +21,41 @@ def validate_hstore(value):
     # if empty
     if value == '' or value == 'null':
         value = '{}'
-    
+
     # ensure valid JSON
     try:
         # convert strings to dictionaries
-        if isinstance(value, basestring):
+        if isinstance(value, six.string_types):
             dictionary = json.loads(value)
         # if not a string we'll check at the next control if it's a dict
         else:
             dictionary = value
     except ValueError as e:
-        raise ValidationError(_('Invalid JSON: %s') % e.message)
-    
+        raise ValidationError(ugettext(u'Invalid JSON: {}').format(e))
+
     # ensure is a dictionary
     if not isinstance(dictionary, dict):
-        raise ValidationError(_('No lists or values allowed, only dictionaries'))
-    
+        raise ValidationError(ugettext(u'No lists or values allowed, only dictionaries'))
+
     # convert any non string object into string
-    for key, value in dictionary.iteritems():
+    for key, value in dictionary.items():
         if isinstance(value, dict) or isinstance(value, list):
             dictionary[key] = json.dumps(value)
         elif isinstance(value, bool) or isinstance(value, int) or isinstance(value, float):
             dictionary[key] = unicode(value).lower()
-    
+
     return dictionary
 
 
 class JsonMixin(object):
-    
+
     def to_python(self, value):
         return validate_hstore(value)
 
     def render(self, name, value, attrs=None):
         # return json representation of a meaningful value
         # doesn't show anything for None, empty strings or empty dictionaries
-        if value and not isinstance(value, basestring):
+        if value and not isinstance(value, six.string_types):
             value = json.dumps(value, sort_keys=True, indent=4)
         return super(JsonMixin, self).render(name, value, attrs)
 

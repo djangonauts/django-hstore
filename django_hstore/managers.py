@@ -1,3 +1,5 @@
+from __future__ import unicode_literals, absolute_import
+
 from django.db import models
 from django.contrib.gis.db import models as geo_models
 from django_hstore.query import HStoreQuerySet, HStoreGeoQuerySet

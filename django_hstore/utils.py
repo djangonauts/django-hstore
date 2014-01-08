@@ -1,4 +1,7 @@
+from __future__ import unicode_literals, absolute_import
+
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils import six
 
 
 def acquire_reference(reference):
@@ -21,12 +24,12 @@ def identify_instance(instance):
 def serialize_references(references):
     refs = {}
     # if None or string return empty dict
-    if references is None or isinstance(references, basestring):
+    if references is None or isinstance(references, six.string_types):
         return {}
     # if dictionary do serialization
     elif isinstance(references, dict):
-        for key, instance in references.iteritems():
-            if not isinstance(instance, basestring):
+        for key, instance in references.items():
+            if not isinstance(instance, six.string_types):
                 refs[key] = identify_instance(instance)
             else:
                 refs[key] = instance
@@ -41,8 +44,8 @@ def unserialize_references(references):
     refs = {}
     if references is None:
         return refs
-    for key, reference in references.iteritems():
-        if isinstance(reference, basestring):
+    for key, reference in references.items():
+        if isinstance(reference, six.string_types):
             refs[key] = acquire_reference(reference)
         else:
             refs[key] = reference
@@ -85,10 +88,10 @@ def register_hstore(conn_or_curs, globally=False, unicode=False,
         else:
             array_oid = tuple([x for x in array_oid if x])
 
-    HSTORE = _ext.new_type(oid, "HSTORE", cast)
+    HSTORE = _ext.new_type(oid, str("HSTORE"), cast)
     _ext.register_type(HSTORE, not globally and conn_or_curs or None)
     _ext.register_adapter(dict, HstoreAdapter)
 
     if array_oid:
-        HSTOREARRAY = _ext.new_array_type(array_oid, "HSTOREARRAY", HSTORE)
+        HSTOREARRAY = _ext.new_array_type(array_oid, str("HSTOREARRAY"), HSTORE)
         _ext.register_type(HSTOREARRAY, not globally and conn_or_curs or None)
