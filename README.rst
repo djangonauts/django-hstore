@@ -1,6 +1,6 @@
-=============
-django-hstore
-=============
+=============================
+django-hstore (schemaless DB)
+=============================
 
 .. image:: https://travis-ci.org/djangonauts/django-hstore.png
    :target: https://travis-ci.org/djangonauts/django-hstore
@@ -10,11 +10,14 @@ django-hstore
 
 Django-hstore is a niche library which integrates the `hstore`_ extension of
 PostgreSQL into Django.
+ 
+HStore brings the power of schemaless databases into PostgreSQL, giving us the `advantage of flexibility and performance`_ without renouncing to the robustness of SQL databases.
 
 Mailing List: https://groups.google.com/forum/#!forum/django-hstore
 
 Dependencies:
 
+* **Python 2.6, 2.7 or 3.3**
 * **Django 1.4, 1.5 and 1.6**
 * **PostgreSQL 9.0+**
 * **Psycopg 2.3+**.
@@ -22,6 +25,7 @@ Dependencies:
 Extras:
 
 * **Postgis compatibility**
+* **Python3** support
 * usable **admin widget**
 * nice admin widget for **django-grappelli**
 
@@ -41,6 +45,8 @@ PostgreSQL's implementation of hstore has no concept of type; it stores a
 mapping of string keys to string values.
 
 Values are stored as strings in the database regarding of their original type.
+
+**Important Note:** the future version of HStore will bring types, nested structures and more advanced features, for more info read `On the state of HStore`_ by Engine Yard.
 
 =======
 Install
@@ -336,6 +342,8 @@ More details here: `PostgreSQL error type hstore does not exist`_
 .. _hstore: http://www.postgresql.org/docs/9.1/interactive/hstore.html
 .. _PostgreSQL error type hstore does not exist: http://clarkdave.net/2012/09/postgresql-error-type-hstore-does-not-exist/
 .. _django-grappelli: http://grappelliproject.com/
+.. _advantage of flexibility and performance: http://www.craigkerstiens.com/2013/07/03/hstore-vs-json/
+.. _On the state of HStore: https://blog.engineyard.com/2013/on-the-state-of-hstore
 
 =================
 How to contribute

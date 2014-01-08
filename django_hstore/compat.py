@@ -1,5 +1,6 @@
 import sys
 
+
 class UnicodeMixin(object):
   """
   Mixin class to handle defining the proper __str__/__unicode__
