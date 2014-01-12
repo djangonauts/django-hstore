@@ -14,7 +14,7 @@ env:
 
 branches:
   only:
-    - master 
+    - master
 
 before_install:
  - sudo add-apt-repository -r -y ppa:ubuntugis/ppa
@@ -30,9 +30,11 @@ install:
   - python setup.py -q install
 
 before_script:
+  - psql template1 -c 'create extension hstore;'
   - find / -name postgis.sql || true
   - curl https://raw.github.com/django/django/1.5.5/docs/ref/contrib/gis/install/create_template_postgis-debian.sh | sh
   - createdb -T template_postgis django_hstore
+
 
 # command to run tests, e.g. python setup.py test
 script:
