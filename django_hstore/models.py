@@ -14,36 +14,27 @@ class ConnectionCreateHandler(object):
     With facilty of attaching single execution methods.
     """
 
-    generic_handlers = {}
-    unique_handlers = {}
+    generic_handlers = []
+    unique_handlers = []
 
     def __call__(self, sender, connection, **kwargs):
         handlers = set()
-        if None in self.unique_handlers:
-            handlers.update(self.unique_handlers[None])
-            del self.unique_handlers[None]
 
-        if connection.vendor in self.unique_handlers:
-            handlers.update(self.unique_handlers[connection.vendor])
-            del self.unique_handlers[connection.vendor]
+        if len(self.unique_handlers) > 0:
+            handlers.update(self.unique_handlers)
+            self.unique_handlers = []
 
-        if connection.vendor in self.generic_handlers:
-            handlers.update(self.generic_handlers[connection.vendor])
+        handlers.update(self.generic_handlers)
 
+        # List comprension is used instead of for statement
+        # only for performance.
         [x(connection) for x in handlers]
 
     def attach_handler(self, func, vendor=None, unique=False):
         if unique:
-            if vendor not in self.unique_handlers:
-                self.unique_handlers[vendor] = [func]
-            else:
-                self.unique_handlers[vendor].append(func)
-
+            self.unique_handlers.append(func)
         else:
-            if vendor not in self.generic_handlers:
-                self.generic_handlers[vendor] = [func]
-            else:
-                self.generic_handlers[vendor].append(func)
+            self.generic_handlers.append(func)
 
 
 connection_handler = ConnectionCreateHandler()
