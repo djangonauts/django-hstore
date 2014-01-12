@@ -47,8 +47,7 @@ class ConnectionCreateHandler(object):
 
 
 connection_handler = ConnectionCreateHandler()
-connection_created.connect(connection_handler, attach_handler,
-                           dispatch_uid="_connection_create_handler")
+connection_created.connect(connection_handler, dispatch_uid="_connection_create_handler")
 
 
 def register_hstore_handler(connection, **kwargs):
