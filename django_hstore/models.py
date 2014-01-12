@@ -51,16 +51,3 @@ def register_hstore_handler(connection, **kwargs):
         register_hstore(connection.connection, globally=True)
 
 connection_handler.attach_handler(register_hstore_handler, vendor="postgresql", unique=True)
-
-
-# def register_hstore_extension(sender, connection, *args, **kwargs):
-#     # register hstore extension
-#     register_hstore(connection.connection, globally=True, unicode=True)
-#
-# # register hstore field on DB connection for postgresql_psycopg2
-# connection_created.connect(register_hstore_extension, sender=DatabaseWrapper,
-#                            dispatch_uid="_register_hstore")
-#
-# # register hstore field on DB connection for postgis
-# connection_created.connect(register_hstore_extension, sender=GeoDatabaseWrapper,
-#                            dispatch_uid="_register_hstore_gis")
