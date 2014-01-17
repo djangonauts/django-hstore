@@ -8,6 +8,17 @@ django-hstore (schemaless DB)
 .. image:: https://coveralls.io/repos/djangonauts/django-hstore/badge.png
   :target: https://coveralls.io/r/djangonauts/django-hstore
 
+.. image:: https://landscape.io/github/djangonauts/django-hstore/master/landscape.png
+   :target: https://landscape.io/github/djangonauts/django-hstore/master
+   :alt: Code Health
+
+.. image:: https://badge.fury.io/py/django-hstore.png
+    :target: http://badge.fury.io/py/django-hstore
+
+.. image:: https://requires.io/github/djangonauts/django-hstore/requirements.png?branch=master
+   :target: https://requires.io/github/djangonauts/django-hstore/requirements/?branch=master
+   :alt: Requirements Status
+
 Django-hstore is a niche library which integrates the `hstore`_ extension of
 PostgreSQL into Django.
  
@@ -48,11 +59,21 @@ Values are stored as strings in the database regarding of their original type.
 
 **Important Note:** the future version of HStore will bring types, nested structures and more advanced features, for more info read `On the state of HStore`_ by Engine Yard.
 
-=======
-Install
-=======
+================
+Install (stable)
+================
 
-Install using pip (you need git) by running:
+Install the stable version using pip by running:
+
+.. code-block:: bash
+
+    pip install django-hstore
+
+=============
+Install (dev)
+=============
+
+Install the development version with pip (you need git) by running:
 
 .. code-block:: bash
 
