@@ -1,8 +1,6 @@
 import sys
 
 from django.db.backends.signals import connection_created
-from django.db.backends.postgresql_psycopg2.base import DatabaseWrapper  # TODO: this will have to be removed if not needed
-from django.contrib.gis.db.backends.postgis.base import DatabaseWrapper as GeoDatabaseWrapper
 
 from .utils import register_hstore
 
@@ -51,9 +49,3 @@ def register_hstore_handler(connection, **kwargs):
         register_hstore(connection.connection, globally=True)
 
 connection_handler.attach_handler(register_hstore_handler, vendor="postgresql", unique=True)
-
-# register hstore field on DB connection for postgis
-# NOTE:
-# this is not to be considered a definitive fix
-# rather an hint
-connection_created.connect(register_hstore_handler, sender=GeoDatabaseWrapper)
