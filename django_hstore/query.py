@@ -17,7 +17,7 @@ try:
         GeoWhereNode, GeoConstraint
     gis_properly_configured = True
 except:
-    gis_properly_configured = True
+    gis_properly_configured = False
 
 
 class literal_clause(object):
