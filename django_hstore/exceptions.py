@@ -1,5 +1,6 @@
 from __future__ import unicode_literals, absolute_import
 
+
 class HStoreDictException(Exception):
     json_error_message = None
 

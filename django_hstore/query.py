@@ -10,9 +10,14 @@ from django.db.models.sql.query import Query
 from django.db.models.sql.subqueries import UpdateQuery
 from django.db.models.sql.where import EmptyShortCircuit, WhereNode
 
-from django.contrib.gis.db.models.query import GeoQuerySet
-from django.contrib.gis.db.models.sql.query import GeoQuery
-from django.contrib.gis.db.models.sql.where import GeoWhereNode, GeoConstraint
+try:
+    from django.contrib.gis.db.models.query import GeoQuerySet
+    from django.contrib.gis.db.models.sql.query import GeoQuery
+    from django.contrib.gis.db.models.sql.where import \
+        GeoWhereNode, GeoConstraint
+    gis_properly_configured = True
+except:
+    gis_properly_configured = True
 
 
 class literal_clause(object):
@@ -128,17 +133,18 @@ class HStoreWhereNode(WhereNode):
     make_hstore_atom = make_atom
 
 
-class HStoreGeoWhereNode(HStoreWhereNode, GeoWhereNode):
+if gis_properly_configured:
+    class HStoreGeoWhereNode(HStoreWhereNode, GeoWhereNode):
 
-    def make_atom(self, child, qn, connection):
-        lvalue, lookup_type, value_annot, params_or_value = child
+        def make_atom(self, child, qn, connection):
+            lvalue, lookup_type, value_annot, params_or_value = child
 
-        # if spatial query
-        if isinstance(lvalue, GeoConstraint):
-            return GeoWhereNode.make_atom(self, child, qn, connection)
+            # if spatial query
+            if isinstance(lvalue, GeoConstraint):
+                return GeoWhereNode.make_atom(self, child, qn, connection)
 
-        # else might be an HSTORE query
-        return HStoreWhereNode.make_atom(self, child, qn, connection)
+            # else might be an HSTORE query
+            return HStoreWhereNode.make_atom(self, child, qn, connection)
 
 
 class HStoreQuery(Query):
@@ -147,11 +153,12 @@ class HStoreQuery(Query):
         super(HStoreQuery, self).__init__(model, HStoreWhereNode)
 
 
-class HStoreGeoQuery(GeoQuery, Query):
+if gis_properly_configured:
+    class HStoreGeoQuery(GeoQuery, Query):
 
-    def __init__(self, *args, **kwargs):
-        model = kwargs.pop('model', None) or args[0]
-        super(HStoreGeoQuery, self).__init__(model, HStoreGeoWhereNode)
+        def __init__(self, *args, **kwargs):
+            model = kwargs.pop('model', None) or args[0]
+            super(HStoreGeoQuery, self).__init__(model, HStoreGeoWhereNode)
 
 
 class HStoreQuerySet(QuerySet):
@@ -213,8 +220,9 @@ class HStoreQuerySet(QuerySet):
         return query
 
 
-class HStoreGeoQuerySet(HStoreQuerySet, GeoQuerySet):
+if gis_properly_configured:
+    class HStoreGeoQuerySet(HStoreQuerySet, GeoQuerySet):
 
-    def __init__(self, model=None, query=None, using=None):
-        query = query or HStoreGeoQuery(model)
-        super(HStoreGeoQuerySet, self).__init__(model=model, query=query, using=using)
+        def __init__(self, model=None, query=None, using=None):
+            query = query or HStoreGeoQuery(model)
+            super(HStoreGeoQuerySet, self).__init__(model=model, query=query, using=using)
