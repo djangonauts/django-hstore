@@ -52,10 +52,11 @@ grappelli admin widget screenshot:
 Limitations
 ===========
 
-PostgreSQL's implementation of hstore has no concept of type; it stores a
-mapping of string keys to string values.
-
-Values are stored as strings in the database regarding of their original type.
+* PostgreSQL's implementation of hstore has no concept of type; it stores a
+  mapping of string keys to string values. Values are stored as strings in the
+  database regarding of their original type.
+* Hstore extension is not automatically installed on use this package. You must install it manually.
+* To run tests, hstore extension must be installed on template1 database.
 
 **Important Note:** the future version of HStore will bring types, nested structures and more advanced features, for more info read `On the state of HStore`_ by Engine Yard.
 

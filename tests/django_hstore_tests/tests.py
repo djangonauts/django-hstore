@@ -34,6 +34,11 @@ class TestDictionaryField(TestCase):
         for i in range(10):
             DataBag.objects.create(name='bag%d' % (i,),
                                    data=dict(('b%d' % (bit,), '1') for bit in range(4) if (1 << bit) & i))
+    
+    def test_hstore_dict(self):
+        alpha, beta = self._create_bags()
+        self.assertEqual(alpha.data, {'v': '1', 'v2': '3'})
+        self.assertEqual(beta.data, {'v': '2', 'v2': '4'})
 
     def test_number(self):
         databag = DataBag(name='number')

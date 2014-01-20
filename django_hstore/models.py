@@ -1,27 +1,51 @@
+import sys
+
 from django.db.backends.signals import connection_created
-from django.db.backends.postgresql_psycopg2.base import DatabaseWrapper
-from django.contrib.gis.db.backends.postgis.base import DatabaseWrapper as GeoDatabaseWrapper
 
 from .utils import register_hstore
 
 
-def register_hstore_extension(sender, connection, *args, **kwargs):
-    # create hstore extension if it doesn't exist
-    # experimental
-    cursor = connection.cursor()
-    cursor.execute("CREATE EXTENSION IF NOT EXISTS hstore")
-    try:
-        connection.connection.commit_unless_managed()
-    # it seems django 1.6 does not have this attribute anymore
-    # probably due to changes to the transaction internals
-    except AttributeError:
-        pass
-    # register hstore extension
-    register_hstore(connection.connection, globally=True, unicode=True)
+class ConnectionCreateHandler(object):
+    """
+    Generic connection handlers manager.
+    Executes attacched funcitions when connection is created.
+    With facilty of attaching single execution methods.
+    """
+
+    generic_handlers = []
+    unique_handlers = []
+
+    def __call__(self, sender, connection, **kwargs):
+        handlers = set()
+
+        if len(self.unique_handlers) > 0:
+            handlers.update(self.unique_handlers)
+            self.unique_handlers = []
+
+        handlers.update(self.generic_handlers)
+
+        # List comprension is used instead of for statement
+        # only for performance.
+        [x(connection) for x in handlers]
+
+    def attach_handler(self, func, vendor=None, unique=False):
+        if unique:
+            self.unique_handlers.append(func)
+        else:
+            self.generic_handlers.append(func)
 
 
-# register hstore field on DB connection for postgresql_psycopg2
-connection_created.connect(register_hstore_extension, sender=DatabaseWrapper)
+connection_handler = ConnectionCreateHandler()
+connection_created.connect(connection_handler, dispatch_uid="_connection_create_handler")
 
-# register hstore field on DB connection for postgis
-connection_created.connect(register_hstore_extension, sender=GeoDatabaseWrapper)
+
+def register_hstore_handler(connection, **kwargs):
+    if not connection.settings_dict.get('HAS_HSTORE', True):
+        return
+
+    if sys.version_info[0] < 3:
+        register_hstore(connection.connection, globally=True, unicode=True)
+    else:
+        register_hstore(connection.connection, globally=True)
+
+connection_handler.attach_handler(register_hstore_handler, vendor="postgresql", unique=True)
