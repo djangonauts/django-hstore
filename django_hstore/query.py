@@ -24,9 +24,9 @@ class literal_clause(object):
 
 
 try:
-    from django.db.models.sql.where import QueryWrapper  # django <= 1.3
-except ImportError:
     from django.db.models.query_utils import QueryWrapper  # django >= 1.4
+except ImportError:
+    from django.db.models.sql.where import QueryWrapper  # django <= 1.3
 
 
 def select_query(method):

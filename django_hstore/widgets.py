@@ -18,6 +18,8 @@ class BaseAdminHStoreWidget(AdminTextareaWidget):
     """
     Base admin widget class for default-admin and grappelli-admin widgets
     """
+    admin_style = 'default'
+    
     @property
     def media(self):
         # load underscore from CDNJS (popular javascript content delivery network)
