@@ -12,12 +12,15 @@ django-hstore (schemaless DB)
    :target: https://landscape.io/github/djangonauts/django-hstore/master
    :alt: Code Health
 
-.. image:: https://badge.fury.io/py/django-hstore.png
-    :target: http://badge.fury.io/py/django-hstore
-
 .. image:: https://requires.io/github/djangonauts/django-hstore/requirements.png?branch=master
    :target: https://requires.io/github/djangonauts/django-hstore/requirements/?branch=master
    :alt: Requirements Status
+
+.. image:: https://badge.fury.io/py/django-hstore.png
+    :target: http://badge.fury.io/py/django-hstore
+
+.. image:: https://pypip.in/d/django-hstore/badge.png
+    :target: http://badge.fury.io/py/django-hstore
 
 Django-hstore is a niche library which integrates the `hstore`_ extension of
 PostgreSQL into Django.
