@@ -7,9 +7,9 @@ from django_hstore.query import HStoreQuerySet
 try:
     from django.contrib.gis.db import models as geo_models
     from django_hstore.query import HStoreGeoQuerySet
-    gis_properly_configured = True
+    GEODJANGO_INSTALLED = True
 except:
-    gis_properly_configured = False
+    GEODJANGO_INSTALLED = False
 
 
 class HStoreManager(models.Manager):
@@ -31,7 +31,7 @@ class HStoreManager(models.Manager):
         return self.filter(**params).hslice(attr, keys)
 
 
-if gis_properly_configured:
+if GEODJANGO_INSTALLED:
     class HStoreGeoManager(geo_models.GeoManager, HStoreManager):
         """
         Object manager combining Geodjango and hstore.

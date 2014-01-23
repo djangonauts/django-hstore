@@ -15,9 +15,9 @@ try:
     from django.contrib.gis.db.models.sql.query import GeoQuery
     from django.contrib.gis.db.models.sql.where import \
         GeoWhereNode, GeoConstraint
-    gis_properly_configured = True
+    GEODJANGO_INSTALLED = True
 except:
-    gis_properly_configured = False
+    GEODJANGO_INSTALLED = False
 
 
 class literal_clause(object):
@@ -133,7 +133,7 @@ class HStoreWhereNode(WhereNode):
     make_hstore_atom = make_atom
 
 
-if gis_properly_configured:
+if GEODJANGO_INSTALLED:
     class HStoreGeoWhereNode(HStoreWhereNode, GeoWhereNode):
 
         def make_atom(self, child, qn, connection):
@@ -153,7 +153,7 @@ class HStoreQuery(Query):
         super(HStoreQuery, self).__init__(model, HStoreWhereNode)
 
 
-if gis_properly_configured:
+if GEODJANGO_INSTALLED:
     class HStoreGeoQuery(GeoQuery, Query):
 
         def __init__(self, *args, **kwargs):
@@ -220,7 +220,7 @@ class HStoreQuerySet(QuerySet):
         return query
 
 
-if gis_properly_configured:
+if GEODJANGO_INSTALLED:
     class HStoreGeoQuerySet(HStoreQuerySet, GeoQuerySet):
 
         def __init__(self, model=None, query=None, using=None):
