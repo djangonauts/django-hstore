@@ -31,7 +31,7 @@ def validate_hstore(value):
         else:
             dictionary = value
     except ValueError as e:
-        raise ValidationError(ugettext(u'Invalid JSON: {}').format(e))
+        raise ValidationError(ugettext(u'Invalid JSON: {0}').format(e))
 
     # ensure is a dictionary
     if not isinstance(dictionary, dict):
