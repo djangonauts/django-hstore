@@ -1,17 +1,9 @@
 from setuptools import setup, find_packages
-from setuptools.command.test import test
-from setuptools import setup
 import re
 import os
 import sys
 
 from django_hstore import get_version
-
-
-class TestCommand(test):
-    def run(self):
-        from tests.runtests import runtests
-        runtests()
 
 
 def get_packages(package):
@@ -64,5 +56,4 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.3',
     ],
-    cmdclass={"test": TestCommand},
 )
