@@ -24,7 +24,7 @@ django-hstore (schemaless DB)
 
 Django-hstore is a niche library which integrates the `hstore`_ extension of
 PostgreSQL into Django.
- 
+
 HStore brings the power of schemaless databases into PostgreSQL, giving us the `advantage of flexibility and performance`_ without renouncing to the robustness of SQL databases.
 
 Mailing List: https://groups.google.com/forum/#!forum/django-hstore
@@ -346,11 +346,11 @@ running:
 
 .. code-block:: bash
 
-    python setup.py test
+    python runtests.py
 
-You might need to tweak the DB settings according to your DB configuration.
-You can copy the file settings.py and create **local_settings.py**, which will
-be used instead of the default settings.py.
+You might need to tweak the DB settings according to your DB configuration. For it,
+you can copy the file ``local_settings.py.example`` to ``local_settings.py`` and add
+your database tweaks on it. ``local_settings.py`` will be automatically imported.
 
 If after running this command you get an **error** saying::
 
