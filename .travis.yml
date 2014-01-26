@@ -35,10 +35,9 @@ before_script:
   - curl https://raw.github.com/django/django/1.5.5/docs/ref/contrib/gis/install/create_template_postgis-debian.sh | sh
   - createdb -T template_postgis django_hstore
 
-
 # command to run tests, e.g. python setup.py test
 script:
-  - coverage run --source django_hstore,django_hstore_tests setup.py test
+  - coverage run --source django_hstore runtests.py
 
 after_success:
   coveralls
