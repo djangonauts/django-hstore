@@ -75,3 +75,8 @@ else:
     except ImportError:
         print("For run tests with django <= 1.5 you should install "
               "django-discover-runner.")
+
+try:
+    from local_settings import *
+except ImportError:
+    pass
