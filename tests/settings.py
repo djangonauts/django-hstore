@@ -67,6 +67,12 @@ USE_L10N = True
 USE_TZ = True
 STATIC_URL = '/static/'
 
+# local settings must be imported before test runner otherwise they'll be ignored
+try:
+    from local_settings import *
+except ImportError:
+    pass
+
 if django.VERSION[:2] >= (1, 6):
     TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 else:
@@ -77,8 +83,3 @@ else:
         print("For run tests with django <= 1.5 you should install "
               "django-discover-runner.")
         sys.exit(-1)
-
-try:
-    from local_settings import *
-except ImportError:
-    pass
