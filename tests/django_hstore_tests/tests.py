@@ -34,7 +34,7 @@ class TestDictionaryField(TestCase):
         for i in range(10):
             DataBag.objects.create(name='bag%d' % (i,),
                                    data=dict(('b%d' % (bit,), '1') for bit in range(4) if (1 << bit) & i))
-    
+
     def test_hstore_dict(self):
         alpha, beta = self._create_bags()
         self.assertEqual(alpha.data, {'v': '1', 'v2': '3'})
@@ -499,12 +499,12 @@ class TestReferencesField(TestCase):
         refs = unserialize_references(alpha.refs)
         # repeat
         refs = unserialize_references(alpha.refs)
-        self.assertEquals(len(unserialize_references(refs).keys()), 2)
-        self.assertEquals(unserialize_references(None), {})
+        self.assertEqual(len(unserialize_references(refs).keys()), 2)
+        self.assertEqual(unserialize_references(None), {})
 
     def test_serialize_references_edge_cases(self):
-        self.assertEquals(serialize_references(None), {})
-        self.assertEquals(serialize_references({ 'test': 'test' }), { 'test': 'test' })
+        self.assertEqual(serialize_references(None), {})
+        self.assertEqual(serialize_references({ 'test': 'test' }), { 'test': 'test' })
 
     def test_acquire_references_edge_cases(self):
         with self.assertRaises(ValueError):
