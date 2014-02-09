@@ -6,8 +6,13 @@ class DataBagAdmin(admin.ModelAdmin):
     pass
 
 
+class DefaultsInlineAdmin(admin.StackedInline):
+    model = DefaultsInline
+    extra = 0
+
+
 class DefaultsModelAdmin(admin.ModelAdmin):
-    pass
+    inlines = [DefaultsInlineAdmin]
 
 
 class RefsBagAdmin(admin.ModelAdmin):

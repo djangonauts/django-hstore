@@ -15,6 +15,7 @@ __all__ = [
     'NullableRefsBag',
     'DefaultsModel',
     'BadDefaultsModel',
+    'DefaultsInline',
     'GEODJANGO'
 ]
 
@@ -53,6 +54,11 @@ class DefaultsModel(models.Model):
 
 class BadDefaultsModel(models.Model):
     a = hstore.DictionaryField(default=None)
+
+
+class DefaultsInline(models.Model):
+    parent = models.ForeignKey(DefaultsModel)
+    d = hstore.DictionaryField(default={ 'default': 'yes' })
 
 
 # if geodjango is in use define Location model, which contains GIS data
