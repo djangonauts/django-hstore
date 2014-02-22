@@ -4,6 +4,7 @@ import pickle
 from django.db import transaction
 from django.db.models.aggregates import Count
 from django.db.utils import IntegrityError, DatabaseError
+from django import forms
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ValidationError
 from django.test import TestCase
@@ -11,6 +12,7 @@ from django.contrib.auth.models import User
 from django.utils.encoding import force_text
 
 from django_hstore import get_version
+from django_hstore.forms import DictionaryFieldWidget, ReferencesFieldWidget
 from django_hstore.fields import HStoreDict
 from django_hstore.exceptions import HStoreDictException
 from django_hstore.utils import unserialize_references, serialize_references, acquire_reference
@@ -361,6 +363,46 @@ class TestDictionaryField(TestCase):
         # ensure textarea with id="id_data" is there
         self.assertContains(response, 'textarea')
         self.assertContains(response, 'id_data')
+
+    def test_dictionary_default_admin_widget(self):
+        class HForm(forms.ModelForm):
+            class Meta:
+                model = DataBag
+
+        form = HForm()
+        self.assertEqual(form.fields['data'].widget.__class__, DictionaryFieldWidget)
+
+    def test_dictionary_custom_admin_widget(self):
+        class CustomWidget(forms.Widget):
+            pass
+
+        class HForm(forms.ModelForm):
+            class Meta:
+                model = DataBag
+                widgets = {'data': CustomWidget}
+
+        form = HForm()
+        self.assertEqual(form.fields['data'].widget.__class__, CustomWidget)
+
+    def test_references_default_admin_widget(self):
+        class HForm(forms.ModelForm):
+            class Meta:
+                model = RefsBag
+
+        form = HForm()
+        self.assertEqual(form.fields['refs'].widget.__class__, ReferencesFieldWidget)
+
+    def test_references_custom_admin_widget(self):
+        class CustomWidget(forms.Widget):
+            pass
+
+        class HForm(forms.ModelForm):
+            class Meta:
+                model = RefsBag
+                widgets = {'refs': CustomWidget}
+
+        form = HForm()
+        self.assertEqual(form.fields['refs'].widget.__class__, CustomWidget)
 
     def test_get_version(self):
         get_version()

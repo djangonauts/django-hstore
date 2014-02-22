@@ -76,7 +76,7 @@ class DictionaryField(JsonMixin, Field):
     A dictionary form field.
     """
     def __init__(self, **params):
-        params['widget'] = DictionaryFieldWidget
+        params['widget'] = params.get('widget', DictionaryFieldWidget)
         super(DictionaryField, self).__init__(**params)
 
 
@@ -85,7 +85,7 @@ class ReferencesField(JsonMixin, Field):
     A references form field.
     """
     def __init__(self, **params):
-        params['widget'] = ReferencesFieldWidget
+        params['widget'] = params.get('widget', ReferencesFieldWidget)
         super(ReferencesField, self).__init__(**params)
 
     def to_python(self, value):
