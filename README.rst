@@ -337,6 +337,43 @@ Once references have been retrieved they will be stored for any eventual subsequ
     r.refs
     { u'another_object': <AnotherModel: AnotherModel object>, u'some_object': u'myapp.models.AnotherModel:2' }
 
+=======================
+Multiple database setup
+=======================
+
+If for some reason you have to use django-hstore in a **multi-database setup** and
+some of the database you are using don't have the hstore extension installed,
+you can skip hstore registration by setting ``HAS_HSTORE`` to ``False`` in your
+database config:
+
+.. code-block:: python
+
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'name',
+            'USER': 'user',
+            'PASSWORD': 'pass',
+            'HOST': 'localhost',
+            'PORT': '',
+        },
+        'other': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'other',
+            'USER': 'user',
+            'PASSWORD': 'pass',
+            'HOST': 'localhost',
+            'PORT': '',
+            'HAS_HSTORE': False,
+        }
+    }
+
+If you do that, then don't try to create ``DictionaryField`` in that database.
+
+Be sure to check out allow_syncdb_ documentation.
+
+.. _allow_syncdb: https://docs.djangoproject.com/en/1.5/topics/db/multi-db/#allow_syncdb
+
 =================
 Running the tests
 =================
