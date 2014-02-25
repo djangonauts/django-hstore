@@ -125,6 +125,10 @@ class HStoreWhereNode(WhereNode):
                 else:
                     raise ValueError('invalid value')
 
+            elif lookup_type == 'isnull':
+                # do not perform any special format
+                return super(HStoreWhereNode, self).make_atom(child, qn, connection)
+
             else:
                 raise TypeError('invalid lookup type')
 
