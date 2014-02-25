@@ -92,6 +92,13 @@ class TestDictionaryField(TestCase):
         self.assertTrue(DataBag.objects.filter(data={}))
         self.assertTrue(DataBag.objects.filter(data__contains={}))
 
+    def test_nullable_queryinig(self):
+        NullableDataBag.objects.create(name='nullable')
+        self.assertTrue(NullableDataBag.objects.get(data=None))
+        self.assertTrue(NullableDataBag.objects.filter(data__exact=None))
+        self.assertTrue(NullableDataBag.objects.filter(data__isnull=True))
+        self.assertFalse(NullableDataBag.objects.filter(data__isnull=False))
+
     def test_named_querying(self):
         alpha, beta = self._create_bags()
         self.assertEqual(DataBag.objects.get(name='alpha'), alpha)
