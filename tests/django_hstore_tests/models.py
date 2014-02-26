@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib.gis.db import models as geo_models
 from django.conf import settings
 
 from django_hstore import hstore
@@ -11,6 +10,7 @@ GEODJANGO = settings.DATABASES['default']['ENGINE'] == 'django.contrib.gis.db.ba
 __all__ = [
     'Ref',
     'DataBag',
+    'NullableDataBag',
     'RefsBag',
     'NullableRefsBag',
     'DefaultsModel',
@@ -35,6 +35,10 @@ class DataBag(HStoreModel):
     name = models.CharField(max_length=32)
     data = hstore.DictionaryField()
 
+
+class NullableDataBag(HStoreModel):
+    name = models.CharField(max_length=32)
+    data = hstore.DictionaryField(null=True)
 
 class RefsBag(HStoreModel):
     name = models.CharField(max_length=32)
@@ -63,6 +67,7 @@ class DefaultsInline(models.Model):
 
 # if geodjango is in use define Location model, which contains GIS data
 if GEODJANGO:
+    from django.contrib.gis.db import models as geo_models
     class Location(geo_models.Model):
         name = geo_models.CharField(max_length=32)
         data = hstore.DictionaryField()
