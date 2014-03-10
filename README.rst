@@ -34,7 +34,7 @@ Dependencies:
 * **Python 2.6, 2.7 or 3.3**
 * **Django 1.4, 1.5 and 1.6**
 * **PostgreSQL 9.0+**
-* **Psycopg 2.3+**.
+* **Psycopg 2.4.3+**.
 
 Extras:
 
