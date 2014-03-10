@@ -424,6 +424,15 @@ How to contribute
 .. _PEP8, Style Guide for Python Code: http://www.python.org/dev/peps/pep-0008/
 .. _django-hstore mailing list: https://groups.google.com/forum/#!forum/django-hstore
 
+==================
+Deprecation policy
+==================
+
+At any momment of time, **django-hstore** developers will mantain support for three versions of django.
+
+As example: The current stable release of django is 1.6, so django-hstore official supported versions are: 1.4, 1.5 and 1.6. When
+django 1.7 is released, 1.4 version will become on unsupported django version.
+
 
 .. image:: https://d2weczhvl823v0.cloudfront.net/djangonauts/django-hstore/trend.png
    :target: https://bitdeli.com/free
