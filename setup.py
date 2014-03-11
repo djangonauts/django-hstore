@@ -30,14 +30,20 @@ def get_package_data(package):
                           for filename in filenames])
     return {package: filepaths}
 
+
 setup(
     name='django-hstore',
     version=get_version(),
-    description="Support for PostgreSQL's hstore for Django.",
+    description="Bring schemaless PostgreSQL (HStore) in Django",
     long_description=open('README.rst').read(),
-    author='Federico Capoano (nemesisdesign)',
+    author='Jordan McCoy',
+    maintainer='Djangonauts Organization',
+    maintainer_email='django-hstore@googlegroups.com',
     license='BSD',
     url='https://github.com/djangonauts/django-hstore',
+    download_url='https://github.com/djangonauts/django-hstore/releases',
+    platforms=['Platform Indipendent'],
+    keywords=['django', 'hstore', 'schemaless'],
     packages=get_packages('django_hstore'),
     package_data=get_package_data('django_hstore'),
     zip_safe=False,
