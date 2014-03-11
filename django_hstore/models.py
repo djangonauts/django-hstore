@@ -8,8 +8,8 @@ from .utils import register_hstore
 class ConnectionCreateHandler(object):
     """
     Generic connection handlers manager.
-    Executes attacched funcitions when connection is created.
-    With facilty of attaching single execution methods.
+    Executes attached functions when connection is created.
+    With possibility of attaching single execution methods.
     """
 
     generic_handlers = []
@@ -24,7 +24,7 @@ class ConnectionCreateHandler(object):
 
         handlers.update(self.generic_handlers)
 
-        # List comprension is used instead of for statement
+        # List comprehension is used instead of for statement
         # only for performance.
         [x(connection) for x in handlers]
 
@@ -40,7 +40,9 @@ connection_created.connect(connection_handler, dispatch_uid="_connection_create_
 
 
 def register_hstore_handler(connection, **kwargs):
-    if not connection.settings_dict.get('HAS_HSTORE', True):
+    # do not register hstore if DB is not postgres
+    # do not register if HAS_HSTORE flag is set to false
+    if connection.vendor != 'postgresql' or connection.settings_dict.get('HAS_HSTORE', True) is False:
         return
 
     if sys.version_info[0] < 3:
