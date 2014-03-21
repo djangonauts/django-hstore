@@ -12,3 +12,5 @@ def get_version():
         if VERSION[3] != 'final':
             version = '%s %s' % (version, VERSION[3])
     return version
+
+default_app_config = 'django_hstore.apps.HStoreConfig'

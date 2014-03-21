@@ -167,9 +167,9 @@ if GEODJANGO_INSTALLED:
 
 class HStoreQuerySet(QuerySet):
 
-    def __init__(self, model=None, query=None, using=None):
+    def __init__(self, model=None, query=None, using=None, *args, **kwargs):
         query = query or HStoreQuery(model)
-        super(HStoreQuerySet, self).__init__(model=model, query=query, using=using)
+        super(HStoreQuerySet, self).__init__(model=model, query=query, using=using, *args, **kwargs)
 
     @select_query
     def hkeys(self, query, attr):
