@@ -561,6 +561,88 @@ class TestReferencesField(TestCase):
         with self.assertRaises(ValueError):
             acquire_reference(None)
 
+    def test_native_contains(self):
+        d = DataBag()
+        d.name = "A bag of data"
+        d.data = {
+            'd1': '1',
+            'd2': '2'
+        }
+        d.save()
+        result = DataBag.objects.filter(name__contains='of data')
+        self.assertEquals(result.count(), 1)
+        self.assertEquals(result[0].pk, d.pk)
+        result = DataBag.objects.filter(name__contains='OF data')
+        self.assertEquals(result.count(), 0)
+
+    def test_native_icontains(self):
+        d = DataBag()
+        d.name = "A bag of data"
+        d.data = {
+            'd1': '1',
+            'd2': '2'
+        }
+        d.save()
+        result = DataBag.objects.filter(name__icontains='A bAg')
+        self.assertEquals(result.count(), 1)
+        self.assertEquals(result[0].pk, d.pk)
+
+    def test_native_gt(self):
+        d = NumberedDataBag()
+        d.name = "A bag of data"
+        d.number = 12
+        d.save()
+        result = NumberedDataBag.objects.filter(number__gt=12)
+        self.assertEquals(result.count(), 0)
+        result = NumberedDataBag.objects.filter(number__gt=1)
+        self.assertEquals(result.count(), 1)
+        self.assertEquals(result[0].pk, d.pk)
+        result = NumberedDataBag.objects.filter(number__gt=13)
+        self.assertEquals(result.count(), 0)
+
+    def test_native_gte(self):
+        d = NumberedDataBag()
+        d.name = "A bag of data"
+        d.number = 12
+        d.save()
+        result = NumberedDataBag.objects.filter(number__gte=12)
+        self.assertEquals(result.count(), 1)
+        self.assertEquals(result[0].pk, d.pk)
+        result = NumberedDataBag.objects.filter(number__gte=1)
+        self.assertEquals(result.count(), 1)
+        self.assertEquals(result[0].pk, d.pk)
+        result = NumberedDataBag.objects.filter(number__gte=13)
+        self.assertEquals(result.count(), 0)
+
+    def test_native_lt(self):
+        d = NumberedDataBag()
+        d.name = "A bag of data"
+        d.number = 12
+        d.save()
+        result = NumberedDataBag.objects.filter(number__lt=20)
+        self.assertEquals(result.count(), 1)
+        self.assertEquals(result[0].pk, d.pk)
+        result = NumberedDataBag.objects.filter(number__lt=12)
+        self.assertEquals(result.count(), 0)
+        result = NumberedDataBag.objects.filter(number__lt=1)
+        self.assertEquals(result.count(), 0)
+
+
+    def test_native_lte(self):
+        d = NumberedDataBag()
+        d.name = "A bag of data"
+        d.number = 12
+        d.save()
+        result = NumberedDataBag.objects.filter(number__lte=12)
+        self.assertEquals(result.count(), 1)
+        self.assertEquals(result[0].pk, d.pk)
+        result = NumberedDataBag.objects.filter(number__lte=13)
+        self.assertEquals(result.count(), 1)
+        self.assertEquals(result[0].pk, d.pk)
+        result = NumberedDataBag.objects.filter(number__lte=1)
+        self.assertEquals(result.count(), 0)
+
+
 if GEODJANGO:
     from django.contrib.gis.geos import GEOSGeometry
 

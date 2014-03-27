@@ -16,6 +16,7 @@ __all__ = [
     'DefaultsModel',
     'BadDefaultsModel',
     'DefaultsInline',
+    'NumberedDataBag',
     'GEODJANGO'
 ]
 
@@ -63,6 +64,12 @@ class BadDefaultsModel(models.Model):
 class DefaultsInline(models.Model):
     parent = models.ForeignKey(DefaultsModel)
     d = hstore.DictionaryField(default={ 'default': 'yes' })
+
+
+class NumberedDataBag(HStoreModel):
+    name = models.CharField(max_length=32)
+    data = hstore.DictionaryField()
+    number = models.IntegerField()
 
 
 # if geodjango is in use define Location model, which contains GIS data
