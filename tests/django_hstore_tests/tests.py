@@ -17,7 +17,7 @@ from django_hstore.fields import HStoreDict
 from django_hstore.exceptions import HStoreDictException
 from django_hstore.utils import unserialize_references, serialize_references, acquire_reference
 
-from .models import *
+from django_hstore_tests.models import *
 
 
 class TestDictionaryField(TestCase):
