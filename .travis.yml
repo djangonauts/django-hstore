@@ -9,8 +9,14 @@ python:
   - "2.6"
 
 env:
-  - DJANGO_VERSION=1.5.5
-  - DJANGO_VERSION=1.6.1
+  - DJANGO="https://www.djangoproject.com/download/1.7b1/tarball/"
+  - DJANGO="django==1.5.5"
+  - DJANGO="django==1.6.2"
+
+matrix:
+  exclude:
+    - python: "2.6"
+      env: DJANGO="https://www.djangoproject.com/download/1.7b1/tarball/"
 
 branches:
   only:
@@ -24,7 +30,7 @@ before_install:
 
 # command to install requirements
 install:
-  - pip install Django==$DJANGO_VERSION
+  - pip install $DJANGO
   - pip install -r requirements.txt --use-mirrors
   - pip install coverage coveralls --use-mirrors
   - python setup.py -q install
