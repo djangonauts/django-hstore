@@ -70,9 +70,10 @@ class HStoreContains(Contains):
         if l_db_type == 'hstore':
             lhs, lhs_params = self.process_lhs(qn, connection)
 
-            #FIXME: the ::text cast is performed by psycopg2 on contains and icontains lookups, try to see if it can
-            # be overridden
-            lhs = lhs.replace('::text', '::hstore')
+            #FIXME: ::text cast is added by ``django.db.backends.postgresql_psycopg2.DatabaseOperations.lookup_cast``;
+            # maybe there's a cleaner way to fix the cast for hstore columns
+            if lhs.endswith('::text'):
+                lhs = lhs[:-4] + 'hstore'
 
             param = self.rhs
 
@@ -104,9 +105,7 @@ class HStoreContains(Contains):
 
 
 class HStoreIContains(IContains, HStoreContains):
-
     pass
-
 
 
 #FIXME: what happens if another app has created a custom lookup?
