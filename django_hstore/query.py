@@ -227,6 +227,6 @@ class HStoreQuerySet(QuerySet):
 if GEODJANGO_INSTALLED:
     class HStoreGeoQuerySet(HStoreQuerySet, GeoQuerySet):
 
-        def __init__(self, model=None, query=None, using=None, hints=None):
+        def __init__(self, model=None, query=None, using=None, **kwargs):
             query = query or HStoreGeoQuery(model)
-            super(HStoreGeoQuerySet, self).__init__(model=model, query=query, using=using, hints=None)
+            super(HStoreGeoQuerySet, self).__init__(model=model, query=query, using=using, **kwargs)
