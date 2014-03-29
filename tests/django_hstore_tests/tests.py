@@ -241,6 +241,34 @@ class TestDictionaryField(TestCase):
         self.assertEqual(DataBag.objects.filter(data__icontains='eke').count(), 1)
         self.assertEqual(DataBag.objects.filter(data__icontains='eke')[0].name, 'gamma')
 
+    def test_invalid_containment_lookup_values(self):
+        alpha, beta = self._create_bags()
+        with self.assertRaises(ValueError):
+            DataBag.objects.filter(data__contains=99)[0]
+        with self.assertRaises(ValueError):
+            DataBag.objects.filter(data__icontains=99)[0]
+        with self.assertRaises(ValueError):
+            DataBag.objects.filter(data__icontains=[])[0]
+
+    def test_invalid_comparison_lookup_values(self):
+        alpha, beta = self._create_bags()
+        with self.assertRaises(ValueError):
+            DataBag.objects.filter(data__lt=[1,2])[0]
+        with self.assertRaises(ValueError):
+            DataBag.objects.filter(data__lt=99)[0]
+        with self.assertRaises(ValueError):
+            DataBag.objects.filter(data__lte=[1,2])[0]
+        with self.assertRaises(ValueError):
+            DataBag.objects.filter(data__lte=99)[0]
+        with self.assertRaises(ValueError):
+            DataBag.objects.filter(data__gt=[1,2])[0]
+        with self.assertRaises(ValueError):
+            DataBag.objects.filter(data__gt=99)[0]
+        with self.assertRaises(ValueError):
+            DataBag.objects.filter(data__gte=[1,2])[0]
+        with self.assertRaises(ValueError):
+            DataBag.objects.filter(data__gte=99)[0]
+
     def test_hkeys(self):
         alpha, beta = self._create_bags()
         self.assertEqual(DataBag.objects.hkeys(id=alpha.id, attr='data'), ['v', 'v2'])
