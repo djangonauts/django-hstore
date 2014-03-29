@@ -109,6 +109,9 @@ class HStoreWhereNode(WhereNode):
                     return ('%s @> %%s' % field, [param])
 
                 elif isinstance(param, (list, tuple)):
+                    if len(param) == 0:
+                        raise ValueError('invalid value')
+                    
                     if len(param) < 2:
                         return ('%s ? %%s' % field, [param[0]])
 
