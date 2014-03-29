@@ -5,6 +5,7 @@ try:
 except ImportError:
     import json
 
+import django
 from django.db import models, connection
 from django.utils import six
 from django.utils.encoding import force_text
@@ -13,6 +14,8 @@ from django.utils.translation import ugettext_lazy as _
 from . import forms, utils, exceptions
 from .compat import UnicodeMixin
 
+if django.get_version() >= '1.7':
+    from .lookups import *
 
 class HStoreDict(UnicodeMixin, dict):
     """
@@ -169,6 +172,24 @@ class HStoreField(models.Field):
         if (not self.empty_strings_allowed or (self.null and not connection.features.interprets_empty_strings_as_nulls)):
             return None
         return HStoreDict({}, self)
+
+    def get_lookup(self, lookup_name):
+        """
+        Returns a Lookup subclass for the specified lookup_name.
+        """
+        if lookup_name == 'lt':
+            return HStoreLessThan
+        elif lookup_name == 'lte':
+            return HStoreLessThanOrEqual
+        elif lookup_name == 'gt':
+            return HStoreGreaterThan
+        elif lookup_name == 'gte':
+            return HStoreGreaterThanOrEqual
+        elif lookup_name == 'contains':
+            return HStoreContains
+        elif lookup_name == 'icontains':
+            return HStoreIContains
+        return super(HStoreField, self).get_lookup(lookup_name)
 
     def get_prep_value(self, value):
         if isinstance(value, dict) and not isinstance(value, HStoreDict):

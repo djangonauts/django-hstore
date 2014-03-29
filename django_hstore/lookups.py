@@ -15,7 +15,7 @@ class HStoreComparisonLookupMixin(object):
     Mixin for hstore comparison custom lookups.
     """
 
-    def as_comparison_sql(self, qn , connection):
+    def as_postgresql(self, qn , connection):
         lhs, lhs_params = self.process_lhs(qn, connection)
         rhs, rhs_params = self.process_rhs(qn, connection)
         if len(rhs_params) == 1 and isinstance(rhs_params[0], dict):
@@ -27,39 +27,19 @@ class HStoreComparisonLookupMixin(object):
 
 
 class HStoreGreaterThan(HStoreComparisonLookupMixin, GreaterThan):
-
-    def as_postgresql(self, qn, connection):
-        l_db_type = self.lhs.output_type.db_type(connection=connection)
-        if l_db_type == 'hstore':
-            return self.as_comparison_sql(qn, connection)
-        return super(HStoreGreaterThan, self).as_sql(qn, connection)
+    pass
 
 
 class HStoreGreaterThanOrEqual(HStoreComparisonLookupMixin, GreaterThanOrEqual):
-
-    def as_postgresql(self, qn, connection):
-        l_db_type = self.lhs.output_type.db_type(connection=connection)
-        if l_db_type == 'hstore':
-            return self.as_comparison_sql(qn, connection)
-        return super(HStoreGreaterThanOrEqual, self).as_sql(qn, connection)
+    pass
 
 
 class HStoreLessThan(HStoreComparisonLookupMixin, LessThan):
-
-    def as_postgresql(self, qn, connection):
-        l_db_type = self.lhs.output_type.db_type(connection=connection)
-        if l_db_type == 'hstore':
-            return self.as_comparison_sql(qn, connection)
-        return super(HStoreLessThan, self).as_sql(qn, connection)
+    pass
 
 
 class HStoreLessThanOrEqual(HStoreComparisonLookupMixin, LessThanOrEqual):
-
-    def as_postgresql(self, qn, connection):
-        l_db_type = self.lhs.output_type.db_type(connection=connection)
-        if l_db_type == 'hstore':
-            return self.as_comparison_sql(qn, connection)
-        return super(HStoreLessThanOrEqual, self).as_sql(qn, connection)
+    pass
 
 
 class HStoreContains(Contains):
@@ -87,13 +67,14 @@ class HStoreContains(Contains):
                 return '%s @> %%s' % lhs, [param]
 
             elif isinstance(param, (list, tuple)):
+                if len(param) == 0:
+                    raise ValueError('invalid value')
+
                 if len(param) < 2:
                     return '%s ? %%s' % lhs, [param[0]]
 
                 if param:
                     return '%s ?& %%s' % lhs, [param]
-
-                raise ValueError('invalid value')
 
             elif isinstance(param, six.string_types):
                 # if looking for a string perform the normal text lookup
@@ -106,12 +87,3 @@ class HStoreContains(Contains):
 
 class HStoreIContains(IContains, HStoreContains):
     pass
-
-
-#FIXME: what happens if another app has created a custom lookup?
-Field.register_lookup(HStoreGreaterThan)
-Field.register_lookup(HStoreGreaterThanOrEqual)
-Field.register_lookup(HStoreLessThan)
-Field.register_lookup(HStoreLessThanOrEqual)
-Field.register_lookup(HStoreContains)
-Field.register_lookup(HStoreIContains)
