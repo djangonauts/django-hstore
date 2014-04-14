@@ -46,8 +46,16 @@ connection_handler = ConnectionCreateHandler()
 def register_hstore_handler(connection, **kwargs):
     # do not register hstore if DB is not postgres
     # do not register if HAS_HSTORE flag is set to false
+
     if connection.vendor != 'postgresql' or \
        connection.settings_dict.get('HAS_HSTORE', True) is False:
+        return
+
+    # if the ``NAME`` of the database in the connection settings is ``None``
+    # defer hstore registration by setting up a new unique handler
+    if connection.settings_dict['NAME'] is None:
+        connection_handler.attach_handler(register_hstore_handler,
+                                          vendor="postgresql", unique=True)
         return
 
     if sys.version_info[0] < 3:
@@ -70,4 +78,3 @@ class HStoreConfig(AppConfig):
 
 if django.get_version() < '1.7':
     HStoreConfig().ready()
-

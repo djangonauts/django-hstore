@@ -20,9 +20,9 @@ class HStoreManager(models.Manager):
 
     def get_queryset(self):
         return HStoreQuerySet(self.model, using=self._db)
-    
+
     get_query_set = get_queryset
-    
+
     def hkeys(self, attr, **params):
         return self.filter(**params).hkeys(attr)
 
@@ -38,5 +38,7 @@ if GEODJANGO_INSTALLED:
         """
         Object manager combining Geodjango and hstore.
         """
-        def get_query_set(self):
+        def get_queryset(self):
             return HStoreGeoQuerySet(self.model, using=self._db)
+
+        get_query_set = get_queryset

@@ -403,6 +403,7 @@ class TestDictionaryField(TestCase):
         class HForm(forms.ModelForm):
             class Meta:
                 model = DataBag
+                exclude = []
 
         form = HForm()
         self.assertEqual(form.fields['data'].widget.__class__, DictionaryFieldWidget)
@@ -415,6 +416,7 @@ class TestDictionaryField(TestCase):
             class Meta:
                 model = DataBag
                 widgets = {'data': CustomWidget}
+                exclude = []
 
         form = HForm()
         self.assertEqual(form.fields['data'].widget.__class__, CustomWidget)
@@ -423,6 +425,7 @@ class TestDictionaryField(TestCase):
         class HForm(forms.ModelForm):
             class Meta:
                 model = RefsBag
+                exclude = []
 
         form = HForm()
         self.assertEqual(form.fields['refs'].widget.__class__, ReferencesFieldWidget)
@@ -435,6 +438,7 @@ class TestDictionaryField(TestCase):
             class Meta:
                 model = RefsBag
                 widgets = {'refs': CustomWidget}
+                exclude = []
 
         form = HForm()
         self.assertEqual(form.fields['refs'].widget.__class__, CustomWidget)

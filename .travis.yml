@@ -40,9 +40,11 @@ before_script:
   - find / -name postgis.sql || true
   - curl https://raw.github.com/django/django/1.5.5/docs/ref/contrib/gis/install/create_template_postgis-debian.sh | sh
   - createdb -T template_postgis django_hstore
+  - createdb django_hstore_psycopg2
 
 # command to run tests, e.g. python setup.py test
 script:
+  - ./runtests.py --settings=settings_psycopg
   - coverage run --source django_hstore runtests.py
 
 after_success:

@@ -5,6 +5,7 @@ dist
 build
 .idea
 tests/local_settings.py
+tests/local_settings_psycopg.py
 .coverage
 *~
 ._*
