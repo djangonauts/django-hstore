@@ -19,32 +19,32 @@
 <script type="text/html" id="hstore-ui-template-{{ field_name }}"{% if '__prefix__' in field_name %} class="hstore-ui-template-inline"{% endif %}>
     <div class="hstore" id="hstore-{{ field_name }}">
         <h2><%= label %></h2>
-        
+
         <% if(help && help != '') { %>
         <div class="form-row">
             <p class="help" style="margin:0;padding:0"><%= help %></p>
         </div>
         <% } %>
-        
+
         <div class="hstore-rows">
             <% for(key in data){ %>
                 <%= _.template($('.hstore-row-template-inline').eq(0).html(), { 'key': key, 'value': data[key] }) %>
             <% } %>
         </div>
-        
+
         <div class="form-row field-data hstore-textarea" style="display:none">
             <div>
                 <label for="<%= id %>" class="required">{% trans 'Raw textarea' %}:</label>
                 <textarea class="vLargeTextField" cols="40" id="<%= id %>" name="<%= name %>" rows="10"><%= value %></textarea>
             </div>
         </div>
-        
+
         <div class="form-row">
-            <a href="#" class="add-row" title="{% trans 'Add another row' %}">
+            <a href="#" class="hs-add-row" title="{% trans 'Add another row' %}">
                 <img src="{{ STATIC_URL }}admin/img/icon_addlink.gif" width="10" height="10" alt="{% trans 'Add Another' %}">
                 {% trans "Add row" %}
             </a>
-            
+
             <a href="#" class="hstore-toggle-txtarea" title="{% trans 'toggle textarea' %}" style="float:right">
                 <img src="{{ STATIC_URL }}admin/img/icon_changelink.gif" width="10" height="10" alt="{% trans 'toggle textarea' %}">
                 {% trans 'toggle textarea' %}
