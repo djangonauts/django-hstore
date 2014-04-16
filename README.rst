@@ -60,6 +60,9 @@ Limitations
   database regarding of their original type.
 * Hstore extension is not automatically installed on use this package. You must install it manually.
 * To run tests, hstore extension must be installed on template1 database.
+* If ``django.middleware.transaction.TransactionMiddleware`` is enabled and the project is deployed 
+  through ``uwsgi``, the first request to a view working with models featuring hstore fields will raise an exception; 
+  see `Django Ticket #22297`_ for more details on this issue. This issue is specific to Django 1.6 and below.
 
 **Important Note:** the future version of HStore will bring types, nested structures and more advanced features, for more info read `On the state of HStore`_ by Engine Yard.
 
@@ -416,6 +419,7 @@ More details here: `PostgreSQL error type hstore does not exist`_
 .. _django-grappelli: http://grappelliproject.com/
 .. _advantage of flexibility and performance: http://www.craigkerstiens.com/2013/07/03/hstore-vs-json/
 .. _On the state of HStore: https://blog.engineyard.com/2013/on-the-state-of-hstore
+.. _Django Ticket #22297: https://code.djangoproject.com/ticket/22297
 
 =================
 How to contribute
