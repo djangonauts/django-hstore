@@ -19,7 +19,7 @@ class BaseAdminHStoreWidget(AdminTextareaWidget):
     Base admin widget class for default-admin and grappelli-admin widgets
     """
     admin_style = 'default'
-    
+
     @property
     def media(self):
         # load underscore from CDNJS (popular javascript content delivery network)
@@ -33,11 +33,7 @@ class BaseAdminHStoreWidget(AdminTextareaWidget):
 
         js = external_js + [static("admin/js/%s" % path) for path in internal_js]
 
-        css = {
-            'all': [static("admin/css/django-hstore-widget.css")]
-        }
-
-        return forms.Media(js=js, css=css)
+        return forms.Media(js=js)
 
     def render(self, name, value, attrs=None):
         if attrs is None:
