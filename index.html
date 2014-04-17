@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="generator" content="AsciiDoc 8.6.9">
+<title>django-hstore documentation</title>
+<link rel="stylesheet" href="static/niwi.css" type="text/css">
+<link rel="stylesheet" href="static/pygments.css" type="text/css">
+
+
+<script type="text/javascript" src="static/asciidoc.js"></script>
+<script type="text/javascript" src="static/niwi.js"></script>
+<script type="text/javascript">
+/*<![CDATA[*/
+asciidoc.install(2);
+/*]]>*/
+</script>
+</head>
+<body class="article" style="max-width:800px">
+<div id="header">
+<h1>django-hstore documentation</h1>
+<span id="author">0.1.0, 2014-04-17</span><br>
+<div id="toc">
+  <div id="toctitle">Table of Contents</div>
+  <noscript><p><b>JavaScript must be enabled in your browser to display the table of contents.</b></p></noscript>
+</div>
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="_introduction">Introduction</h2>
+<div class="sectionbody">
+<div class="paragraph"><p><em>django-hstore</em> is a niche library which integrates the <a href="http://www.postgresql.org/docs/9.1/interactive/hstore.html">hstore</a>
+extension of PostgreSQL into Django.</p></div>
+<div class="paragraph"><p>HStore brings the power of schemaless databases into PostgreSQL, giving us the
+<a href="http://www.craigkerstiens.com/2013/07/03/hstore-vs-json/">advantage of flexibility and performance</a>
+without renouncing to the robustness of SQL databases.</p></div>
+<div class="paragraph"><p>Mailing List: <a href="https://groups.google.com/forum/#!forum/django-hstore">https://groups.google.com/forum/#!forum/django-hstore</a></p></div>
+<div class="sect2">
+<h3 id="_features">Features</h3>
+<div class="ulist"><ul>
+<li>
+<p>
+Postgis compatibility.
+</p>
+</li>
+<li>
+<p>
+Python3 support.
+</p>
+</li>
+<li>
+<p>
+Nice admin widgets.
+</p>
+</li>
+</ul></div>
+</div>
+<div class="sect2">
+<h3 id="_django_admin_widget">Django Admin widget</h3>
+<div class="paragraph"><div class="title">django-hstore ships a nice admin widget that makes the field more user-friendly.</div><p><span class="image">
+<img src="images/deafult-admin-widget.png" alt="Admin Widget" width="650">
+</span></p></div>
+<div class="paragraph"><div class="title">Each time a key or a value is modified the underlying textarea is updated:</div><p><span class="image">
+<img src="images/deafult-admin-widget-raw.png" alt="Admin Widget" width="650">
+</span></p></div>
+</div>
+<div class="sect2">
+<h3 id="_grappelli_admin_widget">Grappelli Admin widget</h3>
+<div class="paragraph"><div class="title">If you use the awsome <a href="http://grappelliproject.com/">django-grappelli</a> there&#8217;s an even nicer looking widget for you too!</div><p><span class="image">
+<img src="images/hstore-widget.png" alt="Grappeli Widget" width="650">
+</span></p></div>
+<div class="paragraph"><div class="title">Each time a key or a value is modified the underlying textarea is updated:</div><p><span class="image">
+<img src="images/hstore-widget-raw.png" alt="Grappeli Widget" width="650">
+</span></p></div>
+</div>
+<div class="sect2">
+<h3 id="_limitations">Limitations</h3>
+<div class="ulist"><ul>
+<li>
+<p>
+PostgreSQL&#8217;s implementation of hstore has no concept of type; it stores a
+  mapping of string keys to string values. Values are stored as strings in the
+  database regarding of their original type.
+</p>
+</li>
+<li>
+<p>
+Hstore extension is not automatically installed on use this package. You must install it manually.
+</p>
+</li>
+<li>
+<p>
+To run tests, hstore extension must be installed on template1 database.
+</p>
+</li>
+<li>
+<p>
+If <span class="monospaced">django.middleware.transaction.TransactionMiddleware</span> is enabled and the project is deployed
+  through <span class="monospaced">uwsgi</span>, the first request to a view working with models featuring hstore fields will raise an exception;
+  see <a href="https://code.djangoproject.com/ticket/22297">Django Ticket #22297</a> for more details on this issue.
+  This issue is specific to Django 1.6 and below.
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><p><strong>Important Note:</strong> the future version of HStore will bring types, nested structures and more advanced
+features, for more info read <a href="https://blog.engineyard.com/2013/on-the-state-of-hstore">On the state of HStore</a>
+by Engine Yard.</p></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_project_maturity">Project Maturity</h2>
+<div class="sectionbody">
+<div class="paragraph"><p><em>django-hstore</em> is stable, widely used library with well defined deprecation policy.</p></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_deprecation_policy">Deprecation policy</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>At any momment of time, <strong>django-hstore</strong> developers will mantain support for three versions of django.</p></div>
+<div class="paragraph"><p>As example: The current stable release of django is 1.6, so django-hstore official supported versions are: 1.4, 1.5 and 1.6. When
+django 1.7 is released, 1.4 version will become on unsupported django version.</p></div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_user_guide">User Guide</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>This section covers all aspectes that user want know about <em>django-hstore</em>.</p></div>
+<div class="sect2">
+<h3 id="_install">Install</h3>
+<div class="paragraph"><p>This section covers a installing <em>django-hstore</em> and its requirements.</p></div>
+<div class="sect3">
+<h4 id="_requirements">Requirements</h4>
+<div class="ulist"><ul>
+<li>
+<p>
+Python 2.6, 2.7 or 3.3+
+</p>
+</li>
+<li>
+<p>
+Django 1.4, 1.5, 1.6 and 1.7 (experimental)
+</p>
+</li>
+<li>
+<p>
+Psycopg2 2.4.3+
+</p>
+</li>
+<li>
+<p>
+PostgreSQL 9.0+
+</p>
+</li>
+</ul></div>
+</div>
+<div class="sect3">
+<h4 id="_stable_version">Stable version</h4>
+<div class="listingblock">
+<div class="content"><div class="highlight"><pre>pip install django-hstore
+</pre></div></div></div>
+</div>
+<div class="sect3">
+<h4 id="_development_version">Development version</h4>
+<div class="listingblock">
+<div class="content"><div class="highlight"><pre>opip install -e git+git://github.com/djangonauts/django-hstore#egg<span class="o">=</span>django-hstore
+</pre></div></div></div>
+</div>
+<div class="sect3">
+<h4 id="_upgrade_from_older_versions">Upgrade from older versions</h4>
+<div class="paragraph"><p>In <strong>version 1.2.x</strong> some internals have been changed in order to simplify usage and prevent errors.</p></div>
+<div class="paragraph"><p>Values are automatically converted to strings, fields costantly validate input and so on.</p></div>
+<div class="paragraph"><p>If you are upgrading from an older version ensure your application code works as expected.
+If it doesn&#8217;t you will either have to update your code or tie your application&#8217;s requirement
+to the older version of django-hstore (1.1.1).</p></div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_setup">Setup</h3>
+<div class="sect3">
+<h4 id="_basic_setup">Basic setup</h4>
+<div class="paragraph"><p>First, add <strong>django_hstore</strong> to your <span class="monospaced">settings.INSTALLED_APPS</span>:</p></div>
+<div class="listingblock">
+<div class="content"><div class="highlight"><pre><span class="n">INSTALLED_APPS</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="o">...</span>
+    <span class="s">&quot;django_hstore&quot;</span><span class="p">,</span>
+    <span class="o">...</span>
+<span class="p">)</span>
+</pre></div></div></div>
+<div class="paragraph"><p>Second, collect static files (needed for the admin widget) with:</p></div>
+<div class="listingblock">
+<div class="content"><div class="highlight"><pre>python manage.py collectstatic
+</pre></div></div></div>
+</div>
+<div class="sect3">
+<h4 id="_multiple_database_setup">Multiple database setup</h4>
+<div class="paragraph"><p>If for some reason you have to use django-hstore in a <strong>multi-database setup</strong> and
+some of the database you are using don&#8217;t have the hstore extension installed,
+you can skip hstore registration by setting <span class="monospaced">HAS_HSTORE</span> to <span class="monospaced">False</span> in your
+database config:</p></div>
+<div class="listingblock">
+<div class="content"><div class="highlight"><pre><span class="n">DATABASES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;default&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;ENGINE&#39;</span><span class="p">:</span> <span class="s">&#39;django.db.backends.postgresql_psycopg2&#39;</span><span class="p">,</span>
+        <span class="s">&#39;NAME&#39;</span><span class="p">:</span> <span class="s">&#39;name&#39;</span><span class="p">,</span>
+        <span class="s">&#39;USER&#39;</span><span class="p">:</span> <span class="s">&#39;user&#39;</span><span class="p">,</span>
+        <span class="s">&#39;PASSWORD&#39;</span><span class="p">:</span> <span class="s">&#39;pass&#39;</span><span class="p">,</span>
+        <span class="s">&#39;HOST&#39;</span><span class="p">:</span> <span class="s">&#39;localhost&#39;</span><span class="p">,</span>
+        <span class="s">&#39;PORT&#39;</span><span class="p">:</span> <span class="s">&#39;&#39;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s">&#39;other&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;ENGINE&#39;</span><span class="p">:</span> <span class="s">&#39;django.db.backends.postgresql_psycopg2&#39;</span><span class="p">,</span>
+        <span class="s">&#39;NAME&#39;</span><span class="p">:</span> <span class="s">&#39;other&#39;</span><span class="p">,</span>
+        <span class="s">&#39;USER&#39;</span><span class="p">:</span> <span class="s">&#39;user&#39;</span><span class="p">,</span>
+        <span class="s">&#39;PASSWORD&#39;</span><span class="p">:</span> <span class="s">&#39;pass&#39;</span><span class="p">,</span>
+        <span class="s">&#39;HOST&#39;</span><span class="p">:</span> <span class="s">&#39;localhost&#39;</span><span class="p">,</span>
+        <span class="s">&#39;PORT&#39;</span><span class="p">:</span> <span class="s">&#39;&#39;</span><span class="p">,</span>
+        <span class="s">&#39;HAS_HSTORE&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div></div></div>
+<div class="paragraph"><p>If you do that, then don&#8217;t try to create <span class="monospaced">DictionaryField</span> in that database.</p></div>
+<div class="paragraph"><p>Be sure to check out <a href="https://docs.djangoproject.com/en/1.5/topics/db/multi-db/#allow_syncdb">allow_syncdb</a>
+documentation.</p></div>
+</div>
+<div class="sect3">
+<h4 id="_note_to_south_users">Note to South users</h4>
+<div class="paragraph"><p>If you keep getting errors like There is no South database module <em>south.db.None</em>
+for your database., add the following to settings.py:</p></div>
+<div class="listingblock">
+<div class="content"><div class="highlight"><pre><span class="n">SOUTH_DATABASE_ADAPTERS</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;default&#39;</span><span class="p">:</span> <span class="s">&#39;south.db.postgresql_psycopg2&#39;</span><span class="p">}</span>
+</pre></div></div></div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_usage">Usage</h3>
+<div class="paragraph"><p>The library provides three principal classes:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+<span class="monospaced">django_hstore.hstore.DictionaryField</span><br>
+  An ORM field which stores a mapping of string key/value pairs in an hstore
+  column.
+</p>
+</li>
+<li>
+<p>
+<span class="monospaced">django_hstore.hstore.ReferencesField</span><br>
+  An ORM field which builds on DictionaryField to store a mapping of string
+  keys to django object references, much like ForeignKey.
+</p>
+</li>
+<li>
+<p>
+<span class="monospaced">django_hstore.hstore.HStoreManager</span><br>
+  An ORM manager which provides much of the query functionality of the
+  library.
+</p>
+</li>
+<li>
+<p>
+<span class="monospaced">django_hstore.hstore.HStoreGeoManager</span><br>
+  An additional ORM manager to provide Geodjango functionality as well.
+</p>
+</li>
+</ul></div>
+<div class="sect3">
+<h4 id="_model_setup">Model setup</h4>
+<div class="listingblock">
+<div class="title">Model definition is straightforward</div>
+<div class="content"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.db</span> <span class="kn">import</span> <span class="n">models</span>
+<span class="kn">from</span> <span class="nn">django_hstore</span> <span class="kn">import</span> <span class="n">hstore</span>
+
+<span class="k">class</span> <span class="nc">Something</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">hstore</span><span class="o">.</span><span class="n">DictionaryField</span><span class="p">()</span>  <span class="c"># can pass attributes like null, blank, ecc.</span>
+
+    <span class="n">objects</span> <span class="o">=</span> <span class="n">hstore</span><span class="o">.</span><span class="n">HStoreManager</span><span class="p">()</span>
+    <span class="c"># IF YOU ARE USING POSTGIS:</span>
+    <span class="c"># objects = hstore.HStoreGeoManager()</span>
+</pre></div></div></div>
+<div class="listingblock">
+<div class="title">ReferenceField model field is also straightforward</div>
+<div class="content"><div class="highlight"><pre><span class="k">class</span> <span class="nc">ReferenceContainer</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
+    <span class="n">refs</span> <span class="o">=</span> <span class="n">hstore</span><span class="o">.</span><span class="n">ReferencesField</span><span class="p">()</span>
+
+    <span class="n">objects</span> <span class="o">=</span> <span class="n">hstore</span><span class="o">.</span><span class="n">HStoreManager</span><span class="p">()</span>
+</pre></div></div></div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_python_api">Python API</h3>
+<div class="paragraph"><p>You then treat the <span class="monospaced">data</span> field as simply a dictionary of string pairs:</p></div>
+<div class="listingblock">
+<div class="content"><div class="highlight"><pre><span class="n">instance</span> <span class="o">=</span> <span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;something&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="s">&#39;1&#39;</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">:</span> <span class="s">&#39;2&#39;</span><span class="p">})</span>
+<span class="k">assert</span> <span class="n">instance</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;1&#39;</span>
+
+<span class="n">empty</span> <span class="o">=</span> <span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;empty&#39;</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">empty</span><span class="o">.</span><span class="n">data</span> <span class="o">==</span> <span class="p">{}</span>
+
+<span class="n">empty</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;3&#39;</span>
+<span class="n">empty</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+<span class="k">assert</span> <span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;empty&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;3&#39;</span>
+</pre></div></div></div>
+<div class="paragraph"><p>Booleans, integers, floats, lists and dictionaries will be converted to strings.
+Lists, dictionaries and booleans are converted into JSON formatted strings, so
+can be decoded if needed:</p></div>
+<div class="listingblock">
+<div class="content"><div class="highlight"><pre><span class="n">instance</span> <span class="o">=</span> <span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;something&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;int&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s">&#39;bool&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">})</span>
+
+<span class="n">instance</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;int&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;1&#39;</span>
+<span class="n">instance</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;bool&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;true&#39;</span>
+
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="n">instance</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;dict&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span> <span class="s">&#39;list&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="p">}</span>
+<span class="n">instance</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;dict&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;{&quot;list&quot;: [&quot;a&quot;, false, 1]}&#39;</span>
+<span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">instance</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;dict&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="p">{</span> <span class="s">&#39;list&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="p">}</span>
+<span class="c"># =&gt; True</span>
+</pre></div></div></div>
+<div class="paragraph"><p>You can issue indexed queries against hstore fields:</p></div>
+<div class="listingblock">
+<div class="content"><div class="highlight"><pre><span class="c"># equivalence</span>
+<span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="s">&#39;1&#39;</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">:</span> <span class="s">&#39;2&#39;</span><span class="p">})</span>
+
+<span class="c"># comparison (greater than, less than or equal to, ecc)</span>
+<span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">data__gt</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="s">&#39;1&#39;</span><span class="p">})</span>
+<span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">data__gte</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="s">&#39;1&#39;</span><span class="p">})</span>
+<span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">data__lt</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="s">&#39;2&#39;</span><span class="p">})</span>
+<span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">data__lte</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="s">&#39;2&#39;</span><span class="p">})</span>
+
+<span class="c"># subset by key/value mapping</span>
+<span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">data__contains</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="s">&#39;1&#39;</span><span class="p">})</span>
+
+<span class="c"># subset by list of some key values</span>
+<span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">data__contains</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;1&#39;</span><span class="p">,</span> <span class="s">&#39;2&#39;</span><span class="p">]})</span>
+
+<span class="c"># subset by list of keys</span>
+<span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">data__contains</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">])</span>
+
+<span class="c"># subset by single key</span>
+<span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">data__contains</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">])</span>
+</pre></div></div></div>
+<div class="paragraph"><p>You can still do classic django "contains" lookups as you would normally do for normal text
+fields if you were looking for a particular string. In this case, the HSTORE field
+will be converted to text and the lookup will be performed on all the keys and all the values:</p></div>
+<div class="listingblock">
+<div class="content"><div class="highlight"><pre><span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span> <span class="s">&#39;some_key&#39;</span><span class="p">:</span> <span class="s">&#39;some crazy Value&#39;</span> <span class="p">})</span>
+
+<span class="c"># classic text lookup (look up for occurence of string in all the keys)</span>
+<span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">data__contains</span><span class="o">=</span><span class="s">&#39;crazy&#39;</span><span class="p">)</span>
+<span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">data__contains</span><span class="o">=</span><span class="s">&#39;some_key&#39;</span><span class="p">)</span>
+<span class="c"># classic case insensitive text looup</span>
+<span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">data__icontains</span><span class="o">=</span><span class="s">&#39;value&#39;</span><span class="p">)</span>
+<span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">data__icontains</span><span class="o">=</span><span class="s">&#39;SOME_KEY&#39;</span><span class="p">)</span>
+</pre></div></div></div>
+</div>
+<div class="sect2">
+<h3 id="_hstore_manager">HSTORE manager</h3>
+<div class="paragraph"><p>You can also take advantage of some db-side functionality by using the manager:</p></div>
+<div class="listingblock">
+<div class="content"><div class="highlight"><pre><span class="c"># identify the keys present in an hstore field</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">hkeys</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">instance</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">attr</span><span class="o">=</span><span class="s">&#39;data&#39;</span><span class="p">)</span>
+<span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">]</span>
+
+<span class="c"># peek at a a named value within an hstore field</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">hpeek</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">instance</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">attr</span><span class="o">=</span><span class="s">&#39;data&#39;</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s">&#39;a&#39;</span><span class="p">)</span>
+<span class="s">&#39;1&#39;</span>
+
+<span class="c"># do the same, after filter</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">instance</span><span class="o">.</span><span class="n">id</span><span class="p">)</span><span class="o">.</span><span class="n">hpeek</span><span class="p">(</span><span class="n">attr</span><span class="o">=</span><span class="s">&#39;data&#39;</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s">&#39;a&#39;</span><span class="p">)</span>
+<span class="s">&#39;1&#39;</span>
+
+<span class="c"># remove a key/value pair from an hstore field</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;something&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">hremove</span><span class="p">(</span><span class="s">&#39;data&#39;</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">)</span>
+
+<span class="n">The</span> <span class="n">hstore</span> <span class="n">methods</span> <span class="n">on</span> <span class="n">manager</span> <span class="k">pass</span> <span class="nb">all</span> <span class="n">keyword</span> <span class="n">arguments</span> <span class="n">aside</span> <span class="kn">from</span> <span class="sb">`attr`</span> <span class="ow">and</span>
+<span class="sb">`key`</span> <span class="n">to</span> <span class="sb">`.filter()`</span><span class="o">.</span>
+</pre></div></div></div>
+</div>
+<div class="sect2">
+<h3 id="_referencefield_usage">ReferenceField Usage</h3>
+<div class="paragraph"><p><strong>ReferenceField</strong> is a field that allows to reference other database objects
+without using a classic ManyToMany relationship.</p></div>
+<div class="paragraph"><p>Here&#8217;s an example with the <span class="monospaced">ReferenceContainer</span> model defined in the <strong>Model fields</strong> section:</p></div>
+<div class="listingblock">
+<div class="content"><div class="highlight"><pre><span class="n">r</span> <span class="o">=</span> <span class="n">ReferenceContainer</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;test&#39;</span><span class="p">)</span>
+<span class="n">r</span><span class="o">.</span><span class="n">refs</span><span class="p">[</span><span class="s">&#39;another_object&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">AnotherModel</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">slug</span><span class="o">=</span><span class="s">&#39;another-object&#39;</span><span class="p">)</span>
+<span class="n">r</span><span class="o">.</span><span class="n">refs</span><span class="p">[</span><span class="s">&#39;some_object&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">AnotherModel</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">slug</span><span class="o">=</span><span class="s">&#39;some-object&#39;</span><span class="p">)</span>
+<span class="n">r</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+<span class="n">r</span> <span class="o">=</span> <span class="n">ReferenceContainer</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;test&#39;</span><span class="p">)</span>
+<span class="n">r</span><span class="o">.</span><span class="n">refs</span><span class="p">[</span><span class="s">&#39;another_object&#39;</span><span class="p">]</span>
+<span class="s">&#39;&lt;AnotherModel: AnotherModel object&gt;&#39;</span>
+<span class="n">r</span><span class="o">.</span><span class="n">refs</span><span class="p">[</span><span class="s">&#39;some_object&#39;</span><span class="p">]</span>
+<span class="s">&#39;&lt;AnotherModel: AnotherModel some_object&gt;&#39;</span>
+</pre></div></div></div>
+<div class="paragraph"><p>The database is queried only when references are accessed directly.
+Once references have been retrieved they will be stored for any eventual subsequent access:</p></div>
+<div class="listingblock">
+<div class="content"><div class="highlight"><pre><span class="n">r</span> <span class="o">=</span> <span class="n">ReferenceContainer</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;test&#39;</span><span class="p">)</span>
+<span class="c"># this won&#39;t query the database</span>
+<span class="n">r</span><span class="o">.</span><span class="n">refs</span>
+<span class="p">{</span> <span class="s">u&#39;another_object&#39;</span><span class="p">:</span> <span class="s">u&#39;myapp.models.AnotherModel:1&#39;</span><span class="p">,</span>
+  <span class="s">u&#39;some_object&#39;</span><span class="p">:</span> <span class="s">u&#39;myapp.models.AnotherModel:2&#39;</span> <span class="p">}</span>
+
+<span class="c"># this will query the database</span>
+<span class="n">r</span><span class="o">.</span><span class="n">refs</span><span class="p">[</span><span class="s">&#39;another_object&#39;</span><span class="p">]</span>
+<span class="s">&#39;&lt;AnotherModel: AnotherModel object&gt;&#39;</span>
+
+<span class="c"># retrieved reference is now visible also when calling the HStoreDict object:</span>
+<span class="n">r</span><span class="o">.</span><span class="n">refs</span>
+<span class="p">{</span> <span class="s">u&#39;another_object&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">AnotherModel</span><span class="p">:</span> <span class="n">AnotherModel</span> <span class="nb">object</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="s">u&#39;some_object&#39;</span><span class="p">:</span> <span class="s">u&#39;myapp.models.AnotherModel:2&#39;</span> <span class="p">}</span>
+</pre></div></div></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_developers_guide">Developers Guide</h2>
+<div class="sectionbody">
+<div class="paragraph"><p>This section covers everything that django-hstore developer / contributor want know.</p></div>
+<div class="sect2">
+<h3 id="_running_tests">Running tests</h3>
+<div class="paragraph"><p>Assuming one has the dependencies installed, and a <strong>PostgreSQL 9.0+</strong> server up and
+running:</p></div>
+<div class="listingblock">
+<div class="content"><div class="highlight"><pre>python runtests.py
+</pre></div></div></div>
+<div class="paragraph"><p>By default the tests run with the postgis backend.</p></div>
+<div class="paragraph"><p>If you want to run the tests with psycopg2 backend you can do:</p></div>
+<div class="listingblock">
+<div class="content"><div class="highlight"><pre>python runtests.py --settings<span class="o">=</span>settings_psycopg
+</pre></div></div></div>
+<div class="paragraph"><p>You might need to tweak the DB settings according to your DB configuration.</p></div>
+<div class="paragraph"><p>If you need to do so you can copy the file <span class="monospaced">local_settings.py.example</span> to <span class="monospaced">local_settings.py</span> and add
+your database tweaks on it. <span class="monospaced">local_settings.py</span> will be automatically imported in <span class="monospaced">settings.py</span>.
+The same applies for <span class="monospaced">local_settings_psycopg.py.example</span>, which will be imported in
+<span class="monospaced">local_settings_psycopg.py</span>.</p></div>
+<div class="paragraph"><p>If after running this command you get an <strong>error</strong> saying:</p></div>
+<div class="listingblock">
+<div class="content"><div class="highlight"><pre>type &quot;hstore&quot; does not exist
+</pre></div></div></div>
+<div class="paragraph"><p>Try this:</p></div>
+<div class="listingblock">
+<div class="content"><div class="highlight"><pre>psql template1 -c <span class="s1">&#39;create extension hstore;&#39;</span>
+</pre></div></div></div>
+<div class="paragraph"><p>More details here on link: <a href="http://clarkdave.net/2012/09/postgresql-error-type-hstore-does-not-exist/">PostgreSQL error type hstore does not exist</a>.</p></div>
+</div>
+<div class="sect2">
+<h3 id="_how_to_contribute">How to contribute</h3>
+<div class="olist arabic"><ol class="arabic">
+<li>
+<p>
+Join the mailing List: link: <a href="https://groups.google.com/forum/#!forum/django-hstore">django-hstore mailing list</a>
+   and announce your intentions.
+</p>
+</li>
+<li>
+<p>
+Follow <a href="http://www.python.org/dev/peps/pep-0008/">PEP8</a>, Style Guide for Python Code
+</p>
+</li>
+<li>
+<p>
+Fork this repo
+</p>
+</li>
+<li>
+<p>
+Write code
+</p>
+</li>
+<li>
+<p>
+Write tests for your code
+</p>
+</li>
+<li>
+<p>
+Ensure all tests pass
+</p>
+</li>
+<li>
+<p>
+Ensure test coverage is not under 90%
+</p>
+</li>
+<li>
+<p>
+Document your changes
+</p>
+</li>
+<li>
+<p>
+Send pull request
+</p>
+</li>
+</ol></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_license">License</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content"><div class="highlight"><pre>Copyright (C) 2013-2014 Federico Capoano
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the &quot;Software&quot;), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+
+Original Author
+===============
+Copyright (C) 2011 Jordan McCoy
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the &quot;Software&quot;), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+</pre></div></div></div>
+</div>
+</div>
+</div>
+<div id="footnotes"><hr></div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2014-04-17 20:58:27 CEST
+</div>
+</div>
+</body>
+</html>
