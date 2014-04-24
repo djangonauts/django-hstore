@@ -27,7 +27,7 @@ asciidoc.install(2);
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_introduction">Introduction</h2>
+<h2 id="_introduction">1. Introduction</h2>
 <div class="sectionbody">
 <div class="paragraph"><p><em>django-hstore</em> is a niche library which integrates the <a href="http://www.postgresql.org/docs/9.1/interactive/hstore.html">hstore</a>
 extension of PostgreSQL into Django.</p></div>
@@ -36,7 +36,7 @@ extension of PostgreSQL into Django.</p></div>
 without renouncing to the robustness of SQL databases.</p></div>
 <div class="paragraph"><p>Mailing List: <a href="https://groups.google.com/forum/#!forum/django-hstore">https://groups.google.com/forum/#!forum/django-hstore</a></p></div>
 <div class="sect2">
-<h3 id="_features">Features</h3>
+<h3 id="_features">1.1. Features</h3>
 <div class="ulist"><ul>
 <li>
 <p>
@@ -56,7 +56,7 @@ Nice admin widgets.
 </ul></div>
 </div>
 <div class="sect2">
-<h3 id="_django_admin_widget">Django Admin widget</h3>
+<h3 id="_django_admin_widget">1.2. Django Admin widget</h3>
 <div class="paragraph"><div class="title">django-hstore ships a nice admin widget that makes the field more user-friendly.</div><p><span class="image">
 <img src="images/deafult-admin-widget.png" alt="Admin Widget" width="650">
 </span></p></div>
@@ -65,7 +65,7 @@ Nice admin widgets.
 </span></p></div>
 </div>
 <div class="sect2">
-<h3 id="_grappelli_admin_widget">Grappelli Admin widget</h3>
+<h3 id="_grappelli_admin_widget">1.3. Grappelli Admin widget</h3>
 <div class="paragraph"><div class="title">If you use the awsome <a href="http://grappelliproject.com/">django-grappelli</a> there&#8217;s an even nicer looking widget for you too!</div><p><span class="image">
 <img src="images/hstore-widget.png" alt="Grappeli Widget" width="650">
 </span></p></div>
@@ -74,7 +74,7 @@ Nice admin widgets.
 </span></p></div>
 </div>
 <div class="sect2">
-<h3 id="_limitations">Limitations</h3>
+<h3 id="_limitations">1.4. Limitations</h3>
 <div class="ulist"><ul>
 <li>
 <p>
@@ -109,13 +109,13 @@ by Engine Yard.</p></div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_project_maturity">Project Maturity</h2>
+<h2 id="_project_maturity">2. Project Maturity</h2>
 <div class="sectionbody">
 <div class="paragraph"><p><em>django-hstore</em> is stable, widely used library with well defined deprecation policy.</p></div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_deprecation_policy">Deprecation policy</h2>
+<h2 id="_deprecation_policy">3. Deprecation policy</h2>
 <div class="sectionbody">
 <div class="paragraph"><p>At any momment of time, <strong>django-hstore</strong> developers will mantain support for three versions of django.</p></div>
 <div class="paragraph"><p>As example: The current stable release of django is 1.6, so django-hstore official supported versions are: 1.4, 1.5 and 1.6. When
@@ -123,14 +123,14 @@ django 1.7 is released, 1.4 version will become on unsupported django version.</
 </div>
 </div>
 <div class="sect1">
-<h2 id="_user_guide">User Guide</h2>
+<h2 id="_user_guide">4. User Guide</h2>
 <div class="sectionbody">
 <div class="paragraph"><p>This section covers all aspectes that user want know about <em>django-hstore</em>.</p></div>
 <div class="sect2">
-<h3 id="_install">Install</h3>
+<h3 id="_install">4.1. Install</h3>
 <div class="paragraph"><p>This section covers a installing <em>django-hstore</em> and its requirements.</p></div>
 <div class="sect3">
-<h4 id="_requirements">Requirements</h4>
+<h4 id="_requirements">4.1.1. Requirements</h4>
 <div class="ulist"><ul>
 <li>
 <p>
@@ -155,19 +155,19 @@ PostgreSQL 9.0+
 </ul></div>
 </div>
 <div class="sect3">
-<h4 id="_stable_version">Stable version</h4>
+<h4 id="_stable_version">4.1.2. Stable version</h4>
 <div class="listingblock">
 <div class="content"><div class="highlight"><pre>pip install django-hstore
 </pre></div></div></div>
 </div>
 <div class="sect3">
-<h4 id="_development_version">Development version</h4>
+<h4 id="_development_version">4.1.3. Development version</h4>
 <div class="listingblock">
 <div class="content"><div class="highlight"><pre>opip install -e git+git://github.com/djangonauts/django-hstore#egg<span class="o">=</span>django-hstore
 </pre></div></div></div>
 </div>
 <div class="sect3">
-<h4 id="_upgrade_from_older_versions">Upgrade from older versions</h4>
+<h4 id="_upgrade_from_older_versions">4.1.4. Upgrade from older versions</h4>
 <div class="paragraph"><p>In <strong>version 1.2.x</strong> some internals have been changed in order to simplify usage and prevent errors.</p></div>
 <div class="paragraph"><p>Values are automatically converted to strings, fields costantly validate input and so on.</p></div>
 <div class="paragraph"><p>If you are upgrading from an older version ensure your application code works as expected.
@@ -176,9 +176,9 @@ to the older version of django-hstore (1.1.1).</p></div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_setup">Setup</h3>
+<h3 id="_setup">4.2. Setup</h3>
 <div class="sect3">
-<h4 id="_basic_setup">Basic setup</h4>
+<h4 id="_basic_setup">4.2.1. Basic setup</h4>
 <div class="paragraph"><p>First, add <strong>django_hstore</strong> to your <span class="monospaced">settings.INSTALLED_APPS</span>:</p></div>
 <div class="listingblock">
 <div class="content"><div class="highlight"><pre><span class="n">INSTALLED_APPS</span> <span class="o">=</span> <span class="p">(</span>
@@ -193,7 +193,7 @@ to the older version of django-hstore (1.1.1).</p></div>
 </pre></div></div></div>
 </div>
 <div class="sect3">
-<h4 id="_multiple_database_setup">Multiple database setup</h4>
+<h4 id="_multiple_database_setup">4.2.2. Multiple database setup</h4>
 <div class="paragraph"><p>If for some reason you have to use django-hstore in a <strong>multi-database setup</strong> and
 some of the database you are using don&#8217;t have the hstore extension installed,
 you can skip hstore registration by setting <span class="monospaced">HAS_HSTORE</span> to <span class="monospaced">False</span> in your
@@ -224,7 +224,7 @@ database config:</p></div>
 documentation.</p></div>
 </div>
 <div class="sect3">
-<h4 id="_note_to_south_users">Note to South users</h4>
+<h4 id="_note_to_south_users">4.2.3. Note to South users</h4>
 <div class="paragraph"><p>If you keep getting errors like There is no South database module <em>south.db.None</em>
 for your database., add the following to settings.py:</p></div>
 <div class="listingblock">
@@ -233,7 +233,7 @@ for your database., add the following to settings.py:</p></div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_usage">Usage</h3>
+<h3 id="_usage">4.3. Usage</h3>
 <div class="paragraph"><p>The library provides three principal classes:</p></div>
 <div class="ulist"><ul>
 <li>
@@ -265,7 +265,7 @@ for your database., add the following to settings.py:</p></div>
 </li>
 </ul></div>
 <div class="sect3">
-<h4 id="_model_setup">Model setup</h4>
+<h4 id="_model_setup">4.3.1. Model setup</h4>
 <div class="listingblock">
 <div class="title">Model definition is straightforward</div>
 <div class="content"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.db</span> <span class="kn">import</span> <span class="n">models</span>
@@ -290,7 +290,7 @@ for your database., add the following to settings.py:</p></div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_python_api">Python API</h3>
+<h3 id="_python_api">4.4. Python API</h3>
 <div class="paragraph"><p>You then treat the <span class="monospaced">data</span> field as simply a dictionary of string pairs:</p></div>
 <div class="listingblock">
 <div class="content"><div class="highlight"><pre><span class="n">instance</span> <span class="o">=</span> <span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;something&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="s">&#39;1&#39;</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">:</span> <span class="s">&#39;2&#39;</span><span class="p">})</span>
@@ -356,7 +356,7 @@ will be converted to text and the lookup will be performed on all the keys and a
 </pre></div></div></div>
 </div>
 <div class="sect2">
-<h3 id="_hstore_manager">HSTORE manager</h3>
+<h3 id="_hstore_manager">4.5. HSTORE manager</h3>
 <div class="paragraph"><p>You can also take advantage of some db-side functionality by using the manager:</p></div>
 <div class="listingblock">
 <div class="content"><div class="highlight"><pre><span class="c"># identify the keys present in an hstore field</span>
@@ -379,7 +379,7 @@ will be converted to text and the lookup will be performed on all the keys and a
 </pre></div></div></div>
 </div>
 <div class="sect2">
-<h3 id="_referencefield_usage">ReferenceField Usage</h3>
+<h3 id="_referencefield_usage">4.6. ReferenceField Usage</h3>
 <div class="paragraph"><p><strong>ReferenceField</strong> is a field that allows to reference other database objects
 without using a classic ManyToMany relationship.</p></div>
 <div class="paragraph"><p>Here&#8217;s an example with the <span class="monospaced">ReferenceContainer</span> model defined in the <strong>Model fields</strong> section:</p></div>
@@ -417,11 +417,11 @@ Once references have been retrieved they will be stored for any eventual subsequ
 </div>
 </div>
 <div class="sect1">
-<h2 id="_developers_guide">Developers Guide</h2>
+<h2 id="_developers_guide">5. Developers Guide</h2>
 <div class="sectionbody">
 <div class="paragraph"><p>This section covers everything that django-hstore developer / contributor want know.</p></div>
 <div class="sect2">
-<h3 id="_running_tests">Running tests</h3>
+<h3 id="_running_tests">5.1. Running tests</h3>
 <div class="paragraph"><p>Assuming one has the dependencies installed, and a <strong>PostgreSQL 9.0+</strong> server up and
 running:</p></div>
 <div class="listingblock">
@@ -448,7 +448,7 @@ The same applies for <span class="monospaced">local_settings_psycopg.py.example<
 <div class="paragraph"><p>More details here on link: <a href="http://clarkdave.net/2012/09/postgresql-error-type-hstore-does-not-exist/">PostgreSQL error type hstore does not exist</a>.</p></div>
 </div>
 <div class="sect2">
-<h3 id="_how_to_contribute">How to contribute</h3>
+<h3 id="_how_to_contribute">5.2. How to contribute</h3>
 <div class="olist arabic"><ol class="arabic">
 <li>
 <p>
@@ -501,7 +501,7 @@ Send pull request
 </div>
 </div>
 <div class="sect1">
-<h2 id="_license">License</h2>
+<h2 id="_license">6. License</h2>
 <div class="sectionbody">
 <div class="listingblock">
 <div class="content"><div class="highlight"><pre>Copyright (C) 2013-2014 Federico Capoano
@@ -553,7 +553,7 @@ THE SOFTWARE.
 <div id="footnotes"><hr></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2014-04-17 21:14:38 CEST
+Last updated 2014-04-24 18:14:06 CEST
 </div>
 </div>
 </body>
