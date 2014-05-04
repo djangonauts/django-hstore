@@ -108,7 +108,7 @@ Development version
 
 [source, bash]
 ----
-opip install -e git+git://github.com/djangonauts/django-hstore#egg=django-hstore
+pip install -e git+git://github.com/djangonauts/django-hstore#egg=django-hstore
 ----
 
 Upgrade from older versions
