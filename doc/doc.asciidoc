@@ -35,6 +35,7 @@ image:images/deafult-admin-widget.png["Admin Widget", width=650]
 .Each time a key or a value is modified the underlying textarea is updated:
 image:images/deafult-admin-widget-raw.png["Admin Widget", width=650]
 
+
 Grappelli Admin widget
 ~~~~~~~~~~~~~~~~~~~~~~
 
@@ -58,9 +59,24 @@ Limitations
   see link:https://code.djangoproject.com/ticket/22297[Django Ticket #22297] for more details on this issue.
   This issue is specific to Django 1.6 and below.
 
-*Important Note:* the future version of HStore will bring types, nested structures and more advanced
-features, for more info read link:https://blog.engineyard.com/2013/on-the-state-of-hstore[On the state of HStore]
-by Engine Yard.
+The future version of HStore will bring types, nested structures and more advanced
+features, for more info read link:https://blog.engineyard.com/2013/on-the-state-of-hstore[On the state of HStore] by Engine Yard.
+
+[WARNING]
+====
+Due to hstore is a postgresql extension and not a native type, its oid is different on each database that causes
+strange behavior with type conversions (see more on link:https://github.com/djangonauts/django-hstore/pull/35[this issue])
+if hstore extension is installed individually in each database.
+
+For avoid this strange behavior you have two options:
+
+- Install hstore on *template1* postgresql template datatabase and recreate all databases/templates
+  from it, so allowing that all databases will have same oid for hstore type (this is a recommended way).
+- Disable global registring setting `DJANGO_HSTORE_GLOBAL_REGISTER` to `False` on your settings. This
+  can have some performance impact because it registers hstore extension on each new connection is created
+  (if you are using django 1.6 persistent connections or any other connection pool solution it should
+  reduce these impact).
+====
 
 
 Project Maturity
