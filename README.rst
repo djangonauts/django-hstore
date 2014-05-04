@@ -22,8 +22,5 @@ django-hstore (schemaless DB)
 .. image:: https://pypip.in/d/django-hstore/badge.png
     :target: http://badge.fury.io/py/django-hstore
 
-.. image:: https://d2weczhvl823v0.cloudfront.net/djangonauts/django-hstore/trend.png
-   :target: https://bitdeli.com/free
-
 
 Documentation: http://djangonauts.github.io/django-hstore/
