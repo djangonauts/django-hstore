@@ -24,3 +24,5 @@ django-hstore (schemaless DB)
 
 
 Documentation: http://djangonauts.github.io/django-hstore/
+
+Mailing List: https://groups.google.com/forum/#!forum/django-hstore
