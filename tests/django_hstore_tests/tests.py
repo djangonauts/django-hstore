@@ -45,15 +45,15 @@ class TestDictionaryField(TestCase):
 
     def test_decimal(self):
         databag = DataBag(name='decimal')
-        databag.data['dec'] = Decimal(1.01)
-        self.assertEqual(databag.data['dec'], force_text(Decimal(1.01)))
+        databag.data['dec'] = Decimal('1.01')
+        self.assertEqual(databag.data['dec'], force_text(Decimal('1.01')))
 
         databag.save()
         databag = DataBag.objects.get(name='decimal')
-        self.assertEqual(databag.data['dec'], force_text(Decimal(1.01)))
+        self.assertEqual(databag.data['dec'], force_text(Decimal('1.01')))
 
-        databag = DataBag(name='decimal', data={'dec': Decimal(1.01)})
-        self.assertEqual(databag.data['dec'], force_text(Decimal(1.01)))
+        databag = DataBag(name='decimal', data={'dec': Decimal('1.01')})
+        self.assertEqual(databag.data['dec'], force_text(Decimal('1.01')))
 
     def test_number(self):
         databag = DataBag(name='number')
