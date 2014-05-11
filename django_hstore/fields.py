@@ -5,6 +5,8 @@ try:
 except ImportError:
     import json
 
+from decimal import Decimal
+
 import django
 from django.db import models, connection
 from django.utils import six
@@ -87,7 +89,7 @@ class HStoreDict(UnicodeMixin, dict):
         """
         if isinstance(value, bool):
             return force_text(value).lower()
-        elif isinstance(value, int) or isinstance(value, float):
+        elif isinstance(value, int) or isinstance(value, float) or isinstance(value, Decimal):
             return force_text(value)
         elif isinstance(value, list) or isinstance(value, dict):
             return force_text(json.dumps(value))
