@@ -1,6 +1,7 @@
 import sys
 
 import django
+from django.conf import settings
 from django.db.backends.signals import connection_created
 
 try:
@@ -64,8 +65,14 @@ def register_hstore_handler(connection, **kwargs):
         register_hstore(connection.connection, globally=True)
 
 
+# This allows users that introduce hstore to an existing
+# production environment to set global registry to false for avoid
+# strange behaviors when having hstore installed individually
+# on each database instead of on template1.
+HSTORE_GLOBAL_REGISTER = getattr(settings, "DJANGO_HSTORE_GLOBAL_REGISTER", True)
+
 connection_handler.attach_handler(register_hstore_handler,
-                                  vendor="postgresql", unique=True)
+                                  vendor="postgresql", unique=HSTORE_GLOBAL_REGISTER)
 
 
 class HStoreConfig(AppConfig):

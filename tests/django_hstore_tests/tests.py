@@ -447,6 +447,31 @@ class TestDictionaryField(TestCase):
         get_version()
 
 
+class RegressionTests(TestCase):
+    def test_properties_hstore(self):
+        """
+        Make sure the hstore field does what it is supposed to.
+        """
+        from django_hstore.fields import HStoreDict
+
+        instance = DataBag()
+        test_props = {'foo':'bar', 'size': '3'}
+
+        instance.name = "foo"
+        instance.data = test_props
+        instance.save()
+
+        self.assertEqual(type(instance.data), HStoreDict)
+        self.assertEqual(instance.data, test_props)
+        instance = DataBag.objects.get(pk=instance.pk)
+
+        self.assertEqual(type(instance.data), HStoreDict) # TEST FAILS HERE
+
+        self.assertEqual(instance.data, test_props)
+        self.assertEqual(instance.data['size'], '3')
+        self.assertIn('foo', instance.data)
+
+
 class TestReferencesField(TestCase):
 
     def setUp(self):

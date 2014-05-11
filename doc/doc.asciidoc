@@ -64,18 +64,18 @@ features, for more info read link:https://blog.engineyard.com/2013/on-the-state-
 
 [WARNING]
 ====
-Due to hstore is a postgresql extension and not a native type, its oid is different on each database that causes
+Due to hstore being a postgresql extension and not a native type, its oid is different on each database, which causes
 strange behavior with type conversions (see more on link:https://github.com/djangonauts/django-hstore/pull/35[this issue])
 if hstore extension is installed individually in each database.
 
-For avoid this strange behavior you have two options:
+To avoid this strange behavior you have two options:
 
 - Install hstore on *template1* postgresql template datatabase and recreate all databases/templates
-  from it, so allowing that all databases will have same oid for hstore type (this is a recommended way).
-- Disable global registring setting `DJANGO_HSTORE_GLOBAL_REGISTER` to `False` on your settings. This
-  can have some performance impact because it registers hstore extension on each new connection is created
-  (if you are using django 1.6 persistent connections or any other connection pool solution it should
-  reduce these impact).
+  from it, which allows all database to have the same oid for the hstore type (this is a recommended way).
+- Disable global registering setting `DJANGO_HSTORE_GLOBAL_REGISTER` to `False` on your settings. This
+  can have a performance impact because it registers the hstore extension for each new connection is created
+  (if you are using django 1.6, persistent connections - or any other connection pool - will help to
+  reduce this impact).
 ====
 
 
