@@ -102,9 +102,37 @@ If <span class="monospaced">django.middleware.transaction.TransactionMiddleware<
 </p>
 </li>
 </ul></div>
-<div class="paragraph"><p><strong>Important Note:</strong> the future version of HStore will bring types, nested structures and more advanced
-features, for more info read <a href="https://blog.engineyard.com/2013/on-the-state-of-hstore">On the state of HStore</a>
-by Engine Yard.</p></div>
+<div class="paragraph"><p>The future version of HStore will bring types, nested structures and more advanced
+features, for more info read <a href="https://blog.engineyard.com/2013/on-the-state-of-hstore">On the state of HStore</a> by Engine Yard.</p></div>
+<div class="admonitionblock">
+<table><tr>
+<td class="icon">
+<div class="title">Warning</div>
+</td>
+<td class="content">
+<div class="paragraph"><p>Due to hstore being a postgresql extension and not a native type, its oid is different on each database, which causes
+strange behavior with type conversions (see more on <a href="https://github.com/djangonauts/django-hstore/pull/35">this issue</a>)
+if hstore extension is installed individually in each database.</p></div>
+<div class="paragraph"><p>To avoid this strange behavior you have two options:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+Install hstore on <strong>template1</strong> postgresql template datatabase and recreate all databases/templates
+  from it, which allows all database to have the same oid for the hstore type (this is a recommended way).
+</p>
+</li>
+<li>
+<p>
+Disable global registering setting <span class="monospaced">DJANGO_HSTORE_GLOBAL_REGISTER</span> to <span class="monospaced">False</span> on your settings. This
+  can have a performance impact because it registers the hstore extension for each new connection is created
+  (if you are using django 1.6, persistent connections - or any other connection pool - will help to
+  reduce this impact).
+</p>
+</li>
+</ul></div>
+</td>
+</tr></table>
+</div>
 </div>
 </div>
 </div>
@@ -163,7 +191,7 @@ PostgreSQL 9.0+
 <div class="sect3">
 <h4 id="_development_version">4.1.3. Development version</h4>
 <div class="listingblock">
-<div class="content"><div class="highlight"><pre>opip install -e git+git://github.com/djangonauts/django-hstore#egg<span class="o">=</span>django-hstore
+<div class="content"><div class="highlight"><pre>pip install -e git+git://github.com/djangonauts/django-hstore#egg<span class="o">=</span>django-hstore
 </pre></div></div></div>
 </div>
 <div class="sect3">
@@ -553,7 +581,7 @@ THE SOFTWARE.
 <div id="footnotes"><hr></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2014-04-24 18:14:06 CEST
+Last updated 2014-05-11 23:31:59 CEST
 </div>
 </div>
 </body>
