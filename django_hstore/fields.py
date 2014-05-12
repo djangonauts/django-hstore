@@ -81,7 +81,8 @@ class HStoreDict(UnicodeMixin, dict):
 
     def ensure_acceptable_value(self, value):
         """
-        - ensure booleans, integers, floats, lists and dicts are converted to string
+        - ensure booleans, integers, floats, Decimals, lists and dicts are
+          converted to string
         - convert True and False objects to "true" and "false" so they can be
           decoded back with the json library if needed
         - convert lists and dictionaries to json formatted strings
