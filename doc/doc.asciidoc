@@ -32,17 +32,17 @@ Django Admin widget
 .django-hstore ships a nice admin widget that makes the field more user-friendly.
 image:images/deafult-admin-widget.png["Admin Widget", width=650]
 
-.Each time a key or a value is modified the underlying textarea is updated:
+.Each time a key or a value is modified, the underlying textarea is updated:
 image:images/deafult-admin-widget-raw.png["Admin Widget", width=650]
 
 
 Grappelli Admin widget
 ~~~~~~~~~~~~~~~~~~~~~~
 
-.If you use the awsome link:http://grappelliproject.com/[django-grappelli] there's an even nicer looking widget for you too!
+.If you use the awesome link:http://grappelliproject.com/[django-grappelli] there's an even nicer looking widget for you too!
 image:images/hstore-widget.png["Grappeli Widget",width=650]
 
-.Each time a key or a value is modified the underlying textarea is updated:
+.Each time a key or a value is modified, the underlying textarea is updated:
 image:images/hstore-widget-raw.png["Grappeli Widget",width=650]
 
 
@@ -52,15 +52,15 @@ Limitations
 - PostgreSQL's implementation of hstore has no concept of type; it stores a
   mapping of string keys to string values. Values are stored as strings in the
   database regarding of their original type.
-- Hstore extension is not automatically installed on use this package. You must install it manually.
+- The hstore extension is not automatically installed on use with this package: you must install it manually.
 - To run tests, hstore extension must be installed on template1 database.
 - If `django.middleware.transaction.TransactionMiddleware` is enabled and the project is deployed
   through `uwsgi`, the first request to a view working with models featuring hstore fields will raise an exception;
   see link:https://code.djangoproject.com/ticket/22297[Django Ticket #22297] for more details on this issue.
   This issue is specific to Django 1.6 and below.
 
-The future version of HStore will bring types, nested structures and more advanced
-features, for more info read link:https://blog.engineyard.com/2013/on-the-state-of-hstore[On the state of HStore] by Engine Yard.
+The future version of HStore will bring types, nested structures, and more advanced
+features. For more info read link:https://blog.engineyard.com/2013/on-the-state-of-hstore[On the state of HStore] by Engine Yard.
 
 [WARNING]
 ====
@@ -70,10 +70,10 @@ if hstore extension is installed individually in each database.
 
 To avoid this strange behavior you have two options:
 
-- Install hstore on *template1* postgresql template datatabase and recreate all databases/templates
+- Install hstore on *template1* postgresql template database and recreate all databases/templates
   from it, which allows all database to have the same oid for the hstore type (this is a recommended way).
-- Disable global registering setting `DJANGO_HSTORE_GLOBAL_REGISTER` to `False` on your settings. This
-  can have a performance impact because it registers the hstore extension for each new connection is created
+- Disable global registering setting `DJANGO_HSTORE_GLOBAL_REGISTER` by setting it to `False` in your settings. This
+  can have a performance impact because it registers the hstore extension for each new connection created
   (if you are using django 1.6, persistent connections - or any other connection pool - will help to
   reduce this impact).
 ====
@@ -91,7 +91,7 @@ Deprecation policy
 At any momment of time, *django-hstore* developers will mantain support for three versions of django.
 
 As example: The current stable release of django is 1.6, so django-hstore official supported versions are: 1.4, 1.5 and 1.6. When
-django 1.7 is released, 1.4 version will become on unsupported django version.
+django 1.7 is released, version 1.4 will become an unsupported django version.
 
 User Guide
 ----------
@@ -132,9 +132,9 @@ Upgrade from older versions
 
 In *version 1.2.x* some internals have been changed in order to simplify usage and prevent errors.
 
-Values are automatically converted to strings, fields costantly validate input and so on.
+Values are automatically converted to strings, fields constantly validate input and so on.
 
-If you are upgrading from an older version ensure your application code works as expected.
+If you are upgrading from an older version, ensure your application code works as expected.
 If it doesn't you will either have to update your code or tie your application's requirement
 to the older version of django-hstore (1.1.1).
 
@@ -203,7 +203,7 @@ documentation.
 Note to South users
 ^^^^^^^^^^^^^^^^^^^
 
-If you keep getting errors like There is no South database module 'south.db.None'
+If you keep getting errors like "There is no South database module 'south.db.None'"
 for your database., add the following to settings.py:
 
 [source, python]
@@ -217,7 +217,7 @@ Usage
 The library provides three principal classes:
 
 - `django_hstore.hstore.DictionaryField` +
-  An ORM field which stores a mapping of string key/value pairs in an hstore
+  An ORM field which stores a mapping of string key/value pairs in a hstore
   column.
 - `django_hstore.hstore.ReferencesField` +
   An ORM field which builds on DictionaryField to store a mapping of string
@@ -275,8 +275,8 @@ empty.save()
 assert Something.objects.get(name='empty').data['a'] == '3'
 ----
 
-Booleans, integers, floats, lists and dictionaries will be converted to strings.
-Lists, dictionaries and booleans are converted into JSON formatted strings, so
+Booleans, integers, floats, lists, and dictionaries will be converted to strings.
+Lists, dictionaries, and booleans are converted into JSON formatted strings, so
 can be decoded if needed:
 
 [source,python]
