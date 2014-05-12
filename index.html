@@ -60,16 +60,16 @@ Nice admin widgets.
 <div class="paragraph"><div class="title">django-hstore ships a nice admin widget that makes the field more user-friendly.</div><p><span class="image">
 <img src="images/deafult-admin-widget.png" alt="Admin Widget" width="650">
 </span></p></div>
-<div class="paragraph"><div class="title">Each time a key or a value is modified the underlying textarea is updated:</div><p><span class="image">
+<div class="paragraph"><div class="title">Each time a key or a value is modified, the underlying textarea is updated:</div><p><span class="image">
 <img src="images/deafult-admin-widget-raw.png" alt="Admin Widget" width="650">
 </span></p></div>
 </div>
 <div class="sect2">
 <h3 id="_grappelli_admin_widget">1.3. Grappelli Admin widget</h3>
-<div class="paragraph"><div class="title">If you use the awsome <a href="http://grappelliproject.com/">django-grappelli</a> there&#8217;s an even nicer looking widget for you too!</div><p><span class="image">
+<div class="paragraph"><div class="title">If you use the awesome <a href="http://grappelliproject.com/">django-grappelli</a> there&#8217;s an even nicer looking widget for you too!</div><p><span class="image">
 <img src="images/hstore-widget.png" alt="Grappeli Widget" width="650">
 </span></p></div>
-<div class="paragraph"><div class="title">Each time a key or a value is modified the underlying textarea is updated:</div><p><span class="image">
+<div class="paragraph"><div class="title">Each time a key or a value is modified, the underlying textarea is updated:</div><p><span class="image">
 <img src="images/hstore-widget-raw.png" alt="Grappeli Widget" width="650">
 </span></p></div>
 </div>
@@ -85,7 +85,7 @@ PostgreSQL&#8217;s implementation of hstore has no concept of type; it stores a
 </li>
 <li>
 <p>
-Hstore extension is not automatically installed on use this package. You must install it manually.
+The hstore extension is not automatically installed on use with this package: you must install it manually.
 </p>
 </li>
 <li>
@@ -102,8 +102,8 @@ If <span class="monospaced">django.middleware.transaction.TransactionMiddleware<
 </p>
 </li>
 </ul></div>
-<div class="paragraph"><p>The future version of HStore will bring types, nested structures and more advanced
-features, for more info read <a href="https://blog.engineyard.com/2013/on-the-state-of-hstore">On the state of HStore</a> by Engine Yard.</p></div>
+<div class="paragraph"><p>The future version of HStore will bring types, nested structures, and more advanced
+features. For more info read <a href="https://blog.engineyard.com/2013/on-the-state-of-hstore">On the state of HStore</a> by Engine Yard.</p></div>
 <div class="admonitionblock">
 <table><tr>
 <td class="icon">
@@ -117,14 +117,14 @@ if hstore extension is installed individually in each database.</p></div>
 <div class="ulist"><ul>
 <li>
 <p>
-Install hstore on <strong>template1</strong> postgresql template datatabase and recreate all databases/templates
+Install hstore on <strong>template1</strong> postgresql template database and recreate all databases/templates
   from it, which allows all database to have the same oid for the hstore type (this is a recommended way).
 </p>
 </li>
 <li>
 <p>
-Disable global registering setting <span class="monospaced">DJANGO_HSTORE_GLOBAL_REGISTER</span> to <span class="monospaced">False</span> on your settings. This
-  can have a performance impact because it registers the hstore extension for each new connection is created
+Disable global registering setting <span class="monospaced">DJANGO_HSTORE_GLOBAL_REGISTER</span> by setting it to <span class="monospaced">False</span> in your settings. This
+  can have a performance impact because it registers the hstore extension for each new connection created
   (if you are using django 1.6, persistent connections - or any other connection pool - will help to
   reduce this impact).
 </p>
@@ -147,7 +147,7 @@ Disable global registering setting <span class="monospaced">DJANGO_HSTORE_GLOBAL
 <div class="sectionbody">
 <div class="paragraph"><p>At any momment of time, <strong>django-hstore</strong> developers will mantain support for three versions of django.</p></div>
 <div class="paragraph"><p>As example: The current stable release of django is 1.6, so django-hstore official supported versions are: 1.4, 1.5 and 1.6. When
-django 1.7 is released, 1.4 version will become on unsupported django version.</p></div>
+django 1.7 is released, version 1.4 will become an unsupported django version.</p></div>
 </div>
 </div>
 <div class="sect1">
@@ -197,8 +197,8 @@ PostgreSQL 9.0+
 <div class="sect3">
 <h4 id="_upgrade_from_older_versions">4.1.4. Upgrade from older versions</h4>
 <div class="paragraph"><p>In <strong>version 1.2.x</strong> some internals have been changed in order to simplify usage and prevent errors.</p></div>
-<div class="paragraph"><p>Values are automatically converted to strings, fields costantly validate input and so on.</p></div>
-<div class="paragraph"><p>If you are upgrading from an older version ensure your application code works as expected.
+<div class="paragraph"><p>Values are automatically converted to strings, fields constantly validate input and so on.</p></div>
+<div class="paragraph"><p>If you are upgrading from an older version, ensure your application code works as expected.
 If it doesn&#8217;t you will either have to update your code or tie your application&#8217;s requirement
 to the older version of django-hstore (1.1.1).</p></div>
 </div>
@@ -253,7 +253,7 @@ documentation.</p></div>
 </div>
 <div class="sect3">
 <h4 id="_note_to_south_users">4.2.3. Note to South users</h4>
-<div class="paragraph"><p>If you keep getting errors like There is no South database module <em>south.db.None</em>
+<div class="paragraph"><p>If you keep getting errors like "There is no South database module <em>south.db.None</em>"
 for your database., add the following to settings.py:</p></div>
 <div class="listingblock">
 <div class="content"><div class="highlight"><pre><span class="n">SOUTH_DATABASE_ADAPTERS</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;default&#39;</span><span class="p">:</span> <span class="s">&#39;south.db.postgresql_psycopg2&#39;</span><span class="p">}</span>
@@ -267,7 +267,7 @@ for your database., add the following to settings.py:</p></div>
 <li>
 <p>
 <span class="monospaced">django_hstore.hstore.DictionaryField</span><br>
-  An ORM field which stores a mapping of string key/value pairs in an hstore
+  An ORM field which stores a mapping of string key/value pairs in a hstore
   column.
 </p>
 </li>
@@ -331,8 +331,8 @@ for your database., add the following to settings.py:</p></div>
 <span class="n">empty</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
 <span class="k">assert</span> <span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;empty&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;3&#39;</span>
 </pre></div></div></div>
-<div class="paragraph"><p>Booleans, integers, floats, lists and dictionaries will be converted to strings.
-Lists, dictionaries and booleans are converted into JSON formatted strings, so
+<div class="paragraph"><p>Booleans, integers, floats, lists, and dictionaries will be converted to strings.
+Lists, dictionaries, and booleans are converted into JSON formatted strings, so
 can be decoded if needed:</p></div>
 <div class="listingblock">
 <div class="content"><div class="highlight"><pre><span class="n">instance</span> <span class="o">=</span> <span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;something&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;int&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s">&#39;bool&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">})</span>
@@ -581,7 +581,7 @@ THE SOFTWARE.
 <div id="footnotes"><hr></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2014-05-11 23:31:59 CEST
+Last updated 2014-05-13 00:05:01 CEST
 </div>
 </div>
 </body>
