@@ -90,7 +90,7 @@ class HStoreDict(UnicodeMixin, dict):
         """
         if isinstance(value, bool):
             return force_text(value).lower()
-        elif isinstance(value, int) or isinstance(value, float) or isinstance(value, Decimal):
+        elif isinstance(value, (int, float, Decimal)):
             return force_text(value)
         elif isinstance(value, list) or isinstance(value, dict):
             return force_text(json.dumps(value))
