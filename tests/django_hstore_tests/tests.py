@@ -1,5 +1,6 @@
 import json
 import pickle
+from decimal import Decimal
 
 from django.db import transaction
 from django.db.models.aggregates import Count
@@ -41,6 +42,18 @@ class TestDictionaryField(TestCase):
         alpha, beta = self._create_bags()
         self.assertEqual(alpha.data, {'v': '1', 'v2': '3'})
         self.assertEqual(beta.data, {'v': '2', 'v2': '4'})
+
+    def test_decimal(self):
+        databag = DataBag(name='decimal')
+        databag.data['dec'] = Decimal('1.01')
+        self.assertEqual(databag.data['dec'], force_text(Decimal('1.01')))
+
+        databag.save()
+        databag = DataBag.objects.get(name='decimal')
+        self.assertEqual(databag.data['dec'], force_text(Decimal('1.01')))
+
+        databag = DataBag(name='decimal', data={'dec': Decimal('1.01')})
+        self.assertEqual(databag.data['dec'], force_text(Decimal('1.01')))
 
     def test_number(self):
         databag = DataBag(name='number')

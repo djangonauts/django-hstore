@@ -5,6 +5,8 @@ try:
 except ImportError:
     import json
 
+from decimal import Decimal
+
 import django
 from django.db import models, connection
 from django.utils import six
@@ -79,7 +81,8 @@ class HStoreDict(UnicodeMixin, dict):
 
     def ensure_acceptable_value(self, value):
         """
-        - ensure booleans, integers, floats, lists and dicts are converted to string
+        - ensure booleans, integers, floats, Decimals, lists and dicts are
+          converted to string
         - convert True and False objects to "true" and "false" so they can be
           decoded back with the json library if needed
         - convert lists and dictionaries to json formatted strings
@@ -87,7 +90,7 @@ class HStoreDict(UnicodeMixin, dict):
         """
         if isinstance(value, bool):
             return force_text(value).lower()
-        elif isinstance(value, int) or isinstance(value, float):
+        elif isinstance(value, (int, float, Decimal)):
             return force_text(value)
         elif isinstance(value, list) or isinstance(value, dict):
             return force_text(json.dumps(value))
