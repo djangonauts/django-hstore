@@ -458,6 +458,19 @@ class TestDictionaryField(TestCase):
 
     def test_get_version(self):
         get_version()
+    
+    def test_unique_together(self):
+        d = UniqueTogetherDataBag()
+        d.name = 'test'
+        d.data = { 'test': 'test '}
+        d.full_clean()
+        d.save()
+        
+        d = UniqueTogetherDataBag()
+        d.name = 'test'
+        d.data = { 'test': 'test '}
+        with self.assertRaises(ValidationError):
+            d.full_clean()
 
 
 class RegressionTests(TestCase):

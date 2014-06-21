@@ -17,6 +17,7 @@ __all__ = [
     'BadDefaultsModel',
     'DefaultsInline',
     'NumberedDataBag',
+    'UniqueTogetherDataBag',
     'GEODJANGO'
 ]
 
@@ -70,6 +71,14 @@ class NumberedDataBag(HStoreModel):
     name = models.CharField(max_length=32)
     data = hstore.DictionaryField()
     number = models.IntegerField()
+
+
+class UniqueTogetherDataBag(HStoreModel):
+    name = models.CharField(max_length=32)
+    data = hstore.DictionaryField()
+    
+    class Meta:
+        unique_together =  ("name", "data")
 
 
 # if geodjango is in use define Location model, which contains GIS data
