@@ -640,10 +640,10 @@ class TestReferencesField(TestCase):
         }
         d.save()
         result = DataBag.objects.filter(name__contains='of data')
-        self.assertEquals(result.count(), 1)
-        self.assertEquals(result[0].pk, d.pk)
+        self.assertEqual(result.count(), 1)
+        self.assertEqual(result[0].pk, d.pk)
         result = DataBag.objects.filter(name__contains='OF data')
-        self.assertEquals(result.count(), 0)
+        self.assertEqual(result.count(), 0)
 
     def test_native_icontains(self):
         d = DataBag()
@@ -654,8 +654,8 @@ class TestReferencesField(TestCase):
         }
         d.save()
         result = DataBag.objects.filter(name__icontains='A bAg')
-        self.assertEquals(result.count(), 1)
-        self.assertEquals(result[0].pk, d.pk)
+        self.assertEqual(result.count(), 1)
+        self.assertEqual(result[0].pk, d.pk)
 
     def test_native_gt(self):
         d = NumberedDataBag()
@@ -663,12 +663,12 @@ class TestReferencesField(TestCase):
         d.number = 12
         d.save()
         result = NumberedDataBag.objects.filter(number__gt=12)
-        self.assertEquals(result.count(), 0)
+        self.assertEqual(result.count(), 0)
         result = NumberedDataBag.objects.filter(number__gt=1)
-        self.assertEquals(result.count(), 1)
-        self.assertEquals(result[0].pk, d.pk)
+        self.assertEqual(result.count(), 1)
+        self.assertEqual(result[0].pk, d.pk)
         result = NumberedDataBag.objects.filter(number__gt=13)
-        self.assertEquals(result.count(), 0)
+        self.assertEqual(result.count(), 0)
 
     def test_native_gte(self):
         d = NumberedDataBag()
@@ -676,13 +676,13 @@ class TestReferencesField(TestCase):
         d.number = 12
         d.save()
         result = NumberedDataBag.objects.filter(number__gte=12)
-        self.assertEquals(result.count(), 1)
-        self.assertEquals(result[0].pk, d.pk)
+        self.assertEqual(result.count(), 1)
+        self.assertEqual(result[0].pk, d.pk)
         result = NumberedDataBag.objects.filter(number__gte=1)
-        self.assertEquals(result.count(), 1)
-        self.assertEquals(result[0].pk, d.pk)
+        self.assertEqual(result.count(), 1)
+        self.assertEqual(result[0].pk, d.pk)
         result = NumberedDataBag.objects.filter(number__gte=13)
-        self.assertEquals(result.count(), 0)
+        self.assertEqual(result.count(), 0)
 
     def test_native_lt(self):
         d = NumberedDataBag()
@@ -690,12 +690,12 @@ class TestReferencesField(TestCase):
         d.number = 12
         d.save()
         result = NumberedDataBag.objects.filter(number__lt=20)
-        self.assertEquals(result.count(), 1)
-        self.assertEquals(result[0].pk, d.pk)
+        self.assertEqual(result.count(), 1)
+        self.assertEqual(result[0].pk, d.pk)
         result = NumberedDataBag.objects.filter(number__lt=12)
-        self.assertEquals(result.count(), 0)
+        self.assertEqual(result.count(), 0)
         result = NumberedDataBag.objects.filter(number__lt=1)
-        self.assertEquals(result.count(), 0)
+        self.assertEqual(result.count(), 0)
 
 
     def test_native_lte(self):
@@ -704,13 +704,13 @@ class TestReferencesField(TestCase):
         d.number = 12
         d.save()
         result = NumberedDataBag.objects.filter(number__lte=12)
-        self.assertEquals(result.count(), 1)
-        self.assertEquals(result[0].pk, d.pk)
+        self.assertEqual(result.count(), 1)
+        self.assertEqual(result[0].pk, d.pk)
         result = NumberedDataBag.objects.filter(number__lte=13)
-        self.assertEquals(result.count(), 1)
-        self.assertEquals(result[0].pk, d.pk)
+        self.assertEqual(result.count(), 1)
+        self.assertEqual(result[0].pk, d.pk)
         result = NumberedDataBag.objects.filter(number__lte=1)
-        self.assertEquals(result.count(), 0)
+        self.assertEqual(result.count(), 0)
 
 
 if GEODJANGO:
