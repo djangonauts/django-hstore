@@ -1,6 +1,6 @@
 django-hstore documentation
 ===========================
-0.1.0, 2014-04-17
+1.2.5, 2014-06-26
 
 :toc:
 :numbered:
@@ -71,8 +71,8 @@ if hstore extension is installed individually in each database.
 To avoid this strange behavior you have two options:
 
 - Install hstore on *template1* postgresql template database and recreate all databases/templates
-  from it, which allows all database to have the same oid for the hstore type (this is a recommended way).
-- Disable global registering setting `DJANGO_HSTORE_GLOBAL_REGISTER` by setting it to `False` in your settings. This
+  from it, which allows all database to have the same oid for the hstore type (this is the recommended way).
+- Disable global registering setting `DJANGO_HSTORE_ADAPTER_REGISTRATION` by setting it to `connection` in your settings. This
   can have a performance impact because it registers the hstore extension for each new connection created
   (if you are using django 1.6, persistent connections - or any other connection pool - will help to
   reduce this impact).
