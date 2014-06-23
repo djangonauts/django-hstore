@@ -31,6 +31,7 @@ var initDjangoHStoreWidget = function(hstore_field_name, inline_prefix) {
             original_textarea = $('#'+hstore_field_id),
             original_value = original_textarea.val(),
             original_container = original_textarea.parents('.form-row, .grp-row').eq(0),
+            errorHtml = original_container.find('.errorlist').html(),
             json_data = {};
 
         if(original_value !== ''){
@@ -50,6 +51,7 @@ var initDjangoHStoreWidget = function(hstore_field_name, inline_prefix) {
                 "name": hstore_field_name,
                 "value": original_textarea.val(),
                 "help": original_container.find('.grp-help, .help').text(),
+                "errors": errorHtml,
                 "data": json_data
             },
             // compile template

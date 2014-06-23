@@ -21,12 +21,21 @@
         <h2><%= label %></h2>
 
         <% if(help && help != '') { %>
-        <div class="form-row">
-            <p class="help" style="margin:0;padding:0"><%= help %></p>
-        </div>
+            <div class="form-row">
+                <p class="help" style="margin:0;padding:0"><%= help %></p>
+            </div>
         <% } %>
 
         <div class="hstore-rows">
+            <% if(errors){ %>
+                <div class="form-row field-data">
+                    <div>
+                        <ul class="errorlist">
+                            <%= errors %>
+                        </ul>
+                    </div>
+                </div>
+            <% } %>
             <% for(key in data){ %>
                 <%= _.template($('.hstore-row-template-inline').eq(0).html(), { 'key': key, 'value': data[key] }) %>
             <% } %>

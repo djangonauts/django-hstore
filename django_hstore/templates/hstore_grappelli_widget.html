@@ -27,7 +27,7 @@
         </ul>
 
         <% if(help && help != '') { %>
-        <div class="grp-row"><p class="grp-description"><%= help %></p></div>
+            <div class="grp-row"><p class="grp-description"><%= help %></p></div>
         <% } %>
 
         <div class="l-2c-fluid l-d-4 grp-row grp-cells hstore-textarea" style="display:none">
@@ -40,6 +40,15 @@
         </div>
 
         <div class="hstore-rows">
+            <% if(errors){ %>
+                <div class="l-2c-fluid l-d-4 grp-row grp-cells">
+                    <div class="grp-cell">
+                        <ul class="errorlist">
+                            <%= errors %>
+                        </ul>
+                    </div>
+                </div>
+            <% } %>
             <% for(key in data){ %>
                 <%= _.template($('.hstore-row-template-inline').eq(0).html(), { 'key': key, 'value': data[key] }) %>
             <% } %>
