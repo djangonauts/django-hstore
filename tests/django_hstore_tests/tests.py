@@ -2,13 +2,17 @@ import json
 import pickle
 from decimal import Decimal
 
+import django
+
 from django.db import transaction
+from django.db import connection
 from django.db.models.aggregates import Count
 from django.db.utils import IntegrityError, DatabaseError
 from django import forms
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ValidationError
 from django.test import TestCase
+from django.test import SimpleTestCase
 from django.contrib.auth.models import User
 from django.utils.encoding import force_text
 
@@ -458,14 +462,14 @@ class TestDictionaryField(TestCase):
 
     def test_get_version(self):
         get_version()
-    
+
     def test_unique_together(self):
         d = UniqueTogetherDataBag()
         d.name = 'test'
         d.data = { 'test': 'test '}
         d.full_clean()
         d.save()
-        
+
         d = UniqueTogetherDataBag()
         d.name = 'test'
         d.data = { 'test': 'test '}
@@ -497,9 +501,42 @@ class RegressionTests(TestCase):
         self.assertEqual(instance.data['size'], '3')
         self.assertIn('foo', instance.data)
 
+class NotTransactionalTests(SimpleTestCase):
+    if django.VERSION[:2] >= (1,6):
+        def test_hstore_registring_in_transaction_block(self):
+            obj1 = DataBag.objects.create(name='alpha1', data={'v': '1', 'v2': '3'})
+            obj2 = DataBag.objects.create(name='alpha2', data={'v': '1', 'v2': '3'})
+
+            # Close any existing connection previously do anything
+            connection.close()
+
+            with transaction.atomic():
+                qs = DataBag.objects.filter(name__in=["alpha2", "alpha1"])
+                self.assertIsInstance(qs[0].data, HStoreDict)
+
+            obj1.delete()
+            obj2.delete()
+
+            connection.close()
+    else:
+        def test_hstore_registring_in_transaction_block(self):
+            obj1 = DataBag.objects.create(name='alpha1', data={'v': '1', 'v2': '3'})
+            obj2 = DataBag.objects.create(name='alpha2', data={'v': '1', 'v2': '3'})
+
+            # Close any existing connection previously do anything
+            connection.close()
+
+            with transaction.commit_on_success():
+                qs = DataBag.objects.filter(name__in=["alpha2", "alpha1"])
+                self.assertIsInstance(qs[0].data, HStoreDict)
+
+            obj1.delete()
+            obj2.delete()
+
+            connection.close()
+
 
 class TestReferencesField(TestCase):
-
     def setUp(self):
         Ref.objects.all().delete()
         RefsBag.objects.all().delete()
