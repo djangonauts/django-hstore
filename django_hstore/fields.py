@@ -22,7 +22,7 @@ class HStoreDict(UnicodeMixin, dict):
     A dictionary subclass which implements hstore support.
     """
 
-    def __init__(self, value=None, field=None, instance=None, connection=None, **params):
+    def __init__(self, value=None, field=None, instance=None, **params):
         # if passed value is string
         # ensure is json formatted
         if isinstance(value, six.string_types):
@@ -50,10 +50,6 @@ class HStoreDict(UnicodeMixin, dict):
         self.field = field
         self.instance = instance
 
-        # attribute that make possible
-        # to use django_hstore without a custom backend
-        self.connection = connection
-
     def __setitem__(self, *args, **kwargs):
         args = (args[0], self.ensure_acceptable_value(args[1]))
         super(HStoreDict, self).__setitem__(*args, **kwargs)
@@ -66,14 +62,10 @@ class HStoreDict(UnicodeMixin, dict):
         return u''
 
     def __getstate__(self):
-        if self.connection:
-            d = dict(self.__dict__)
-            d['connection'] = None
-            return d
         return self.__dict__
 
     def __copy__(self):
-        return self.__class__(self, self.field, self.connection)
+        return self.__class__(self, self.field)
 
     def update(self, *args, **kwargs):
         for key, value in dict(*args, **kwargs).iteritems():
@@ -96,9 +88,6 @@ class HStoreDict(UnicodeMixin, dict):
             return force_text(json.dumps(value))
         else:
             return value
-
-    def prepare(self, connection):
-        self.connection = connection
 
     def remove(self, keys):
         """
@@ -170,7 +159,8 @@ class HStoreField(models.Field):
             elif isinstance(self.default, dict):
                 return HStoreDict(self.default, self)
             return self.default
-        if (not self.empty_strings_allowed or (self.null and not connection.features.interprets_empty_strings_as_nulls)):
+        if (not self.empty_strings_allowed or (self.null and
+                   not connection.features.interprets_empty_strings_as_nulls)):
             return None
         return HStoreDict({}, self)
 
@@ -183,8 +173,6 @@ class HStoreField(models.Field):
     def get_db_prep_value(self, value, connection, prepared=False):
         if not prepared:
             value = self.get_prep_value(value)
-            if isinstance(value, HStoreDict):
-                value.prepare(connection)
         return value
 
     def value_to_string(self, obj):
