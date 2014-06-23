@@ -12,6 +12,13 @@ except ImportError:
 from .utils import register_hstore
 
 
+# This allows users that introduce hstore into an existing
+# environment to set global registry to false in order to avoid
+# unpredictable behaviors when having hstore installed individually
+# on each database instead of on having it installed on template1.
+HSTORE_GLOBAL_REGISTER = getattr(settings, "DJANGO_HSTORE_GLOBAL_REGISTER", True)
+
+
 class ConnectionCreateHandler(object):
     """
     Generic connection handlers manager.
@@ -56,7 +63,7 @@ def register_hstore_handler(connection, **kwargs):
     # defer hstore registration by setting up a new unique handler
     if connection.settings_dict['NAME'] is None:
         connection_handler.attach_handler(register_hstore_handler,
-                                          vendor="postgresql", unique=True)
+                                          vendor="postgresql", unique=HSTORE_GLOBAL_REGISTER)
         return
 
     if sys.version_info[0] < 3:
@@ -64,12 +71,6 @@ def register_hstore_handler(connection, **kwargs):
     else:
         register_hstore(connection.connection, globally=True)
 
-
-# This allows users that introduce hstore to an existing
-# production environment to set global registry to false for avoid
-# strange behaviors when having hstore installed individually
-# on each database instead of on template1.
-HSTORE_GLOBAL_REGISTER = getattr(settings, "DJANGO_HSTORE_GLOBAL_REGISTER", True)
 
 connection_handler.attach_handler(register_hstore_handler,
                                   vendor="postgresql", unique=HSTORE_GLOBAL_REGISTER)
