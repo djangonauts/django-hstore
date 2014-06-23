@@ -6,6 +6,16 @@ var initDjangoHStoreWidget = function(hstore_field_name, inline_prefix) {
     }
 
     $ = django.jQuery;
+    
+    // processing inlines
+    if(hstore_field_name.indexOf('inline') > -1){
+        var inlineClass = $('#id_'+hstore_field_name).parents('.inline-related, .grp-group').attr('class');
+        // if using TabularInlines stop here
+        // TabularInlines not supported
+        if (inlineClass.indexOf('tabular') > -1) {
+            return;
+        }
+    }
 
     // reusable function that retrieves a template even if ID is not correct
     // (written to support inlines)
@@ -68,6 +78,8 @@ var initDjangoHStoreWidget = function(hstore_field_name, inline_prefix) {
 
         return compiled_ui_html;
     };
+    
+    
 
     // generate UI
     compileUI({ replace_original: true });

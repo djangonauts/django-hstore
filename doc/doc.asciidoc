@@ -54,6 +54,7 @@ Limitations
   database regarding of their original type.
 - The hstore extension is not automatically installed on use with this package: you must install it manually.
 - To run tests, hstore extension must be installed on template1 database.
+- The admin widget will work with inlines only if using `StackedInline`. It won't work on `TabularInline`.
 - If `django.middleware.transaction.TransactionMiddleware` is enabled and the project is deployed
   through `uwsgi`, the first request to a view working with models featuring hstore fields will raise an exception;
   see link:https://code.djangoproject.com/ticket/22297[Django Ticket #22297] for more details on this issue.
