@@ -160,7 +160,7 @@ django.jQuery(window).load(function() {
     // support inlines
     // bind only once
     if(window.hstoreWidgetBoundInlines === undefined){
-        $('.grp-group .grp-add-handler, .inline-group .hs-add-row a').click(function(e){
+        $('.grp-group .grp-add-handler, .inline-group .hs-add-row a, .inline-group .add-row').click(function(e){
             var hstore_original_textareas = $(this).parents('.grp-group, .inline-group').eq(0).find('.hstore-original-textarea');
             // if module contains .hstore-original-textarea
             if(hstore_original_textareas.length > 0){
