@@ -7,8 +7,6 @@ except ImportError:
 
 from django.forms import Field
 from django.utils import six
-from django.contrib.admin.widgets import AdminTextareaWidget
-from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ugettext
 from django.core.exceptions import ValidationError
 
