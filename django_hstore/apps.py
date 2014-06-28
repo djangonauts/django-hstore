@@ -12,13 +12,33 @@ except ImportError:
 from .utils import register_hstore
 
 
+# keep backward compatibility until django hstore 1.3.0
+HSTORE_GLOBAL_REGISTER = getattr(settings, "DJANGO_HSTORE_GLOBAL_REGISTER", None)
+
+# This allows users that introduce hstore into an existing
+# environment to disable global registration of the hstore adapter
+# in order to avoid unpredictable behavior when having hstore installed individually
+# on each database instead of on having it installed on template1.
+
+if HSTORE_GLOBAL_REGISTER is None:
+    HSTORE_REGISTER_GLOBALLY = getattr(settings, "DJANGO_HSTORE_ADAPTER_REGISTRATION", "global") == "global"
+else:
+    HSTORE_REGISTER_GLOBALLY = HSTORE_GLOBAL_REGISTER
+    # issue deprecation warning
+    import warnings
+    warnings.warn("""\n
+DJANGO_HSTORE_GLOBAL_REGISTER setting is deprecated since django-hstore 1.2.5 and will be removed in 1.3.0.
+Use DJANGO_HSTORE_ADAPTER_REGISTRATION by setting it either to 'global' or 'connection'.
+    """,
+    DeprecationWarning)
+
+
 class ConnectionCreateHandler(object):
     """
     Generic connection handlers manager.
     Executes attached functions when connection is created.
     With possibility of attaching single execution methods.
     """
-
     generic_handlers = []
     unique_handlers = []
 
@@ -56,23 +76,17 @@ def register_hstore_handler(connection, **kwargs):
     # defer hstore registration by setting up a new unique handler
     if connection.settings_dict['NAME'] is None:
         connection_handler.attach_handler(register_hstore_handler,
-                                          vendor="postgresql", unique=True)
+                                          vendor="postgresql", unique=HSTORE_REGISTER_GLOBALLY)
         return
 
     if sys.version_info[0] < 3:
-        register_hstore(connection.connection, globally=True, unicode=True)
+        register_hstore(connection.connection, globally=HSTORE_REGISTER_GLOBALLY, unicode=True)
     else:
-        register_hstore(connection.connection, globally=True)
+        register_hstore(connection.connection, globally=HSTORE_REGISTER_GLOBALLY)
 
-
-# This allows users that introduce hstore to an existing
-# production environment to set global registry to false for avoid
-# strange behaviors when having hstore installed individually
-# on each database instead of on template1.
-HSTORE_GLOBAL_REGISTER = getattr(settings, "DJANGO_HSTORE_GLOBAL_REGISTER", True)
 
 connection_handler.attach_handler(register_hstore_handler,
-                                  vendor="postgresql", unique=HSTORE_GLOBAL_REGISTER)
+                                  vendor="postgresql", unique=HSTORE_REGISTER_GLOBALLY)
 
 
 class HStoreConfig(AppConfig):

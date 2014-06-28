@@ -1,5 +1,9 @@
 [run]
 omit =
     /tests
-    /docs
+    /doc
+    /django_hstore/static
+    /django_hstore/templates
     /*/__init__.py
+    /setup.py
+    /runtests.py

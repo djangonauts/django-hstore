@@ -1,6 +1,5 @@
 from __future__ import unicode_literals, absolute_import
 
-from django.db.models.fields import Field
 from django.db.models.lookups import GreaterThan
 from django.db.models.lookups import GreaterThanOrEqual
 from django.db.models.lookups import LessThan
@@ -47,7 +46,7 @@ class HStoreContains(Contains):
     def as_postgresql(self, qn, connection):
         lhs, lhs_params = self.process_lhs(qn, connection)
 
-        #FIXME: ::text cast is added by ``django.db.backends.postgresql_psycopg2.DatabaseOperations.lookup_cast``;
+        # FIXME: ::text cast is added by ``django.db.backends.postgresql_psycopg2.DatabaseOperations.lookup_cast``;
         # maybe there's a cleaner way to fix the cast for hstore columns
         if lhs.endswith('::text'):
             lhs = lhs[:-4] + 'hstore'
