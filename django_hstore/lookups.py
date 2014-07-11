@@ -1,12 +1,25 @@
 from __future__ import unicode_literals, absolute_import
 
-from django.db.models.lookups import GreaterThan
-from django.db.models.lookups import GreaterThanOrEqual
-from django.db.models.lookups import LessThan
-from django.db.models.lookups import LessThanOrEqual
-from django.db.models.lookups import Contains
-from django.db.models.lookups import IContains
 from django.utils import six
+from django.db.models.lookups import (
+    GreaterThan,
+    GreaterThanOrEqual,
+    LessThan,
+    LessThanOrEqual,
+    Contains,
+    IContains
+)
+
+
+__all__ = [
+    'HStoreComparisonLookupMixin',
+    'HStoreGreaterThan',
+    'HStoreGreaterThanOrEqual',
+    'HStoreLessThan',
+    'HStoreLessThanOrEqual',
+    'HStoreContains',
+    'HStoreIContains'
+]
 
 
 class HStoreComparisonLookupMixin(object):
