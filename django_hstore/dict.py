@@ -3,6 +3,7 @@ try:
 except ImportError:
     import json
 
+import pickle
 from decimal import Decimal
 
 from django.utils import six
@@ -23,7 +24,9 @@ class HStoreDict(UnicodeMixin, dict):
     A dictionary subclass which implements hstore support.
     """
 
-    def __init__(self, value=None, field=None, instance=None, **params):
+    def __init__(self, value=None, field=None, instance=None, pickle=False, **kwargs):
+        self.pickle = pickle
+        
         # if passed value is string
         # ensure is json formatted
         if isinstance(value, six.string_types):
@@ -47,13 +50,27 @@ class HStoreDict(UnicodeMixin, dict):
         for key, val in value.items():
             value[key] = self.ensure_acceptable_value(val)
 
-        super(HStoreDict, self).__init__(value, **params)
+        super(HStoreDict, self).__init__(value, **kwargs)
         self.field = field
         self.instance = instance
 
     def __setitem__(self, *args, **kwargs):
+        """
+        perform checks before setting the value of a key
+        """
         args = (args[0], self.ensure_acceptable_value(args[1]))
         super(HStoreDict, self).__setitem__(*args, **kwargs)
+    
+    def __getitem__(self, *args, **kwargs):
+        """
+        unpickle value if necessary
+        """
+        value = super(HStoreDict, self).__getitem__(*args, **kwargs)
+        
+        if self.pickle:
+            return pickle.loads(value)
+        else:
+            return value
 
     # This method is used both for python3 and python2
     # thanks to UnicodeMixin
@@ -74,21 +91,27 @@ class HStoreDict(UnicodeMixin, dict):
 
     def ensure_acceptable_value(self, value):
         """
-        - ensure booleans, integers, floats, Decimals, lists and dicts are
-          converted to string
-        - convert True and False objects to "true" and "false" so they can be
-          decoded back with the json library if needed
-        - convert lists and dictionaries to json formatted strings
-        - leave alone all other objects because they might be representation of django models
-        """
-        if isinstance(value, bool):
-            return force_text(value).lower()
-        elif isinstance(value, (int, float, Decimal)):
-            return force_text(value)
-        elif isinstance(value, list) or isinstance(value, dict):
-            return force_text(json.dumps(value))
+        if pickle disabled (default behaviour):
+            - ensure booleans, integers, floats, Decimals, lists and dicts are
+              converted to string
+            - convert True and False objects to "true" and "false" so they can be
+              decoded back with the json library if needed
+            - convert lists and dictionaries to json formatted strings
+            - leave alone all other objects because they might be representation of django models
         else:
-            return value
+            store pickled string
+        """
+        if not self.pickle:
+            if isinstance(value, bool):
+                return force_text(value).lower()
+            elif isinstance(value, (int, float, Decimal)):
+                return force_text(value)
+            elif isinstance(value, list) or isinstance(value, dict):
+                return force_text(json.dumps(value))
+            else:
+                return value
+        else:
+            return pickle.dumps(value)
 
     def remove(self, keys):
         """

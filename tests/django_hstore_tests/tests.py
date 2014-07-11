@@ -475,6 +475,25 @@ class TestDictionaryField(TestCase):
         d.data = { 'test': 'test '}
         with self.assertRaises(ValidationError):
             d.full_clean()
+    
+    def test_pickle_flag_hstoredict(self):
+        """
+        Test pickle flag.
+        Introduced in 1.3.0
+        """
+        d = HStoreDict(pickle=True)
+        
+        d['number'] = 2
+        self.assertEqual(d['number'], 2)
+        
+        d['boolean'] = True
+        self.assertTrue(d['boolean'])
+        
+        d['boolean'] = False
+        self.assertFalse(d['boolean'])
+        
+        d['float'] = 2.5
+        self.assertEqual(d['float'], 2.5)
 
 
 class RegressionTests(TestCase):
