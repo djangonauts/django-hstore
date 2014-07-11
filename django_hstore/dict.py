@@ -3,7 +3,7 @@ try:
 except ImportError:
     import json
 
-import pickle
+import pickle as picklelib
 from decimal import Decimal
 
 from django.utils import six
@@ -68,7 +68,7 @@ class HStoreDict(UnicodeMixin, dict):
         value = super(HStoreDict, self).__getitem__(*args, **kwargs)
         
         if self.pickle:
-            return pickle.loads(value)
+            return picklelib.loads(value)
         else:
             return value
 
@@ -111,7 +111,7 @@ class HStoreDict(UnicodeMixin, dict):
             else:
                 return value
         else:
-            return pickle.dumps(value)
+            return picklelib.dumps(value)
 
     def remove(self, keys):
         """
