@@ -495,11 +495,12 @@ class RegressionTests(TestCase):
         self.assertEqual(instance.data, test_props)
         instance = DataBag.objects.get(pk=instance.pk)
 
-        self.assertEqual(type(instance.data), HStoreDict) # TEST FAILS HERE
+        self.assertEqual(type(instance.data), HStoreDict)
 
         self.assertEqual(instance.data, test_props)
         self.assertEqual(instance.data['size'], '3')
         self.assertIn('foo', instance.data)
+
 
 class NotTransactionalTests(SimpleTestCase):
     if django.VERSION[:2] >= (1,6):

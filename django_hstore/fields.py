@@ -97,7 +97,7 @@ class HStoreDict(UnicodeMixin, dict):
         queryset.filter(pk=self.instance.pk).hremove(self.field.name, keys)
 
 
-class HStoreReferenceDictionary(HStoreDict):
+class HStoreReferenceDict(HStoreDict):
     """
     A dictionary which adds support to storing references to models
     """
@@ -132,7 +132,7 @@ class HStoreReferenceDescriptor(models.fields.subclassing.Creator):
     def __set__(self, obj, value):
         value = self.field.to_python(value)
         if isinstance(value, dict):
-            value = HStoreReferenceDictionary(
+            value = HStoreReferenceDict(
                 value=value, field=self.field, instance=obj
             )
         obj.__dict__[self.field.name] = value
@@ -230,7 +230,7 @@ class ReferencesField(HStoreField):
         return utils.serialize_references(value)
 
     def to_python(self, value):
-        return value if isinstance(value, dict) else HStoreReferenceDictionary({})
+        return value if isinstance(value, dict) else HStoreReferenceDict({})
 
     def _value_to_python(self, value):
         return utils.acquire_reference(value)
