@@ -11,6 +11,18 @@ from . import forms, utils
 
 class HStoreField(models.Field):
     """ HStore Base Field """
+    
+    def __init__(self, *args, **kwargs):
+        self.schema = kwargs.pop('schema', False)
+        self.pickle = True if self.schema else False
+        super(HStoreField, self).__init__(*args, **kwargs)
+    
+    def __init_dict(self, value):
+        """
+        init HStoreDict
+        pass pickle=True if in "schema" mode
+        """
+        return HStoreDict(value, self, pickle=self.pickle)
 
     def validate(self, value, *args):
         super(HStoreField, self).validate(value, *args)
@@ -18,26 +30,32 @@ class HStoreField(models.Field):
 
     def contribute_to_class(self, cls, name):
         super(HStoreField, self).contribute_to_class(cls, name)
-        setattr(cls, self.name, HStoreDescriptor(self))
+        setattr(cls, self.name, HStoreDescriptor(self, pickle=self.pickle))
 
     def get_default(self):
         """
         Returns the default value for this field.
         """
+        # if default defined
         if self.has_default():
+            # if default is callable
             if callable(self.default):
-                return HStoreDict(self.default(), self)
+                return self.__init_dict(self.default())
+            # if it's a dict
             elif isinstance(self.default, dict):
-                return HStoreDict(self.default, self)
+                return self.__init_dict(self.default)
+            # else just return it
             return self.default
+        # if allowed to return None
         if (not self.empty_strings_allowed or (self.null and
                    not connection.features.interprets_empty_strings_as_nulls)):
             return None
-        return HStoreDict({}, self)
+        # default to empty dict
+        return self.__init_dict({})
 
     def get_prep_value(self, value):
         if isinstance(value, dict) and not isinstance(value, HStoreDict):
-            return HStoreDict(value, self)
+            return self.__init_dict(value)
         else:
             return value
 
@@ -73,9 +91,9 @@ if get_version() >= '1.7':
 class DictionaryField(HStoreField):
     description = _("A python dictionary in a postgresql hstore field.")
 
-    def formfield(self, **params):
-        params['form_class'] = forms.DictionaryField
-        return super(DictionaryField, self).formfield(**params)
+    def formfield(self, **kwargs):
+        kwargs['form_class'] = forms.DictionaryField
+        return super(DictionaryField, self).formfield(**kwargs)
 
     def _value_to_python(self, value):
         return value
@@ -88,9 +106,9 @@ class ReferencesField(HStoreField):
         super(ReferencesField, self).contribute_to_class(cls, name)
         setattr(cls, self.name, HStoreReferenceDescriptor(self))
 
-    def formfield(self, **params):
-        params['form_class'] = forms.ReferencesField
-        return super(ReferencesField, self).formfield(**params)
+    def formfield(self, **kwargs):
+        kwargs['form_class'] = forms.ReferencesField
+        return super(ReferencesField, self).formfield(**kwargs)
 
     def get_prep_lookup(self, lookup, value):
         if isinstance(value, dict):
