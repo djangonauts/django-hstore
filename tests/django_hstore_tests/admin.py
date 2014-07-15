@@ -21,7 +21,9 @@ class RefsBagAdmin(admin.ModelAdmin):
 
 class SchemaDataBagAdmin(admin.ModelAdmin):
     # TODO exclusion must happen automatically
-    exclude = ['data']
+    #exclude = ['data']
+    readonly_fields = ['data']
+    #pass
     
 
 admin.site.register(DataBag, DataBagAdmin)

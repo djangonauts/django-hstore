@@ -501,6 +501,14 @@ class TestDictionaryField(TestCase):
 
 
 class SchemaTests(TestCase):
+    def _login_as_admin(self):
+        # create admin user
+        admin = User.objects.create(username='admin', password='tester', is_staff=True, is_superuser=True, is_active=True)
+        admin.set_password('tester')
+        admin.save()
+        # login as admin
+        self.client.login(username='admin', password='tester')
+        
     def test_pickle_flag_hstoredict(self):
         """
         Test pickle flag.
@@ -532,15 +540,19 @@ class SchemaTests(TestCase):
         with self.assertRaises(KeyError):
             d.get('default_test')
     
-    def test_virtual_default(self):
+    def test_virtual_field_default_value(self):
         d = SchemaDataBag()
         self.assertEqual(d.number, 0)
+        
+        # accessing the HStoreDict key raises KeyError if not assigned previously
+        with self.assertRaises(KeyError):
+            d.data['number']
     
     def test_virtual_field_called_statically(self):
         with self.assertRaises(AttributeError):
             SchemaDataBag.number
     
-    def test_schemadatabag(self):
+    def test_schemadatabag_assignment(self):
         d = SchemaDataBag()
         
         d.number = 4
@@ -548,6 +560,54 @@ class SchemaTests(TestCase):
         
         d.data['number'] = 5
         self.assertEqual(d.number, 5)
+    
+    def test_schemadatabag_save(self):
+        d = SchemaDataBag()
+        d.number = 4
+        d.save()
+        
+        d = SchemaDataBag.objects.get(pk=d.id)
+        self.assertEqual(d.number, 4)
+        self.assertEqual(d.data['number'], 4)
+    
+    def test_schemadatabag_validation_error(self):
+        d = SchemaDataBag()
+        d.number = 'WRONG'
+        
+        with self.assertRaises(ValidationError):
+            d.full_clean()
+        
+    def test_admin_list(self):
+        self._login_as_admin()
+        url = reverse('admin:django_hstore_tests_schemadatabag_changelist')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+    
+    def test_admin_add(self):
+        self._login_as_admin()
+        url = reverse('admin:django_hstore_tests_schemadatabag_add')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        
+        response = self.client.post(url, { 'name': 'test_add', 'number': 3 })
+        d = SchemaDataBag.objects.first()
+        self.assertEqual(d.name, 'test_add')
+        self.assertEqual(d.number, 3)
+    
+    def test_admin_change(self):
+        self._login_as_admin()
+        d = SchemaDataBag()
+        d.name = 'test1'
+        d.number = 1
+        d.save()
+        url = reverse('admin:django_hstore_tests_schemadatabag_change', args=[d.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        
+        response = self.client.post(url, { 'name': 'test_change', 'number': 6 })
+        d = SchemaDataBag.objects.get(pk=d.id)
+        self.assertEqual(d.name, 'test_change')
+        self.assertEqual(d.data['number'], 6)
 
 
 class NotTransactionalTests(SimpleTestCase):
