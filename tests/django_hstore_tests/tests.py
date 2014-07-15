@@ -476,27 +476,6 @@ class TestDictionaryField(TestCase):
         with self.assertRaises(ValidationError):
             d.full_clean()
     
-    def test_pickle_flag_hstoredict(self):
-        """
-        Test pickle flag.
-        Introduced in 1.3.0
-        """
-        d = HStoreDict(pickle=True)
-        
-        d['number'] = 2
-        self.assertEqual(d['number'], 2)
-        
-        d['boolean'] = True
-        self.assertTrue(d['boolean'])
-        
-        d['boolean'] = False
-        self.assertFalse(d['boolean'])
-        
-        d['float'] = 2.5
-        self.assertEqual(d['float'], 2.5)
-
-
-class RegressionTests(TestCase):
     def test_properties_hstore(self):
         """
         Make sure the hstore field does what it is supposed to.
@@ -519,6 +498,56 @@ class RegressionTests(TestCase):
         self.assertEqual(instance.data, test_props)
         self.assertEqual(instance.data['size'], '3')
         self.assertIn('foo', instance.data)
+
+
+class SchemaTests(TestCase):
+    def test_pickle_flag_hstoredict(self):
+        """
+        Test pickle flag.
+        Introduced in 1.3.0
+        """
+        d = HStoreDict(pickle=True)
+        
+        d['number'] = 2
+        self.assertEqual(d['number'], 2)
+        
+        d['boolean'] = True
+        self.assertTrue(d['boolean'])
+        
+        d['boolean'] = False
+        self.assertFalse(d['boolean'])
+        
+        d['float'] = 2.5
+        self.assertEqual(d['float'], 2.5)
+        self.assertEqual(d.get('float'), 2.5)
+    
+    def test_dict_get(self):
+        d = HStoreDict(pickle=True)
+        
+        d['number'] = 2
+        self.assertEqual(d.get('number'), 2)
+    
+        self.assertEqual(d.get('default_test', 'default'), 'default')
+        
+        with self.assertRaises(KeyError):
+            d.get('default_test')
+    
+    def test_virtual_default(self):
+        d = SchemaDataBag()
+        self.assertEqual(d.number, 0)
+    
+    def test_virtual_field_called_statically(self):
+        with self.assertRaises(AttributeError):
+            SchemaDataBag.number
+    
+    def test_schemadatabag(self):
+        d = SchemaDataBag()
+        
+        d.number = 4
+        self.assertEqual(d.data['number'], 4)
+        
+        d.data['number'] = 5
+        self.assertEqual(d.number, 5)
 
 
 class NotTransactionalTests(SimpleTestCase):

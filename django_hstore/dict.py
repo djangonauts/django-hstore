@@ -58,7 +58,13 @@ class HStoreDict(UnicodeMixin, dict):
         """
         perform checks before setting the value of a key
         """
-        args = (args[0], self.ensure_acceptable_value(args[1]))
+        # ensure values are acceptable
+        value = self.ensure_acceptable_value(args[1])
+        # perform pickle if necessary
+        if self.pickle:
+            value = picklelib.dumps(value)
+        # prepare *args
+        args = (args[0], value)
         super(HStoreDict, self).__setitem__(*args, **kwargs)
     
     def __getitem__(self, *args, **kwargs):
@@ -71,6 +77,15 @@ class HStoreDict(UnicodeMixin, dict):
             return picklelib.loads(value)
         else:
             return value
+    
+    def get(self, key, default=None):
+        try:
+            return self.__getitem__(key)
+        except KeyError as e:
+            if default is not None:
+                return default
+            else:
+                raise e
 
     # This method is used both for python3 and python2
     # thanks to UnicodeMixin
@@ -99,7 +114,7 @@ class HStoreDict(UnicodeMixin, dict):
             - convert lists and dictionaries to json formatted strings
             - leave alone all other objects because they might be representation of django models
         else:
-            store pickled string
+            just return value
         """
         if not self.pickle:
             if isinstance(value, bool):
@@ -111,7 +126,7 @@ class HStoreDict(UnicodeMixin, dict):
             else:
                 return value
         else:
-            return picklelib.dumps(value)
+            return value
 
     def remove(self, keys):
         """
