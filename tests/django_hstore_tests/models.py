@@ -18,6 +18,7 @@ __all__ = [
     'DefaultsInline',
     'NumberedDataBag',
     'UniqueTogetherDataBag',
+    'SchemaDataBag',
     'GEODJANGO'
 ]
 
@@ -79,6 +80,22 @@ class UniqueTogetherDataBag(HStoreModel):
     
     class Meta:
         unique_together =  ("name", "data")
+
+
+from django_hstore.virtual import HStoreVirtualMixin
+from django.db import models
+
+class VirtualIntegerField(HStoreVirtualMixin, models.IntegerField):
+    pass
+
+class SchemaDataBag(HStoreModel):
+    name = models.CharField(max_length=32)
+    data = hstore.DictionaryField(schema=['i am temporary'])
+    # the ModeledDictionaryField should create the virtual fields automatically
+    # each created virtualfield should be initialized with an on the fly created (metaprogramming)
+    # virtual field which should be the result of for example IntegerField and VirtualFieldMixin
+    # validation should be handled by the VirtualField only, no HStoreModelValidation shit
+    number = VirtualIntegerField(hstore_field_name='data', default=0)
 
 
 # if geodjango is in use define Location model, which contains GIS data

@@ -19,6 +19,12 @@ class RefsBagAdmin(admin.ModelAdmin):
     pass
 
 
+class SchemaDataBagAdmin(admin.ModelAdmin):
+    # TODO exclusion must happen automatically
+    exclude = ['data']
+    
+
 admin.site.register(DataBag, DataBagAdmin)
 admin.site.register(DefaultsModel, DefaultsModelAdmin)
 admin.site.register(RefsBag, RefsBagAdmin)
+admin.site.register(SchemaDataBag, SchemaDataBagAdmin)
