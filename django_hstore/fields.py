@@ -6,30 +6,18 @@ from django import get_version
 
 from .descriptors import *
 from .dict import *
+from .virtual import *
 from . import forms, utils
 
 
 class HStoreField(models.Field):
     """ HStore Base Field """
     
-    def __init__(self, *args, **kwargs):
-        self.schema = kwargs.pop('schema', False)
-        # if schema parameter is supplied the behaviour is slightly different
-        if self.schema:
-            self.pickle = True
-            kwargs['editable'] = False
-            kwargs['default'] = {}
-        else:
-            self.pickle = False
-        
-        super(HStoreField, self).__init__(*args, **kwargs)
-    
     def __init_dict(self, value):
         """
-        init HStoreDict
-        pass pickle=True if in "schema" mode
+        initializes HStoreDict
         """
-        return HStoreDict(value, self, pickle=self.pickle)
+        return HStoreDict(value, self)
 
     def validate(self, value, *args):
         super(HStoreField, self).validate(value, *args)
@@ -37,7 +25,7 @@ class HStoreField(models.Field):
 
     def contribute_to_class(self, cls, name):
         super(HStoreField, self).contribute_to_class(cls, name)
-        setattr(cls, self.name, HStoreDescriptor(self, pickle=self.pickle))
+        setattr(cls, self.name, HStoreDescriptor(self))
 
     def get_default(self):
         """
@@ -97,6 +85,85 @@ if get_version() >= '1.7':
 
 class DictionaryField(HStoreField):
     description = _("A python dictionary in a postgresql hstore field.")
+    
+    def __init__(self, *args, **kwargs):
+        self.schema = kwargs.pop('schema', None)
+        self.pickle = False
+        
+        # if schema parameter is supplied the behaviour is slightly different
+        if self.schema is not None:
+            self._validate_schema(self.schema)
+            self.pickle = True
+            # DictionaryField with schema is not editable via admin
+            kwargs['editable'] = False
+            # DictionaryField with schema defaults to empty dict
+            kwargs['default'] = {}
+        
+        super(DictionaryField, self).__init__(*args, **kwargs)
+    
+    def __init_dict(self, value):
+        """
+        init HStoreDict
+        pass pickle=True if in "schema" mode
+        """
+        return HStoreDict(value, self, pickle=self.pickle)
+
+    def contribute_to_class(self, cls, name):
+        super(DictionaryField, self).contribute_to_class(cls, name)
+        setattr(cls, self.name, HStoreDescriptor(self, pickle=self.pickle))
+        
+        if self.schema:
+            self._add_virtual_fields_on_class(cls, name)
+    
+    def _validate_schema(self, schema):
+        if not isinstance(schema, list):
+            raise ValueError('schema parameter must be a list')
+    
+        if len(schema) == 0:
+            raise ValueError('schema parameter cannot be an empty list')
+        
+        for field in schema:
+            if not isinstance(field, dict):
+                raise ValueError('schema parameter must contain dicts representing fields, read the docs to see the format')
+            
+            if not field.has_key('name'):
+                raise ValueError('schema element %s is missing the name key' % field)
+            
+            if not field.has_key('class'):
+                raise ValueError('schema element %s is missing the class key' % field)
+
+    def _add_virtual_fields_on_class(self, cls, hstore_field_name):
+        """
+        this methods creates all the virtual fields automatically by reading the schema attribute
+        """
+        # add hstore_virtual_fields attribute to class
+        if not hasattr(cls._meta, 'hstore_virtual_fields'):
+            cls._meta.hstore_virtual_fields = []
+    
+        if not hasattr(cls, '_add_hstore_virtual_fields_to_fields'):
+            cls._add_hstore_virtual_fields_to_fields = _add_hstore_virtual_fields_to_fields
+
+        if not hasattr(cls, '_remove_hstore_virtual_fields_from_fields'):
+            cls._remove_hstore_virtual_fields_from_fields = _remove_hstore_virtual_fields_from_fields
+            
+        for field in self.schema:
+            # insert the name of the hstore field, which is necessary
+            # for the initialization of the virtual field
+            field['kwargs']['hstore_field_name'] = hstore_field_name
+            # initialize the virtual field by specifying the class and the kwargs
+            virtual_field = create_hstore_virtual_field(
+                field_cls=field['class'],
+                kwargs=field['kwargs']
+            )
+            # set the name and the attname properties of the field
+            virtual_field.name = field['name']
+            virtual_field.attname = field['name']
+            # add the field on the class
+            setattr(cls, field['name'], virtual_field)
+            # add the field in the virtual fields
+            cls._meta.virtual_fields.append(virtual_field)
+            # add this field to hstore_virtual_fields list
+            cls._meta.hstore_virtual_fields.append(virtual_field)
 
     def formfield(self, **kwargs):
         kwargs['form_class'] = forms.DictionaryField

@@ -17,7 +17,7 @@ from django.test import SimpleTestCase
 from django.contrib.auth.models import User
 from django.utils.encoding import force_text
 
-from django_hstore import get_version
+from django_hstore import get_version, hstore
 from django_hstore.forms import DictionaryFieldWidget, ReferencesFieldWidget
 from django_hstore.fields import HStoreDict
 from django_hstore.exceptions import HStoreDictException
@@ -654,6 +654,37 @@ class SchemaTests(TestCase):
         self.assertIsInstance(char, models.CharField)
         text = create_hstore_virtual_field('TextField', { 'hstore_field_name': 'data', 'blank': True } )
         self.assertIsInstance(text, models.TextField)
+    
+    def test_DictionaryField_with_schema(self):
+        data = hstore.DictionaryField(schema=[
+            {
+                'name': 'number',
+                'class': 'IntegerField',
+                'kwargs': {
+                    'default': 0,
+                    'verbose_name': 'verbose number'
+                }
+            }
+        ])
+        
+        with self.assertRaises(ValueError):
+            data = hstore.DictionaryField(schema='WRONG')
+        
+        with self.assertRaises(ValueError):
+            data = hstore.DictionaryField(schema=[])
+        
+        with self.assertRaises(ValueError):
+            data = hstore.DictionaryField(schema=['i am teasing you'])
+        
+        with self.assertRaises(ValueError):
+            data = hstore.DictionaryField(schema=[
+                { 'wrong': 'wrong' }
+            ])
+        
+        with self.assertRaises(ValueError):
+            data = hstore.DictionaryField(schema=[
+                { 'name': 'test' }
+            ])
 
 
 class NotTransactionalTests(SimpleTestCase):

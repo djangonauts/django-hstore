@@ -1,6 +1,13 @@
 from django.db import models
 
 
+__all__ = [
+    '_add_hstore_virtual_fields_to_fields',
+    '_remove_hstore_virtual_fields_from_fields',
+    'create_hstore_virtual_field',
+]
+
+
 def _add_hstore_virtual_fields_to_fields(self):
     """
     add hstore virtual fields to model meta fields
@@ -23,18 +30,6 @@ class HStoreVirtualMixin(object):
     """
     def contribute_to_class(self, cls, name, virtual_only=True):
         super(HStoreVirtualMixin, self).contribute_to_class(cls, name, virtual_only)
-        
-        # add hstore_virtual_fields attribute to class
-        if not hasattr(cls._meta, 'hstore_virtual_fields'):
-            cls._meta.hstore_virtual_fields = []
-        # add this field to hstore_virtual_fields
-        cls._meta.hstore_virtual_fields.append(self)
-        
-        if not hasattr(cls, '_add_hstore_virtual_fields_to_fields'):
-            cls._add_hstore_virtual_fields_to_fields = _add_hstore_virtual_fields_to_fields
-        
-        if not hasattr(cls, '_remove_hstore_virtual_fields_from_fields'):
-            cls._remove_hstore_virtual_fields_from_fields = _remove_hstore_virtual_fields_from_fields
         
         # Connect myself as the descriptor for this field
         setattr(cls, name, self)
@@ -60,15 +55,15 @@ class HStoreVirtualMixin(object):
     # end descriptor methods
 
 
-def create_hstore_virtual_field(field, kwargs={}):
+def create_hstore_virtual_field(field_cls, kwargs={}):
     """
     returns an instance of an HStore virtual field which is mixed with the specified field class
     and initializated with the kwargs passed
     """
-    if isinstance(field, basestring):
-        BaseField = getattr(models, field)
-    elif isinstance(field, models.Field):
-        BaseField = field
+    if isinstance(field_cls, basestring):
+        BaseField = getattr(models, field_cls)
+    elif isinstance(field_cls, models.Field):
+        BaseField = field_cls
     else:
         raise ValueError('field must be either a django standard field or a subclass of django.db.models.Field')
         
@@ -81,6 +76,3 @@ def create_hstore_virtual_field(field, kwargs={}):
             super(VirtualField, self).__init__(*args, **kwargs)
     
     return VirtualField(**kwargs)
-
-
-__all__ = ['create_hstore_virtual_field']

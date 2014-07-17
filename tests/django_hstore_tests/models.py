@@ -86,19 +86,45 @@ from django_hstore.virtual import create_hstore_virtual_field
 
 class SchemaDataBag(HStoreModel):
     name = models.CharField(max_length=32)
-    data = hstore.DictionaryField(schema=['i am temporary'])
-
-    number = create_hstore_virtual_field('IntegerField', { 'hstore_field_name': 'data', 'default': 0 } )
-    float = create_hstore_virtual_field('FloatField', { 'hstore_field_name': 'data', 'default': 1.0 } )
-    char = create_hstore_virtual_field('CharField', { 'hstore_field_name': 'data', 'default': 'test', 'blank': True, 'max_length': 10 } )
-    text = create_hstore_virtual_field('TextField', { 'hstore_field_name': 'data', 'blank': True } )
-    char = create_hstore_virtual_field('CharField', {
-        'hstore_field_name': 'data',
-        'default': 'choice1',
-        'blank': True,
-        'max_length': 10,
-        'choices': (('choice1', 'choice1'), ('choice2', 'choice2'))
-    })
+    data = hstore.DictionaryField(schema=[
+        {
+            'name': 'number',
+            'class': 'IntegerField',
+            'kwargs': {
+                'default': 0
+            }
+        },
+        {
+            'name': 'float',
+            'class': 'FloatField',
+            'kwargs': {
+                'default': 1.0
+            }
+        },
+        {
+            'name': 'char',
+            'class': 'CharField',
+            'kwargs': {
+                'default': 'test', 'blank': True, 'max_length': 10
+            }
+        },
+        {
+            'name': 'text',
+            'class': 'TextField',
+            'kwargs': {
+                'blank': True
+            }
+        },
+        {
+            'name': 'choice',
+            'class': 'CharField',
+            'kwargs': {
+                'blank': True,
+                'max_length': 10,
+                'choices': (('choice1', 'choice1'), ('choice2', 'choice2'))
+            }
+        }
+    ])
 
 
 # if geodjango is in use define Location model, which contains GIS data
