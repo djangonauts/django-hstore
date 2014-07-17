@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import json
 import pickle
 from decimal import Decimal
@@ -569,6 +570,7 @@ class SchemaTests(TestCase):
     
     def test_schemadatabag_save(self):
         d = SchemaDataBag()
+        d.name = 'test'
         d.number = 4
         d.float = 2.0
         d.save()
@@ -579,6 +581,7 @@ class SchemaTests(TestCase):
     
     def test_schemadatabag_validation_error(self):
         d = SchemaDataBag()
+        d.name = 'test'
         d.number = 'WRONG'
         d.float = 2.0
         
@@ -623,6 +626,18 @@ class SchemaTests(TestCase):
         self.assertEqual(response.status_code, 200)
         
         response = self.client.post(url, { 'name': 'test_add', 'number': 3, 'float': 2.4 })
+        d = SchemaDataBag.objects.first()
+        self.assertEqual(d.name, 'test_add')
+        self.assertEqual(d.number, 3)
+        self.assertEqual(d.float, 2.4)
+    
+    def test_admin_add_utf8(self):
+        self._login_as_admin()
+        url = reverse('admin:django_hstore_tests_schemadatabag_add')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        
+        response = self.client.post(url, { 'name': 'test_add', 'number': 3, 'float': 2.4, 'char': 'è' })
         d = SchemaDataBag.objects.first()
         self.assertEqual(d.name, 'test_add')
         self.assertEqual(d.number, 3)
@@ -705,6 +720,18 @@ class SchemaTests(TestCase):
                 data = hstore.DictionaryField(schema=[
                     { 'name': 'test', 'class': 'IdoNotExist' }
                 ])
+    
+    def test_utf8(self):
+        d = SchemaDataBag()
+        d.name = 'test'
+        d.number = 4
+        d.float = 2.0
+        d.char = 'è'
+        d.full_clean()
+        d.save()
+        
+        d = SchemaDataBag.objects.get(pk=d.id)
+        self.assertEqual(d.char, 'è')
 
 
 class NotTransactionalTests(SimpleTestCase):
