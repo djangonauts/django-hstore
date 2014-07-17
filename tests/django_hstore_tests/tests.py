@@ -9,6 +9,7 @@ from django.db import connection
 from django.db.models.aggregates import Count
 from django.db.utils import IntegrityError, DatabaseError
 from django import forms
+from django.db import models
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ValidationError
 from django.test import TestCase
@@ -21,6 +22,7 @@ from django_hstore.forms import DictionaryFieldWidget, ReferencesFieldWidget
 from django_hstore.fields import HStoreDict
 from django_hstore.exceptions import HStoreDictException
 from django_hstore.utils import unserialize_references, serialize_references, acquire_reference
+from django_hstore.virtual import create_hstore_virtual_field
 
 from django_hstore_tests.models import *
 
@@ -644,6 +646,14 @@ class SchemaTests(TestCase):
         self.assertEqual(d.data['number'], 6)
         self.assertEqual(d.float, 2.6)
         self.assertEqual(d.data['float'], 2.6)
+    
+    def test_create_hstore_virtual_field(self):
+        integer = create_hstore_virtual_field('IntegerField', { 'hstore_field_name': 'data', 'default': 0 } )
+        self.assertIsInstance(integer, models.IntegerField)
+        char = create_hstore_virtual_field('CharField', { 'hstore_field_name': 'data', 'default': 'test', 'blank': True, 'max_length': 10 } )
+        self.assertIsInstance(char, models.CharField)
+        text = create_hstore_virtual_field('TextField', { 'hstore_field_name': 'data', 'blank': True } )
+        self.assertIsInstance(text, models.TextField)
 
 
 class NotTransactionalTests(SimpleTestCase):

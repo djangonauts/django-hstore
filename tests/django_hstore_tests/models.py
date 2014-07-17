@@ -82,50 +82,23 @@ class UniqueTogetherDataBag(HStoreModel):
         unique_together =  ("name", "data")
 
 
-from django_hstore.virtual import HStoreVirtualMixin
-from django.db import models
-
-class VirtualIntegerField(HStoreVirtualMixin, models.IntegerField):
-    def __init__(self, *args, **kwargs):
-        try:
-            self.hstore_field_name = kwargs.pop('hstore_field_name')
-        except KeyError:
-            raise ValueError('missing hstore_field_name keyword argument')
-        super(VirtualIntegerField, self).__init__(*args, **kwargs)
-
-class VirtualFloatField(HStoreVirtualMixin, models.FloatField):
-    def __init__(self, *args, **kwargs):
-        try:
-            self.hstore_field_name = kwargs.pop('hstore_field_name')
-        except KeyError:
-            raise ValueError('missing hstore_field_name keyword argument')
-        super(VirtualFloatField, self).__init__(*args, **kwargs)
-
-class VirtualCharField(HStoreVirtualMixin, models.CharField):
-    def __init__(self, *args, **kwargs):
-        try:
-            self.hstore_field_name = kwargs.pop('hstore_field_name')
-        except KeyError:
-            raise ValueError('missing hstore_field_name keyword argument')
-        super(VirtualCharField, self).__init__(*args, **kwargs)
-
-class VirtualTextField(HStoreVirtualMixin, models.TextField):
-    def __init__(self, *args, **kwargs):
-        try:
-            self.hstore_field_name = kwargs.pop('hstore_field_name')
-        except KeyError:
-            raise ValueError('missing hstore_field_name keyword argument')
-        super(VirtualTextField, self).__init__(*args, **kwargs)
-
+from django_hstore.virtual import create_hstore_virtual_field
 
 class SchemaDataBag(HStoreModel):
     name = models.CharField(max_length=32)
     data = hstore.DictionaryField(schema=['i am temporary'])
 
-    number = VirtualIntegerField(hstore_field_name='data', default=0)
-    float = VirtualFloatField(hstore_field_name='data', default=1.0)
-    char = VirtualCharField(hstore_field_name='data', default='test', blank=True, max_length=10)
-    text = VirtualTextField(hstore_field_name='data', blank=True)
+    number = create_hstore_virtual_field('IntegerField', { 'hstore_field_name': 'data', 'default': 0 } )
+    float = create_hstore_virtual_field('FloatField', { 'hstore_field_name': 'data', 'default': 1.0 } )
+    char = create_hstore_virtual_field('CharField', { 'hstore_field_name': 'data', 'default': 'test', 'blank': True, 'max_length': 10 } )
+    text = create_hstore_virtual_field('TextField', { 'hstore_field_name': 'data', 'blank': True } )
+    char = create_hstore_virtual_field('CharField', {
+        'hstore_field_name': 'data',
+        'default': 'choice1',
+        'blank': True,
+        'max_length': 10,
+        'choices': (('choice1', 'choice1'), ('choice2', 'choice2'))
+    })
 
 
 # if geodjango is in use define Location model, which contains GIS data

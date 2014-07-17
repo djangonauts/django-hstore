@@ -1,9 +1,18 @@
+from django.db import models
+
+
 def _add_hstore_virtual_fields_to_fields(self):
+    """
+    add hstore virtual fields to model meta fields
+    """
     for field in self._meta.hstore_virtual_fields:
         if field not in self._meta.fields:
             self._meta.fields.append(field)
 
 def _remove_hstore_virtual_fields_from_fields(self):
+    """
+    remove hstore virtual fields from model meta fields
+    """
     for field in self._meta.hstore_virtual_fields:
         self._meta.fields.remove(field)
 
@@ -49,3 +58,29 @@ class HStoreVirtualMixin(object):
         hstore_dictionary[self.name] = value
     
     # end descriptor methods
+
+
+def create_hstore_virtual_field(field, kwargs={}):
+    """
+    returns an instance of an HStore virtual field which is mixed with the specified field class
+    and initializated with the kwargs passed
+    """
+    if isinstance(field, basestring):
+        BaseField = getattr(models, field)
+    elif isinstance(field, models.Field):
+        BaseField = field
+    else:
+        raise ValueError('field must be either a django standard field or a subclass of django.db.models.Field')
+        
+    class VirtualField(HStoreVirtualMixin, BaseField):
+        def __init__(self, *args, **kwargs):
+            try:
+                self.hstore_field_name = kwargs.pop('hstore_field_name')
+            except KeyError:
+                raise ValueError('missing hstore_field_name keyword argument')
+            super(VirtualField, self).__init__(*args, **kwargs)
+    
+    return VirtualField(**kwargs)
+
+
+__all__ = ['create_hstore_virtual_field']

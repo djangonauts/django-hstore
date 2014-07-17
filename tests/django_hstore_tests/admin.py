@@ -22,7 +22,7 @@ class RefsBagAdmin(admin.ModelAdmin):
 from django_hstore.admin import HStoreSchemaAdmin
 
 class SchemaDataBagAdmin(HStoreSchemaAdmin):
-    pass
+    list_display = ['name']
     
 
 admin.site.register(DataBag, DataBagAdmin)
