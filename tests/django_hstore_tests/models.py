@@ -86,16 +86,46 @@ from django_hstore.virtual import HStoreVirtualMixin
 from django.db import models
 
 class VirtualIntegerField(HStoreVirtualMixin, models.IntegerField):
-    pass
+    def __init__(self, *args, **kwargs):
+        try:
+            self.hstore_field_name = kwargs.pop('hstore_field_name')
+        except KeyError:
+            raise ValueError('missing hstore_field_name keyword argument')
+        super(VirtualIntegerField, self).__init__(*args, **kwargs)
+
+class VirtualFloatField(HStoreVirtualMixin, models.FloatField):
+    def __init__(self, *args, **kwargs):
+        try:
+            self.hstore_field_name = kwargs.pop('hstore_field_name')
+        except KeyError:
+            raise ValueError('missing hstore_field_name keyword argument')
+        super(VirtualFloatField, self).__init__(*args, **kwargs)
+
+class VirtualCharField(HStoreVirtualMixin, models.CharField):
+    def __init__(self, *args, **kwargs):
+        try:
+            self.hstore_field_name = kwargs.pop('hstore_field_name')
+        except KeyError:
+            raise ValueError('missing hstore_field_name keyword argument')
+        super(VirtualCharField, self).__init__(*args, **kwargs)
+
+class VirtualTextField(HStoreVirtualMixin, models.TextField):
+    def __init__(self, *args, **kwargs):
+        try:
+            self.hstore_field_name = kwargs.pop('hstore_field_name')
+        except KeyError:
+            raise ValueError('missing hstore_field_name keyword argument')
+        super(VirtualTextField, self).__init__(*args, **kwargs)
+
 
 class SchemaDataBag(HStoreModel):
     name = models.CharField(max_length=32)
     data = hstore.DictionaryField(schema=['i am temporary'])
-    # the ModeledDictionaryField should create the virtual fields automatically
-    # each created virtualfield should be initialized with an on the fly created (metaprogramming)
-    # virtual field which should be the result of for example IntegerField and VirtualFieldMixin
-    # validation should be handled by the VirtualField only, no HStoreModelValidation shit
+
     number = VirtualIntegerField(hstore_field_name='data', default=0)
+    float = VirtualFloatField(hstore_field_name='data', default=1.0)
+    char = VirtualCharField(hstore_field_name='data', default='test', blank=True, max_length=10)
+    text = VirtualTextField(hstore_field_name='data', blank=True)
 
 
 # if geodjango is in use define Location model, which contains GIS data

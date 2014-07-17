@@ -19,11 +19,10 @@ class RefsBagAdmin(admin.ModelAdmin):
     pass
 
 
-class SchemaDataBagAdmin(admin.ModelAdmin):
-    # TODO exclusion must happen automatically
-    #exclude = ['data']
-    readonly_fields = ['data']
-    #pass
+from django_hstore.admin import HStoreSchemaAdmin
+
+class SchemaDataBagAdmin(HStoreSchemaAdmin):
+    pass
     
 
 admin.site.register(DataBag, DataBagAdmin)

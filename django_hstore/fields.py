@@ -14,7 +14,14 @@ class HStoreField(models.Field):
     
     def __init__(self, *args, **kwargs):
         self.schema = kwargs.pop('schema', False)
-        self.pickle = True if self.schema else False
+        # if schema parameter is supplied the behaviour is slightly different
+        if self.schema:
+            self.pickle = True
+            kwargs['editable'] = False
+            kwargs['default'] = {}
+        else:
+            self.pickle = False
+        
         super(HStoreField, self).__init__(*args, **kwargs)
     
     def __init_dict(self, value):

@@ -1,16 +1,31 @@
+def _add_hstore_virtual_fields_to_fields(self):
+    for field in self._meta.hstore_virtual_fields:
+        if field not in self._meta.fields:
+            self._meta.fields.append(field)
+
+def _remove_hstore_virtual_fields_from_fields(self):
+    for field in self._meta.hstore_virtual_fields:
+        self._meta.fields.remove(field)
+
+
 class HStoreVirtualMixin(object):
     """
     must be mixed-in with django fields
     """
-    def __init__(self, *args, **kwargs):
-        try:
-            self.hstore_field_name = kwargs.pop('hstore_field_name')
-        except KeyError:
-            raise ValueError('missing hstore_field_name keyword argument')
-        super(HStoreVirtualMixin, self).__init__(*args, **kwargs)
-    
     def contribute_to_class(self, cls, name, virtual_only=True):
         super(HStoreVirtualMixin, self).contribute_to_class(cls, name, virtual_only)
+        
+        # add hstore_virtual_fields attribute to class
+        if not hasattr(cls._meta, 'hstore_virtual_fields'):
+            cls._meta.hstore_virtual_fields = []
+        # add this field to hstore_virtual_fields
+        cls._meta.hstore_virtual_fields.append(self)
+        
+        if not hasattr(cls, '_add_hstore_virtual_fields_to_fields'):
+            cls._add_hstore_virtual_fields_to_fields = _add_hstore_virtual_fields_to_fields
+        
+        if not hasattr(cls, '_remove_hstore_virtual_fields_from_fields'):
+            cls._remove_hstore_virtual_fields_from_fields = _remove_hstore_virtual_fields_from_fields
         
         # Connect myself as the descriptor for this field
         setattr(cls, name, self)
@@ -34,16 +49,3 @@ class HStoreVirtualMixin(object):
         hstore_dictionary[self.name] = value
     
     # end descriptor methods
-    
-    # TODO: maybe this is not necessary
-    #def value_from_object(self, obj):
-    #    """
-    #    Returns the value of this field in the given model instance.
-    #    """
-    #    hstore_field = getattr(obj, self.hstore_field_name)
-    #    return hstore_field[self.attname]
-    
-    #def save_form_data(self, instance, data):
-    #    hstore_field = getattr(instance, self.hstore_field_name)
-    #    hstore_field[self.attname] = data
-    #    setattr(instance, self.hstore_field_name, hstore_field)
