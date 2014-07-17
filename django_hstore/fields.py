@@ -147,6 +147,10 @@ class DictionaryField(HStoreField):
             cls._remove_hstore_virtual_fields_from_fields = _remove_hstore_virtual_fields_from_fields
             
         for field in self.schema:
+            # if kwargs key is not set
+            if not field.has_key('kwargs'):
+                # set it as an empty dict
+                field['kwargs'] = {}
             # insert the name of the hstore field, which is necessary
             # for the initialization of the virtual field
             field['kwargs']['hstore_field_name'] = hstore_field_name

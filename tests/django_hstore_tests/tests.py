@@ -666,16 +666,22 @@ class SchemaTests(TestCase):
                 }
             }
         ])
-        
+    
+    def test_schema_validation_string(self):
+        with self.assertRaises(ValueError):
+            data = hstore.DictionaryField(schema='')
+            
         with self.assertRaises(ValueError):
             data = hstore.DictionaryField(schema='WRONG')
-        
+    
+    def test_schema_validation_wrong_list(self):
         with self.assertRaises(ValueError):
             data = hstore.DictionaryField(schema=[])
         
         with self.assertRaises(ValueError):
             data = hstore.DictionaryField(schema=['i am teasing you'])
-        
+    
+    def test_schema_validation_wrong_dict(self):
         with self.assertRaises(ValueError):
             data = hstore.DictionaryField(schema=[
                 { 'wrong': 'wrong' }
@@ -685,6 +691,20 @@ class SchemaTests(TestCase):
             data = hstore.DictionaryField(schema=[
                 { 'name': 'test' }
             ])
+    
+    def test_model_definition_in_schema_mode_wrong_class(self):
+        with self.assertRaises(ValueError):
+            class TestModel(models.Model):
+                data = hstore.DictionaryField(schema=[
+                    { 'name': 'test', 'class': float }
+                ])
+    
+    def test_model_definition_in_schema_mode_wrong_class_string(self):
+        with self.assertRaises(ValueError):
+            class TestModel(models.Model):
+                data = hstore.DictionaryField(schema=[
+                    { 'name': 'test', 'class': 'IdoNotExist' }
+                ])
 
 
 class NotTransactionalTests(SimpleTestCase):

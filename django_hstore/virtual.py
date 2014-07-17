@@ -61,7 +61,10 @@ def create_hstore_virtual_field(field_cls, kwargs={}):
     and initializated with the kwargs passed
     """
     if isinstance(field_cls, basestring):
-        BaseField = getattr(models, field_cls)
+        try:
+            BaseField = getattr(models, field_cls)
+        except AttributeError:
+            raise ValueError('specified class %s is not a standard django model field (couldn\'t find it in django.db.models)' % field_cls)
     elif isinstance(field_cls, models.Field):
         BaseField = field_cls
     else:

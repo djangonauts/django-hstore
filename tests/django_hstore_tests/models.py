@@ -82,8 +82,6 @@ class UniqueTogetherDataBag(HStoreModel):
         unique_together =  ("name", "data")
 
 
-from django_hstore.virtual import create_hstore_virtual_field
-
 class SchemaDataBag(HStoreModel):
     name = models.CharField(max_length=32)
     data = hstore.DictionaryField(schema=[
