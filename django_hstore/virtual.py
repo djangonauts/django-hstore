@@ -78,4 +78,14 @@ def create_hstore_virtual_field(field_cls, kwargs={}):
                 raise ValueError('missing hstore_field_name keyword argument')
             super(VirtualField, self).__init__(*args, **kwargs)
     
-    return VirtualField(**kwargs)
+    # support DateTimeField
+    if BaseField == models.DateTimeField and kwargs.get('default') is None:
+        import datetime
+        kwargs['default'] = datetime.datetime.utcnow()
+    
+    field = VirtualField(**kwargs)
+    
+    if field.default == models.fields.NOT_PROVIDED:
+        field.default = ''
+    
+    return field

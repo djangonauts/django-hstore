@@ -94,9 +94,20 @@ class SchemaDataBag(hstore.SchemaModel):
         },
         {
             'name': 'float',
-            'class': 'FloatField',
+            'class': models.FloatField,
             'kwargs': {
                 'default': 1.0
+            }
+        },
+        {
+            'name': 'boolean',
+            'class': 'BooleanField',
+        },
+        {
+            'name': 'boolean true',
+            'class': 'BooleanField',
+            'kwargs': {
+                'default': True
             }
         },
         {
@@ -122,6 +133,58 @@ class SchemaDataBag(hstore.SchemaModel):
                 'choices': (('choice1', 'choice1'), ('choice2', 'choice2')),
                 'default': 'choice1'
             }
+        },
+        {
+            'name': 'choice2',
+            'class': 'CharField',
+            'kwargs': {
+                'blank': True,
+                'max_length': 10,
+                'choices': (('choice1', 'choice1'), ('choice2', 'choice2')),
+            }
+        },
+        {
+            'name': 'date',
+            'class': 'DateField',
+            'kwargs': {
+                'blank': True
+            }
+        },
+        {
+            'name': 'datetime',
+            'class': 'DateTimeField',
+            'kwargs': {
+                'blank': True
+            }
+        },
+        {
+            'name': 'decimal',
+            'class': 'DecimalField',
+            'kwargs': {
+                'blank': True
+            }
+        },
+        {
+            'name': 'email',
+            'class': 'EmailField',
+            'kwargs': {
+                'blank': True
+            }
+        },
+        {
+            'name': 'ip',
+            'class': 'GenericIPAddressField',
+            'kwargs': {
+                'blank': True
+            }
+        },
+        {
+            'name': 'url',
+            'class': models.URLField,
+            'kwargs': {
+                'blank': True
+            }
+        },
     ])
     
     objects = hstore.HStoreManager()
