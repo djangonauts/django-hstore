@@ -65,7 +65,7 @@ def create_hstore_virtual_field(field_cls, kwargs={}):
             BaseField = getattr(models, field_cls)
         except AttributeError:
             raise ValueError('specified class %s is not a standard django model field (couldn\'t find it in django.db.models)' % field_cls)
-    elif isinstance(field_cls, models.Field):
+    elif issubclass(field_cls, models.Field):
         BaseField = field_cls
     else:
         raise ValueError('field must be either a django standard field or a subclass of django.db.models.Field')
