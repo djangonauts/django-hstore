@@ -9,7 +9,7 @@ if django.get_version() < '1.7':
     from .apps import *
 
 
-class HStoreSchemaModel(models.Model):
+class SchemaModel(models.Model):
     """
     adds support for hstore virtual fields
     """

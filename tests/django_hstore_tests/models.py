@@ -82,9 +82,7 @@ class UniqueTogetherDataBag(HStoreModel):
         unique_together =  ("name", "data")
 
 
-from django_hstore.models import HStoreSchemaModel
-
-class SchemaDataBag(HStoreSchemaModel):
+class SchemaDataBag(hstore.SchemaModel):
     name = models.CharField(max_length=32)
     data = hstore.DictionaryField(schema=[
         {
@@ -124,7 +122,6 @@ class SchemaDataBag(HStoreSchemaModel):
                 'choices': (('choice1', 'choice1'), ('choice2', 'choice2')),
                 'default': 'choice1'
             }
-        }
     ])
     
     objects = hstore.HStoreManager()
