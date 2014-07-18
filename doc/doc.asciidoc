@@ -246,14 +246,16 @@ class Something(models.Model):
     # objects = hstore.HStoreGeoManager()
 ----
 
-.Since *django_hstore 1.3.0* it is possible to supply a `schema` parameter to the `DictionaryField` and use simulated standard django fields for each key:
+.Since *django_hstore 1.3.0* it is possible to use the `DictionaryField` in *schema mode* in order to overcome the limit of values being only strings.
+Another advantage of using the schema mode is that you can recycle the standard django fields in the admin and hopefully elsewhere.
+Use `hstore.SchemaModel` as a base class for your model and supply a `schema` parameter to the `DictionaryField`:
 [source, python]
 ----
 # models.py
 from django.db import models
 from django_hstore import hstore
 
-class Something(models.Model):
+class Something(hstore.SchemaModel):
     name = models.CharField(max_length=32)
     data = hstore.DictionaryField(schema=[
         {
