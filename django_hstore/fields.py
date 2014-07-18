@@ -126,10 +126,10 @@ class DictionaryField(HStoreField):
             if not isinstance(field, dict):
                 raise ValueError('schema parameter must contain dicts representing fields, read the docs to see the format')
             
-            if not field.has_key('name'):
+            if not 'name' in field:
                 raise ValueError('schema element %s is missing the name key' % field)
             
-            if not field.has_key('class'):
+            if not 'class' in field:
                 raise ValueError('schema element %s is missing the class key' % field)
 
     def _add_virtual_fields_on_class(self, cls, hstore_field_name):
@@ -148,7 +148,7 @@ class DictionaryField(HStoreField):
             
         for field in self.schema:
             # if kwargs key is not set
-            if not field.has_key('kwargs'):
+            if 'kwargs' not in field:
                 # set it as an empty dict
                 field['kwargs'] = {}
             # insert the name of the hstore field, which is necessary
@@ -157,11 +157,12 @@ class DictionaryField(HStoreField):
             # initialize the virtual field by specifying the class and the kwargs
             virtual_field = create_hstore_virtual_field(
                 field_cls=field['class'],
-                kwargs=field['kwargs']
+                kwargs=field['kwargs'],
             )
             # set the name and the attname properties of the field
             virtual_field.name = field['name']
             virtual_field.attname = field['name']
+            virtual_field.model = cls  # django 1.7
             # add the field on the class
             setattr(cls, field['name'], virtual_field)
             # add the field in the virtual fields

@@ -641,7 +641,7 @@ class SchemaTests(TestCase):
         self.assertEqual(response.status_code, 200)
         
         response = self.client.post(url, { 'name': 'test_add', 'number': 3, 'float': 2.4 })
-        d = SchemaDataBag.objects.first()
+        d = SchemaDataBag.objects.all()[0]
         self.assertEqual(d.name, 'test_add')
         self.assertEqual(d.number, 3)
         self.assertEqual(d.float, 2.4)
@@ -653,7 +653,7 @@ class SchemaTests(TestCase):
         self.assertEqual(response.status_code, 200)
         
         response = self.client.post(url, { 'name': 'test_add', 'number': 3, 'float': 2.4, 'char': 'è' })
-        d = SchemaDataBag.objects.first()
+        d = SchemaDataBag.objects.all()[0]
         self.assertEqual(d.name, 'test_add')
         self.assertEqual(d.number, 3)
         self.assertEqual(d.float, 2.4)

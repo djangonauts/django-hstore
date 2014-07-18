@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import six
 
 
 __all__ = [
@@ -29,7 +30,12 @@ class HStoreVirtualMixin(object):
     must be mixed-in with django fields
     """
     def contribute_to_class(self, cls, name, virtual_only=True):
-        super(HStoreVirtualMixin, self).contribute_to_class(cls, name, virtual_only)
+        self.set_attributes_from_name(name)
+        self.model = cls
+        cls._meta.add_virtual_field(self)
+        if self.choices:
+            setattr(cls, 'get_%s_display' % self.name,
+                    curry(cls._get_FIELD_display, field=self))
         
         # Connect myself as the descriptor for this field
         setattr(cls, name, self)
@@ -60,7 +66,7 @@ def create_hstore_virtual_field(field_cls, kwargs={}):
     returns an instance of an HStore virtual field which is mixed with the specified field class
     and initializated with the kwargs passed
     """
-    if isinstance(field_cls, basestring):
+    if isinstance(field_cls, six.string_types):
         try:
             BaseField = getattr(models, field_cls)
         except AttributeError:
