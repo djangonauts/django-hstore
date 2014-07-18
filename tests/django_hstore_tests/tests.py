@@ -501,6 +501,14 @@ class TestDictionaryField(TestCase):
         self.assertEqual(instance.data, test_props)
         self.assertEqual(instance.data['size'], '3')
         self.assertIn('foo', instance.data)
+    
+    def test_unicode(self):
+        i = DataBag()
+        i.data['key'] = 'è'
+        i.save()
+        
+        i.data['key'] = u'è'
+        i.save()
 
 
 class SchemaTests(TestCase):
@@ -588,9 +596,16 @@ class SchemaTests(TestCase):
         with self.assertRaises(ValidationError):
             d.full_clean()
         
+        d.number = 9
         d.float = 'WRONG'
         with self.assertRaises(ValidationError):
             d.full_clean()
+        
+        d.float = 2.0
+        d.char = 'test'
+        d.choice = 'choice1'
+        d.full_clean()
+        d.save()
     
     def test_hstore_virtual_fields(self):
         d = SchemaDataBag()
@@ -727,6 +742,13 @@ class SchemaTests(TestCase):
         d.number = 4
         d.float = 2.0
         d.char = 'è'
+        d.full_clean()
+        d.save()
+        
+        d = SchemaDataBag.objects.get(pk=d.id)
+        self.assertEqual(d.char, 'è')
+        
+        d.char = u'è'
         d.full_clean()
         d.save()
         

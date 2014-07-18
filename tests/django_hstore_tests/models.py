@@ -82,7 +82,9 @@ class UniqueTogetherDataBag(HStoreModel):
         unique_together =  ("name", "data")
 
 
-class SchemaDataBag(HStoreModel):
+from django_hstore.models import HStoreSchemaModel
+
+class SchemaDataBag(HStoreSchemaModel):
     name = models.CharField(max_length=32)
     data = hstore.DictionaryField(schema=[
         {
@@ -119,10 +121,13 @@ class SchemaDataBag(HStoreModel):
             'kwargs': {
                 'blank': True,
                 'max_length': 10,
-                'choices': (('choice1', 'choice1'), ('choice2', 'choice2'))
+                'choices': (('choice1', 'choice1'), ('choice2', 'choice2')),
+                'default': 'choice1'
             }
         }
     ])
+    
+    objects = hstore.HStoreManager()
 
 
 # if geodjango is in use define Location model, which contains GIS data

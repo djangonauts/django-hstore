@@ -62,6 +62,8 @@ class HStoreDict(UnicodeMixin, dict):
         value = self.ensure_acceptable_value(args[1])
         # perform pickle if necessary
         if self.pickle:
+            if isinstance(value, unicode):
+                value = value.encode('utf8')
             value = picklelib.dumps(value)
         # prepare *args
         args = (args[0], value)
