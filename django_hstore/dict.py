@@ -3,11 +3,10 @@ try:
 except ImportError:
     import json
 
-import sys
 from decimal import Decimal
 
 from django.utils import six
-from django.utils.encoding import force_text
+from django.utils.encoding import force_text, force_str
 
 from .compat import UnicodeMixin
 from . import utils, exceptions
@@ -128,14 +127,9 @@ class HStoreDict(UnicodeMixin, dict):
             else:
                 return value
         else:
-            # if not python3
-            if sys.version_info[0] < 3:
-                # encode utf8 strings
-                if isinstance(value, unicode):
-                    value = value.encode('utf8')
             # perform string conversion unless is None
             if value is not None:
-                value = str(value)
+                value = force_str(value)
             return value
 
     def remove(self, keys):
