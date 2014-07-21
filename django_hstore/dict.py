@@ -3,7 +3,7 @@ try:
 except ImportError:
     import json
 
-import pickle as picklelib
+import sys
 from decimal import Decimal
 
 from django.utils import six
@@ -24,8 +24,8 @@ class HStoreDict(UnicodeMixin, dict):
     A dictionary subclass which implements hstore support.
     """
 
-    def __init__(self, value=None, field=None, instance=None, pickle=False, **kwargs):
-        self.pickle = pickle
+    def __init__(self, value=None, field=None, instance=None, schema_mode=False, **kwargs):
+        self.schema_mode = schema_mode
         
         # if passed value is string
         # ensure is json formatted
@@ -46,9 +46,10 @@ class HStoreDict(UnicodeMixin, dict):
                 'HStoreDict accepts only dictionary objects, None and json formatted string representations of json objects'
             )
 
-        # ensure values are acceptable
-        for key, val in value.items():
-            value[key] = self.ensure_acceptable_value(val)
+        if not self.schema_mode:
+            # ensure values are acceptable
+            for key, val in value.items():
+                value[key] = self.ensure_acceptable_value(val)
 
         super(HStoreDict, self).__init__(value, **kwargs)
         self.field = field
@@ -60,25 +61,20 @@ class HStoreDict(UnicodeMixin, dict):
         """
         # ensure values are acceptable
         value = self.ensure_acceptable_value(args[1])
-        # perform pickle if necessary
-        if self.pickle:
-            if isinstance(value, unicode):
-                value = value.encode('utf8')
-            value = picklelib.dumps(value)
         # prepare *args
         args = (args[0], value)
         super(HStoreDict, self).__setitem__(*args, **kwargs)
     
     def __getitem__(self, *args, **kwargs):
         """
-        unpickle value if necessary
+        unschema_mode value if necessary
         """
         value = super(HStoreDict, self).__getitem__(*args, **kwargs)
         
-        if self.pickle:
-            return picklelib.loads(value)
-        else:
-            return value
+        if self.schema_mode:
+            return self.instance._meta.hstore_virtual_fields[args[0]].to_python(value)
+        
+        return value
     
     def get(self, key, default=None):
         try:
@@ -108,7 +104,7 @@ class HStoreDict(UnicodeMixin, dict):
 
     def ensure_acceptable_value(self, value):
         """
-        if pickle disabled (default behaviour):
+        if schema_mode disabled (default behaviour):
             - ensure booleans, integers, floats, Decimals, lists and dicts are
               converted to string
             - convert True and False objects to "true" and "false" so they can be
@@ -116,9 +112,10 @@ class HStoreDict(UnicodeMixin, dict):
             - convert lists and dictionaries to json formatted strings
             - leave alone all other objects because they might be representation of django models
         else:
-            just return value
+            - encode utf8 strings in python2
+            - convert to string
         """
-        if not self.pickle:
+        if not self.schema_mode:
             if isinstance(value, bool):
                 return force_text(value).lower()
             elif isinstance(value, (int, float, Decimal)):
@@ -128,6 +125,14 @@ class HStoreDict(UnicodeMixin, dict):
             else:
                 return value
         else:
+            # if not python3
+            if sys.version_info[0] < 3:
+                # encode utf8 strings
+                if isinstance(value, unicode):
+                    value = value.encode('utf8')
+            # perform string conversion unless is None
+            if value is not None:
+                value = str(value)
             return value
 
     def remove(self, keys):

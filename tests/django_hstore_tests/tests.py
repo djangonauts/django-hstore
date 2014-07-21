@@ -520,12 +520,8 @@ class SchemaTests(TestCase):
         # login as admin
         self.client.login(username='admin', password='tester')
         
-    def test_pickle_flag_hstoredict(self):
-        """
-        Test pickle flag.
-        Introduced in 1.3.0
-        """
-        d = HStoreDict(pickle=True)
+    def test_to_python_conversion(self):
+        d = SchemaDataBag().data
         
         d['number'] = 2
         self.assertEqual(d['number'], 2)
@@ -541,7 +537,7 @@ class SchemaTests(TestCase):
         self.assertEqual(d.get('float'), 2.5)
     
     def test_dict_get(self):
-        d = HStoreDict(pickle=True)
+        d = SchemaDataBag().data
         
         d['number'] = 2
         self.assertEqual(d.get('number'), 2)
@@ -756,14 +752,14 @@ class SchemaTests(TestCase):
         d.save()
         
         d = SchemaDataBag.objects.get(pk=d.id)
-        self.assertEqual(d.char, 'è')
+        self.assertEqual(d.char, u'è')
         
         d.char = u'è'
         d.full_clean()
         d.save()
         
         d = SchemaDataBag.objects.get(pk=d.id)
-        self.assertEqual(d.char, 'è')
+        self.assertEqual(d.char, u'è')
 
 
 class NotTransactionalTests(SimpleTestCase):

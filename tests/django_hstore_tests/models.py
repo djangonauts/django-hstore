@@ -104,9 +104,10 @@ class SchemaDataBag(hstore.SchemaModel):
             'class': 'BooleanField',
         },
         {
-            'name': 'boolean true',
+            'name': 'boolean_true',
             'class': 'BooleanField',
             'kwargs': {
+                'verbose_name': 'boolean true',
                 'default': True
             }
         },

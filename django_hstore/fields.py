@@ -88,12 +88,12 @@ class DictionaryField(HStoreField):
     
     def __init__(self, *args, **kwargs):
         self.schema = kwargs.pop('schema', None)
-        self.pickle = False
+        self.schema_mode = False
         
         # if schema parameter is supplied the behaviour is slightly different
         if self.schema is not None:
             self._validate_schema(self.schema)
-            self.pickle = True
+            self.schema_mode = True
             # DictionaryField with schema is not editable via admin
             kwargs['editable'] = False
             # DictionaryField with schema defaults to empty dict
@@ -104,13 +104,13 @@ class DictionaryField(HStoreField):
     def __init_dict(self, value):
         """
         init HStoreDict
-        pass pickle=True if in "schema" mode
+        pass schema_mode=True if in "schema" mode
         """
-        return HStoreDict(value, self, pickle=self.pickle)
+        return HStoreDict(value, self, schema_mode=self.schema_mode)
 
     def contribute_to_class(self, cls, name):
         super(DictionaryField, self).contribute_to_class(cls, name)
-        setattr(cls, self.name, HStoreDescriptor(self, pickle=self.pickle))
+        setattr(cls, self.name, HStoreDescriptor(self, schema_mode=self.schema_mode))
         
         if self.schema:
             self._add_virtual_fields_on_class(cls, name)
