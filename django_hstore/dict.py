@@ -23,6 +23,8 @@ class HStoreDict(UnicodeMixin, dict):
     """
     A dictionary subclass which implements hstore support.
     """
+    
+    schema_mode = False  # python2.6 compatibility
 
     def __init__(self, value=None, field=None, instance=None, schema_mode=False, **kwargs):
         self.schema_mode = schema_mode
