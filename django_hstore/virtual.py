@@ -13,7 +13,7 @@ def _add_hstore_virtual_fields_to_fields(self):
     """
     add hstore virtual fields to model meta fields
     """
-    for field in self._meta.hstore_virtual_fields:
+    for field in self._meta.hstore_virtual_fields.values():
         if field not in self._meta.fields:
             self._meta.fields.append(field)
 
@@ -21,7 +21,7 @@ def _remove_hstore_virtual_fields_from_fields(self):
     """
     remove hstore virtual fields from model meta fields
     """
-    for field in self._meta.hstore_virtual_fields:
+    for field in self._meta.hstore_virtual_fields.values():
         self._meta.fields.remove(field)
 
 

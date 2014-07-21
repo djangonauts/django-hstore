@@ -138,14 +138,14 @@ class DictionaryField(HStoreField):
         """
         # add hstore_virtual_fields attribute to class
         if not hasattr(cls._meta, 'hstore_virtual_fields'):
-            cls._meta.hstore_virtual_fields = []
+            cls._meta.hstore_virtual_fields = {}
     
         if not hasattr(cls, '_add_hstore_virtual_fields_to_fields'):
             cls._add_hstore_virtual_fields_to_fields = _add_hstore_virtual_fields_to_fields
 
         if not hasattr(cls, '_remove_hstore_virtual_fields_from_fields'):
             cls._remove_hstore_virtual_fields_from_fields = _remove_hstore_virtual_fields_from_fields
-            
+        
         for field in self.schema:
             # if kwargs key is not set
             if 'kwargs' not in field:
@@ -167,8 +167,8 @@ class DictionaryField(HStoreField):
             setattr(cls, field['name'], virtual_field)
             # add the field in the virtual fields
             cls._meta.virtual_fields.append(virtual_field)
-            # add this field to hstore_virtual_fields list
-            cls._meta.hstore_virtual_fields.append(virtual_field)
+            # add this field to hstore_virtual_fields dict
+            cls._meta.hstore_virtual_fields[field['name']] = virtual_field
 
     def formfield(self, **kwargs):
         kwargs['form_class'] = forms.DictionaryField

@@ -610,22 +610,22 @@ class SchemaTests(TestCase):
     def test_hstore_virtual_fields(self):
         d = SchemaDataBag()
         fields_length = len(d._meta.fields)
-        virtual_fields_length = len(d._meta.hstore_virtual_fields)
+        virtual_fields_length = len(d._meta.hstore_virtual_fields.values())
         
         d._add_hstore_virtual_fields_to_fields()
         self.assertEqual(len(d._meta.fields), fields_length+virtual_fields_length)
-        for field in d._meta.hstore_virtual_fields:
+        for field in d._meta.hstore_virtual_fields.values():
             self.assertIn(field, d._meta.fields)
         
         # repeating does not create issues
         d._add_hstore_virtual_fields_to_fields()
         self.assertEqual(len(d._meta.fields), fields_length+virtual_fields_length)
-        for field in d._meta.hstore_virtual_fields:
+        for field in d._meta.hstore_virtual_fields.values():
             self.assertIn(field, d._meta.fields)
         
         d._remove_hstore_virtual_fields_from_fields()
         self.assertEqual(len(d._meta.fields), fields_length)
-        for field in d._meta.hstore_virtual_fields:
+        for field in d._meta.hstore_virtual_fields.values():
             self.assertNotIn(field, d._meta.fields)
         
     def test_admin_list(self):
