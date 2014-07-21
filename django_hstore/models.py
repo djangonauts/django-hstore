@@ -25,7 +25,7 @@ class SchemaModel(models.Model):
             exclude = []
 
         errors = {}
-        for f in (self._meta.fields + self._meta.hstore_virtual_fields.values()):
+        for f in (self._meta.fields + list(self._meta.hstore_virtual_fields.values())):  # list() is necessary in python3
             if f.name in exclude:
                 continue
             # Skip validation for empty fields with blank=True. The developer
