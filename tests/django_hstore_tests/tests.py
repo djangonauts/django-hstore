@@ -509,6 +509,13 @@ class TestDictionaryField(TestCase):
         
         i.data['key'] = u'è'
         i.save()
+    
+    def test_get_default(self):
+        d = HStoreDict()
+        self.assertIsNone(d.get('none_key', None))
+        
+        with self.assertRaises(KeyError):
+            d.get('none_key')
 
 
 class SchemaTests(TestCase):

@@ -78,12 +78,13 @@ class HStoreDict(UnicodeMixin, dict):
         
         return value
     
-    def get(self, key, default=None):
+    def get(self, *args):
+        key = args[0]
         try:
             return self.__getitem__(key)
         except KeyError as e:
-            if default is not None:
-                return default
+            if len(args) > 1:
+                return args[1]  # return default value
             else:
                 raise e
 
