@@ -2,6 +2,7 @@ from __future__ import unicode_literals, absolute_import
 
 from django.db import models, connection
 from django.utils.translation import ugettext_lazy as _
+from django.core.exceptions import ImproperlyConfigured
 from django import get_version
 
 from .descriptors import *
@@ -92,6 +93,9 @@ class DictionaryField(HStoreField):
         
         # if schema parameter is supplied the behaviour is slightly different
         if self.schema is not None:
+            # schema mode available only from django 1.6 onward
+            if get_version()[0:3] <= '1.5':
+                raise ImproperlyConfigured('schema mode for DictionaryField is available only from django 1.6 onward')
             self._validate_schema(self.schema)
             self.schema_mode = True
             # DictionaryField with schema is not editable via admin

@@ -24,7 +24,7 @@ Features
 - Postgis compatibility.
 - Python3 support.
 - Nice admin widgets.
-- Possibility to define a schema and use the standard django fields (since 1.3.0)
+- Possibility to define a schema and use the standard django fields (since django_hstore 1.3.0 and django 1.6)
 
 
 Django Admin widget
@@ -248,6 +248,8 @@ class Something(models.Model):
 
 .Since *django_hstore 1.3.0* it is possible to use the `DictionaryField` in *schema mode* in order to overcome the limit of values being only strings.
 Another advantage of using the schema mode is that you can recycle the standard django fields in the admin and hopefully elsewhere.
+*This feature is available only from django 1.6 onwards*.
+
 Use `hstore.SchemaModel` as a base class for your model and supply a `schema` parameter to the `DictionaryField`:
 [source, python]
 ----
