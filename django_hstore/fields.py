@@ -130,10 +130,10 @@ class DictionaryField(HStoreField):
             if not isinstance(field, dict):
                 raise ValueError('schema parameter must contain dicts representing fields, read the docs to see the format')
             
-            if not 'name' in field:
+            if 'name' not in field:
                 raise ValueError('schema element %s is missing the name key' % field)
             
-            if not 'class' in field:
+            if 'class' not in field:
                 raise ValueError('schema element %s is missing the class key' % field)
 
     def _add_virtual_fields_on_class(self, cls, hstore_field_name):

@@ -53,8 +53,7 @@ def unserialize_references(references):
         return refs
 
 
-def register_hstore(conn_or_curs, globally=False, unicode=False,
-        oid=None, array_oid=None):
+def register_hstore(conn_or_curs, globally=False, _unicode=False, oid=None, array_oid=None):
     from psycopg2.extras import HstoreAdapter
     from psycopg2 import extensions as _ext
     import psycopg2
@@ -63,7 +62,7 @@ def register_hstore(conn_or_curs, globally=False, unicode=False,
     from .fields import HStoreDict
 
     def cast(s, cur, _bsdec=regex.compile(r"\\(.)")):
-        if sys.version_info[0] < 3 and unicode:
+        if sys.version_info[0] < 3 and _unicode:
             result = HstoreAdapter.parse_unicode(s, cur)
         else:
             result = HstoreAdapter.parse(s, cur, _bsdec)

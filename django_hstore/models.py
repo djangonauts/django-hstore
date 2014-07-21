@@ -6,7 +6,7 @@ from .fields import DictionaryField
 
 
 if django.get_version() < '1.7':
-    from .apps import *
+    from . import apps
 
 
 class SchemaModel(models.Model):

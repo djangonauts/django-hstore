@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import six
+from django.utils.functional import curry
 
 
 __all__ = [
@@ -29,7 +30,7 @@ class HStoreVirtualMixin(object):
     """
     must be mixed-in with django fields
     """
-    def contribute_to_class(self, cls, name, virtual_only=True):
+    def contribute_to_class(self, cls, name):
         self.set_attributes_from_name(name)
         self.model = cls
         cls._meta.add_virtual_field(self)
@@ -61,11 +62,15 @@ class HStoreVirtualMixin(object):
     # end descriptor methods
 
 
-def create_hstore_virtual_field(field_cls, kwargs={}):
+def create_hstore_virtual_field(field_cls, kwargs=None):
     """
     returns an instance of an HStore virtual field which is mixed with the specified field class
     and initializated with the kwargs passed
     """
+    # http://stackoverflow.com/questions/9526465/best-practice-for-setting-the-default-value-of-a-parameter-thats-supposed-to-be
+    if kwargs is None:
+        kwargs = {}
+    
     if isinstance(field_cls, six.string_types):
         try:
             BaseField = getattr(models, field_cls)
