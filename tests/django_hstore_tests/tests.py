@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import json
 import pickle
 from decimal import Decimal
@@ -8,19 +9,21 @@ from django.db import transaction
 from django.db import connection
 from django.db.models.aggregates import Count
 from django.db.utils import IntegrityError, DatabaseError
-from django import forms
+from django import forms, get_version as get_django_version
+from django.db import models
 from django.core.urlresolvers import reverse
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ImproperlyConfigured
 from django.test import TestCase
 from django.test import SimpleTestCase
 from django.contrib.auth.models import User
 from django.utils.encoding import force_text
 
-from django_hstore import get_version
+from django_hstore import get_version, hstore
 from django_hstore.forms import DictionaryFieldWidget, ReferencesFieldWidget
 from django_hstore.fields import HStoreDict
 from django_hstore.exceptions import HStoreDictException
 from django_hstore.utils import unserialize_references, serialize_references, acquire_reference
+from django_hstore.virtual import create_hstore_virtual_field
 
 from django_hstore_tests.models import *
 
@@ -475,9 +478,7 @@ class TestDictionaryField(TestCase):
         d.data = { 'test': 'test '}
         with self.assertRaises(ValidationError):
             d.full_clean()
-
-
-class RegressionTests(TestCase):
+    
     def test_properties_hstore(self):
         """
         Make sure the hstore field does what it is supposed to.
@@ -500,6 +501,287 @@ class RegressionTests(TestCase):
         self.assertEqual(instance.data, test_props)
         self.assertEqual(instance.data['size'], '3')
         self.assertIn('foo', instance.data)
+    
+    def test_unicode(self):
+        i = DataBag()
+        i.data['key'] = 'è'
+        i.save()
+        
+        i.data['key'] = u'è'
+        i.save()
+    
+    def test_get_default(self):
+        d = HStoreDict()
+        self.assertIsNone(d.get('none_key', None))
+        
+        with self.assertRaises(KeyError):
+            d.get('none_key')
+
+
+class SchemaTests(TestCase):
+    if get_django_version()[0:3] >= '1.6':
+        def _login_as_admin(self):
+            # create admin user
+            admin = User.objects.create(username='admin', password='tester', is_staff=True, is_superuser=True, is_active=True)
+            admin.set_password('tester')
+            admin.save()
+            # login as admin
+            self.client.login(username='admin', password='tester')
+            
+        def test_to_python_conversion(self):
+            d = SchemaDataBag().data
+            
+            d['number'] = 2
+            self.assertEqual(d['number'], 2)
+            
+            d['boolean'] = True
+            self.assertTrue(d['boolean'])
+            
+            d['boolean'] = False
+            self.assertFalse(d['boolean'])
+            
+            d['float'] = 2.5
+            self.assertEqual(d['float'], 2.5)
+            self.assertEqual(d.get('float'), 2.5)
+        
+        def test_dict_get(self):
+            d = SchemaDataBag().data
+            
+            d['number'] = 2
+            self.assertEqual(d.get('number'), 2)
+        
+            self.assertEqual(d.get('default_test', 'default'), 'default')
+            
+            with self.assertRaises(KeyError):
+                d.get('default_test')
+        
+        def test_virtual_field_default_value(self):
+            d = SchemaDataBag()
+            self.assertEqual(d.number, 0)
+            self.assertEqual(d.float, 1.0)
+            
+            # accessing the HStoreDict key raises KeyError if not assigned previously
+            with self.assertRaises(KeyError):
+                d.data['number']
+        
+        def test_virtual_field_called_statically(self):
+            with self.assertRaises(AttributeError):
+                SchemaDataBag.number
+        
+        def test_schemadatabag_assignment(self):
+            d = SchemaDataBag()
+            
+            d.number = 4
+            self.assertEqual(d.data['number'], 4)
+            
+            d.float = 2.5
+            self.assertEqual(d.data['float'], 2.5)
+            
+            d.data['number'] = 5
+            self.assertEqual(d.number, 5)
+        
+        def test_schemadatabag_save(self):
+            d = SchemaDataBag()
+            d.name = 'test'
+            d.number = 4
+            d.float = 2.0
+            d.save()
+            
+            d = SchemaDataBag.objects.get(pk=d.id)
+            self.assertEqual(d.number, 4)
+            self.assertEqual(d.data['number'], 4)
+        
+        def test_schemadatabag_validation_error(self):
+            d = SchemaDataBag()
+            d.name = 'test'
+            d.number = 'WRONG'
+            d.float = 2.0
+            
+            with self.assertRaises(ValidationError):
+                d.full_clean()
+            
+            d.number = 9
+            d.float = 'WRONG'
+            with self.assertRaises(ValidationError):
+                d.full_clean()
+            
+            d.float = 2.0
+            d.char = 'test'
+            d.choice = 'choice1'
+            d.full_clean()
+            d.save()
+        
+        def test_hstore_virtual_fields(self):
+            d = SchemaDataBag()
+            fields_length = len(d._meta.fields)
+            virtual_fields_length = len(d._meta.hstore_virtual_fields.values())
+            
+            d._add_hstore_virtual_fields_to_fields()
+            self.assertEqual(len(d._meta.fields), fields_length+virtual_fields_length)
+            for field in d._meta.hstore_virtual_fields.values():
+                self.assertIn(field, d._meta.fields)
+            
+            # repeating does not create issues
+            d._add_hstore_virtual_fields_to_fields()
+            self.assertEqual(len(d._meta.fields), fields_length+virtual_fields_length)
+            for field in d._meta.hstore_virtual_fields.values():
+                self.assertIn(field, d._meta.fields)
+            
+            d._remove_hstore_virtual_fields_from_fields()
+            self.assertEqual(len(d._meta.fields), fields_length)
+            for field in d._meta.hstore_virtual_fields.values():
+                self.assertNotIn(field, d._meta.fields)
+            
+        def test_admin_list(self):
+            self._login_as_admin()
+            url = reverse('admin:django_hstore_tests_schemadatabag_changelist')
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
+        
+        def test_admin_add(self):
+            self._login_as_admin()
+            url = reverse('admin:django_hstore_tests_schemadatabag_add')
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
+            
+            response = self.client.post(url, { 'name': 'test_add', 'number': 3, 'float': 2.4 })
+            d = SchemaDataBag.objects.all()[0]
+            self.assertEqual(d.name, 'test_add')
+            self.assertEqual(d.number, 3)
+            self.assertEqual(d.float, 2.4)
+        
+        def test_admin_add_utf8(self):
+            self._login_as_admin()
+            url = reverse('admin:django_hstore_tests_schemadatabag_add')
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
+            
+            response = self.client.post(url, { 'name': 'test_add', 'number': 3, 'float': 2.4, 'char': 'è' })
+            d = SchemaDataBag.objects.all()[0]
+            self.assertEqual(d.name, 'test_add')
+            self.assertEqual(d.number, 3)
+            self.assertEqual(d.float, 2.4)
+        
+        def test_admin_change(self):
+            self._login_as_admin()
+            d = SchemaDataBag()
+            d.name = 'test1'
+            d.number = 1
+            d.float = 2.5
+            d.save()
+            url = reverse('admin:django_hstore_tests_schemadatabag_change', args=[d.id])
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
+            
+            response = self.client.post(url, { 'name': 'test_change', 'number': 6, 'float': 2.6 })
+            d = SchemaDataBag.objects.get(pk=d.id)
+            self.assertEqual(d.name, 'test_change')
+            self.assertEqual(d.number, 6)
+            self.assertEqual(d.data['number'], 6)
+            self.assertEqual(d.float, 2.6)
+            self.assertEqual(d.data['float'], 2.6)
+        
+        def test_create_hstore_virtual_field(self):
+            integer = create_hstore_virtual_field('IntegerField', { 'hstore_field_name': 'data', 'default': 0 } )
+            self.assertIsInstance(integer, models.IntegerField)
+            char = create_hstore_virtual_field('CharField', { 'hstore_field_name': 'data', 'default': 'test', 'blank': True, 'max_length': 10 } )
+            self.assertIsInstance(char, models.CharField)
+            text = create_hstore_virtual_field('TextField', { 'hstore_field_name': 'data', 'blank': True } )
+            self.assertIsInstance(text, models.TextField)
+        
+        def test_DictionaryField_with_schema(self):
+            data = hstore.DictionaryField(schema=[
+                {
+                    'name': 'number',
+                    'class': 'IntegerField',
+                    'kwargs': {
+                        'default': 0,
+                        'verbose_name': 'verbose number'
+                    }
+                }
+            ])
+        
+        def test_schema_validation_string(self):
+            with self.assertRaises(ValueError):
+                data = hstore.DictionaryField(schema='')
+                
+            with self.assertRaises(ValueError):
+                data = hstore.DictionaryField(schema='WRONG')
+        
+        def test_schema_validation_wrong_list(self):
+            with self.assertRaises(ValueError):
+                data = hstore.DictionaryField(schema=[])
+            
+            with self.assertRaises(ValueError):
+                data = hstore.DictionaryField(schema=['i am teasing you'])
+        
+        def test_schema_validation_wrong_dict(self):
+            with self.assertRaises(ValueError):
+                data = hstore.DictionaryField(schema=[
+                    { 'wrong': 'wrong' }
+                ])
+            
+            with self.assertRaises(ValueError):
+                data = hstore.DictionaryField(schema=[
+                    { 'name': 'test' }
+                ])
+        
+        def test_create_hstore_virtual_field(self):
+            integer = create_hstore_virtual_field('IntegerField', { 'hstore_field_name': 'data', 'default': 0 } )
+            self.assertIsInstance(integer, models.IntegerField)
+            char = create_hstore_virtual_field('CharField', { 'hstore_field_name': 'data', 'default': 'test', 'blank': True, 'max_length': 10 } )
+            self.assertIsInstance(char, models.CharField)
+            text = create_hstore_virtual_field('TextField', { 'hstore_field_name': 'data', 'blank': True } )
+            self.assertIsInstance(text, models.TextField)
+        
+        def test_model_definition_in_schema_mode_wrong_class(self):
+            with self.assertRaises(ValueError):
+                create_hstore_virtual_field(float, { 'hstore_field_name': 'data' } )
+        
+        def test_model_definition_in_schema_mode_wrong_class_string(self):
+            with self.assertRaises(ValueError):
+                create_hstore_virtual_field('IdoNotExist', { 'hstore_field_name': 'data' } )
+        
+        def test_model_definition_in_schema_mode_with_class(self):
+            class TestModel(hstore.SchemaModel):
+                field = create_hstore_virtual_field(models.IntegerField, { 'hstore_field_name': 'data' } )
+                self.assertTrue(isinstance(field, models.IntegerField))
+                
+                field = create_hstore_virtual_field(models.URLField, { 'hstore_field_name': 'data' } )
+                self.assertTrue(isinstance(field, models.URLField))
+        
+        def test_utf8(self):
+            d = SchemaDataBag()
+            d.name = 'test'
+            d.number = 4
+            d.float = 2.0
+            d.char = 'è'
+            d.full_clean()
+            d.save()
+            
+            d = SchemaDataBag.objects.get(pk=d.id)
+            self.assertEqual(d.char, u'è')
+            
+            d.char = u'è'
+            d.full_clean()
+            d.save()
+            
+            d = SchemaDataBag.objects.get(pk=d.id)
+            self.assertEqual(d.char, u'è')
+    else:
+        def test_improperly_configured(self):            
+            with self.assertRaises(ImproperlyConfigured):
+                class SchemaDataBag(hstore.SchemaModel):
+                    name = models.CharField(max_length=32)
+                    data = hstore.DictionaryField(schema=[
+                        {
+                            'name': 'number',
+                            'class': 'IntegerField',
+                            'kwargs': {
+                                'default': 0
+                            }
+                        }
+                    ])
 
 
 class NotTransactionalTests(SimpleTestCase):

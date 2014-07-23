@@ -2,15 +2,23 @@ from __future__ import unicode_literals, absolute_import
 
 from django.db import models, connection
 from django.utils.translation import ugettext_lazy as _
+from django.core.exceptions import ImproperlyConfigured
 from django import get_version
 
 from .descriptors import *
 from .dict import *
+from .virtual import *
 from . import forms, utils
 
 
 class HStoreField(models.Field):
     """ HStore Base Field """
+    
+    def __init_dict(self, value):
+        """
+        initializes HStoreDict
+        """
+        return HStoreDict(value, self)
 
     def validate(self, value, *args):
         super(HStoreField, self).validate(value, *args)
@@ -24,20 +32,26 @@ class HStoreField(models.Field):
         """
         Returns the default value for this field.
         """
+        # if default defined
         if self.has_default():
+            # if default is callable
             if callable(self.default):
-                return HStoreDict(self.default(), self)
+                return self.__init_dict(self.default())
+            # if it's a dict
             elif isinstance(self.default, dict):
-                return HStoreDict(self.default, self)
+                return self.__init_dict(self.default)
+            # else just return it
             return self.default
+        # if allowed to return None
         if (not self.empty_strings_allowed or (self.null and
                    not connection.features.interprets_empty_strings_as_nulls)):
             return None
-        return HStoreDict({}, self)
+        # default to empty dict
+        return self.__init_dict({})
 
     def get_prep_value(self, value):
         if isinstance(value, dict) and not isinstance(value, HStoreDict):
-            return HStoreDict(value, self)
+            return self.__init_dict(value)
         else:
             return value
 
@@ -72,10 +86,97 @@ if get_version() >= '1.7':
 
 class DictionaryField(HStoreField):
     description = _("A python dictionary in a postgresql hstore field.")
+    
+    def __init__(self, *args, **kwargs):
+        self.schema = kwargs.pop('schema', None)
+        self.schema_mode = False
+        
+        # if schema parameter is supplied the behaviour is slightly different
+        if self.schema is not None:
+            # schema mode available only from django 1.6 onward
+            if get_version()[0:3] <= '1.5':
+                raise ImproperlyConfigured('schema mode for DictionaryField is available only from django 1.6 onward')
+            self._validate_schema(self.schema)
+            self.schema_mode = True
+            # DictionaryField with schema is not editable via admin
+            kwargs['editable'] = False
+            # DictionaryField with schema defaults to empty dict
+            kwargs['default'] = {}
+        
+        super(DictionaryField, self).__init__(*args, **kwargs)
+    
+    def __init_dict(self, value):
+        """
+        init HStoreDict
+        pass schema_mode=True if in "schema" mode
+        """
+        return HStoreDict(value, self, schema_mode=self.schema_mode)
 
-    def formfield(self, **params):
-        params['form_class'] = forms.DictionaryField
-        return super(DictionaryField, self).formfield(**params)
+    def contribute_to_class(self, cls, name):
+        super(DictionaryField, self).contribute_to_class(cls, name)
+        setattr(cls, self.name, HStoreDescriptor(self, schema_mode=self.schema_mode))
+        
+        if self.schema:
+            self._add_virtual_fields_on_class(cls, name)
+    
+    def _validate_schema(self, schema):
+        if not isinstance(schema, list):
+            raise ValueError('schema parameter must be a list')
+    
+        if len(schema) == 0:
+            raise ValueError('schema parameter cannot be an empty list')
+        
+        for field in schema:
+            if not isinstance(field, dict):
+                raise ValueError('schema parameter must contain dicts representing fields, read the docs to see the format')
+            
+            if 'name' not in field:
+                raise ValueError('schema element %s is missing the name key' % field)
+            
+            if 'class' not in field:
+                raise ValueError('schema element %s is missing the class key' % field)
+
+    def _add_virtual_fields_on_class(self, cls, hstore_field_name):
+        """
+        this methods creates all the virtual fields automatically by reading the schema attribute
+        """
+        # add hstore_virtual_fields attribute to class
+        if not hasattr(cls._meta, 'hstore_virtual_fields'):
+            cls._meta.hstore_virtual_fields = {}
+    
+        if not hasattr(cls, '_add_hstore_virtual_fields_to_fields'):
+            cls._add_hstore_virtual_fields_to_fields = _add_hstore_virtual_fields_to_fields
+
+        if not hasattr(cls, '_remove_hstore_virtual_fields_from_fields'):
+            cls._remove_hstore_virtual_fields_from_fields = _remove_hstore_virtual_fields_from_fields
+        
+        for field in self.schema:
+            # if kwargs key is not set
+            if 'kwargs' not in field:
+                # set it as an empty dict
+                field['kwargs'] = {}
+            # insert the name of the hstore field, which is necessary
+            # for the initialization of the virtual field
+            field['kwargs']['hstore_field_name'] = hstore_field_name
+            # initialize the virtual field by specifying the class and the kwargs
+            virtual_field = create_hstore_virtual_field(
+                field_cls=field['class'],
+                kwargs=field['kwargs'],
+            )
+            # set the name and the attname properties of the field
+            virtual_field.name = field['name']
+            virtual_field.attname = field['name']
+            virtual_field.model = cls  # django 1.7
+            # add the field on the class
+            setattr(cls, field['name'], virtual_field)
+            # add the field in the virtual fields
+            cls._meta.virtual_fields.append(virtual_field)
+            # add this field to hstore_virtual_fields dict
+            cls._meta.hstore_virtual_fields[field['name']] = virtual_field
+
+    def formfield(self, **kwargs):
+        kwargs['form_class'] = forms.DictionaryField
+        return super(DictionaryField, self).formfield(**kwargs)
 
     def _value_to_python(self, value):
         return value
@@ -88,9 +189,9 @@ class ReferencesField(HStoreField):
         super(ReferencesField, self).contribute_to_class(cls, name)
         setattr(cls, self.name, HStoreReferenceDescriptor(self))
 
-    def formfield(self, **params):
-        params['form_class'] = forms.ReferencesField
-        return super(ReferencesField, self).formfield(**params)
+    def formfield(self, **kwargs):
+        kwargs['form_class'] = forms.ReferencesField
+        return super(ReferencesField, self).formfield(**kwargs)
 
     def get_prep_lookup(self, lookup, value):
         if isinstance(value, dict):

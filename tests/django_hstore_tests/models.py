@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django import get_version
 
 from django_hstore import hstore
 
@@ -79,6 +80,117 @@ class UniqueTogetherDataBag(HStoreModel):
     
     class Meta:
         unique_together =  ("name", "data")
+
+if get_version()[0:3] >= '1.6':
+    class SchemaDataBag(hstore.SchemaModel):
+        name = models.CharField(max_length=32)
+        data = hstore.DictionaryField(schema=[
+            {
+                'name': 'number',
+                'class': 'IntegerField',
+                'kwargs': {
+                    'default': 0
+                }
+            },
+            {
+                'name': 'float',
+                'class': models.FloatField,
+                'kwargs': {
+                    'default': 1.0
+                }
+            },
+            {
+                'name': 'boolean',
+                'class': 'BooleanField',
+            },
+            {
+                'name': 'boolean_true',
+                'class': 'BooleanField',
+                'kwargs': {
+                    'verbose_name': 'boolean true',
+                    'default': True
+                }
+            },
+            {
+                'name': 'char',
+                'class': 'CharField',
+                'kwargs': {
+                    'default': 'test', 'blank': True, 'max_length': 10
+                }
+            },
+            {
+                'name': 'text',
+                'class': 'TextField',
+                'kwargs': {
+                    'blank': True
+                }
+            },
+            {
+                'name': 'choice',
+                'class': 'CharField',
+                'kwargs': {
+                    'blank': True,
+                    'max_length': 10,
+                    'choices': (('choice1', 'choice1'), ('choice2', 'choice2')),
+                    'default': 'choice1'
+                }
+            },
+            {
+                'name': 'choice2',
+                'class': 'CharField',
+                'kwargs': {
+                    'blank': True,
+                    'max_length': 10,
+                    'choices': (('choice1', 'choice1'), ('choice2', 'choice2')),
+                }
+            },
+            {
+                'name': 'date',
+                'class': 'DateField',
+                'kwargs': {
+                    'blank': True
+                }
+            },
+            {
+                'name': 'datetime',
+                'class': 'DateTimeField',
+                'kwargs': {
+                    'blank': True
+                }
+            },
+            {
+                'name': 'decimal',
+                'class': 'DecimalField',
+                'kwargs': {
+                    'blank': True
+                }
+            },
+            {
+                'name': 'email',
+                'class': 'EmailField',
+                'kwargs': {
+                    'blank': True
+                }
+            },
+            {
+                'name': 'ip',
+                'class': 'GenericIPAddressField',
+                'kwargs': {
+                    'blank': True
+                }
+            },
+            {
+                'name': 'url',
+                'class': models.URLField,
+                'kwargs': {
+                    'blank': True
+                }
+            },
+        ])
+        
+        objects = hstore.HStoreManager()
+    
+    __all__.append('SchemaDataBag')
 
 
 # if geodjango is in use define Location model, which contains GIS data

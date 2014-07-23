@@ -53,7 +53,7 @@ class ConnectionCreateHandler(object):
 
         # List comprehension is used instead of for statement
         # only for performance.
-        [x(connection) for x in handlers]
+        return [x(connection) for x in handlers]
 
     def attach_handler(self, func, vendor=None, unique=False):
         if unique:
@@ -80,7 +80,7 @@ def register_hstore_handler(connection, **kwargs):
         return
 
     if sys.version_info[0] < 3:
-        register_hstore(connection.connection, globally=HSTORE_REGISTER_GLOBALLY, unicode=True)
+        register_hstore(connection.connection, globally=HSTORE_REGISTER_GLOBALLY, _unicode=True)
     else:
         register_hstore(connection.connection, globally=HSTORE_REGISTER_GLOBALLY)
 

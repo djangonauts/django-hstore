@@ -6,7 +6,7 @@ except ImportError:
 from decimal import Decimal
 
 from django.utils import six
-from django.utils.encoding import force_text
+from django.utils.encoding import force_text, force_str
 
 from .compat import UnicodeMixin
 from . import utils, exceptions
@@ -22,8 +22,12 @@ class HStoreDict(UnicodeMixin, dict):
     """
     A dictionary subclass which implements hstore support.
     """
+    
+    schema_mode = False  # python2.6 compatibility
 
-    def __init__(self, value=None, field=None, instance=None, **params):
+    def __init__(self, value=None, field=None, instance=None, schema_mode=False, **kwargs):
+        self.schema_mode = schema_mode
+        
         # if passed value is string
         # ensure is json formatted
         if isinstance(value, six.string_types):
@@ -43,17 +47,45 @@ class HStoreDict(UnicodeMixin, dict):
                 'HStoreDict accepts only dictionary objects, None and json formatted string representations of json objects'
             )
 
-        # ensure values are acceptable
-        for key, val in value.items():
-            value[key] = self.ensure_acceptable_value(val)
+        if not self.schema_mode:
+            # ensure values are acceptable
+            for key, val in value.items():
+                value[key] = self.ensure_acceptable_value(val)
 
-        super(HStoreDict, self).__init__(value, **params)
+        super(HStoreDict, self).__init__(value, **kwargs)
         self.field = field
         self.instance = instance
 
     def __setitem__(self, *args, **kwargs):
-        args = (args[0], self.ensure_acceptable_value(args[1]))
+        """
+        perform checks before setting the value of a key
+        """
+        # ensure values are acceptable
+        value = self.ensure_acceptable_value(args[1])
+        # prepare *args
+        args = (args[0], value)
         super(HStoreDict, self).__setitem__(*args, **kwargs)
+    
+    def __getitem__(self, *args, **kwargs):
+        """
+        unschema_mode value if necessary
+        """
+        value = super(HStoreDict, self).__getitem__(*args, **kwargs)
+        
+        if self.schema_mode:
+            return self.instance._meta.hstore_virtual_fields[args[0]].to_python(value)
+        
+        return value
+    
+    def get(self, *args):
+        key = args[0]
+        try:
+            return self.__getitem__(key)
+        except KeyError as e:
+            if len(args) > 1:
+                return args[1]  # return default value
+            else:
+                raise e
 
     # This method is used both for python3 and python2
     # thanks to UnicodeMixin
@@ -74,20 +106,30 @@ class HStoreDict(UnicodeMixin, dict):
 
     def ensure_acceptable_value(self, value):
         """
-        - ensure booleans, integers, floats, Decimals, lists and dicts are
-          converted to string
-        - convert True and False objects to "true" and "false" so they can be
-          decoded back with the json library if needed
-        - convert lists and dictionaries to json formatted strings
-        - leave alone all other objects because they might be representation of django models
-        """
-        if isinstance(value, bool):
-            return force_text(value).lower()
-        elif isinstance(value, (int, float, Decimal)):
-            return force_text(value)
-        elif isinstance(value, list) or isinstance(value, dict):
-            return force_text(json.dumps(value))
+        if schema_mode disabled (default behaviour):
+            - ensure booleans, integers, floats, Decimals, lists and dicts are
+              converted to string
+            - convert True and False objects to "true" and "false" so they can be
+              decoded back with the json library if needed
+            - convert lists and dictionaries to json formatted strings
+            - leave alone all other objects because they might be representation of django models
         else:
+            - encode utf8 strings in python2
+            - convert to string
+        """
+        if not self.schema_mode:
+            if isinstance(value, bool):
+                return force_text(value).lower()
+            elif isinstance(value, (int, float, Decimal)):
+                return force_text(value)
+            elif isinstance(value, list) or isinstance(value, dict):
+                return force_text(json.dumps(value))
+            else:
+                return value
+        else:
+            # perform string conversion unless is None
+            if value is not None:
+                value = force_str(value)
             return value
 
     def remove(self, keys):
