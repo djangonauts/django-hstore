@@ -99,7 +99,7 @@ class HStoreWhereNode(WhereNode):
                     for key in param_keys:
                         conditions.append('(%s->\'%s\') %s %%s' % (field, key, sign))
 
-                    return ((" AND ".join(conditions),param.values()))
+                    return (" AND ".join(conditions), param.values())
 
                 raise ValueError('invalid value')
 

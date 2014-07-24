@@ -39,7 +39,7 @@ class HStoreComparisonLookupMixin(object):
             for key in param_keys:
                 conditions.append('(%s->\'%s\') %s %%s' % (lhs, key, sign))
 
-            return ((" AND ".join(conditions),param.values()))
+            return (" AND ".join(conditions), param.values())
 
         raise ValueError('invalid value')
 
