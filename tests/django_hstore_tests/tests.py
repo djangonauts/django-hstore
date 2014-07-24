@@ -238,6 +238,20 @@ class TestDictionaryField(TestCase):
         self.assertEqual(len(r), 1)
         self.assertEqual(r[0], beta)
 
+    def test_multiple_key_value_lt_querying(self):
+        alpha, beta = self._create_bags()
+        self.assertGreater(beta.data['v'], alpha.data['v'])
+        r = DataBag.objects.filter(data__lt={'v': beta.data['v'],'v2':beta.data['v2']})
+        self.assertEqual(len(r), 1)
+        self.assertEqual(r[0], alpha)
+        r = DataBag.objects.filter(data__lt={'v': beta.data['v'],'v2':alpha.data['v2']})
+        self.assertEqual(len(r), 0)
+        r = DataBag.objects.filter(data__lte={'v': beta.data['v'],'v2':beta.data['v2']})
+        self.assertEqual(len(r), 2)
+        r = DataBag.objects.filter(data__lte={'v': beta.data['v'],'v2':alpha.data['v2']})
+        self.assertEqual(len(r), 1)
+        self.assertEqual(r[0], alpha)
+
     def test_key_value_lt_querying(self):
         alpha, beta = self._create_bags()
         self.assertLess(alpha.data['v'], beta.data['v'])
