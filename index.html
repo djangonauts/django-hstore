@@ -19,7 +19,7 @@ asciidoc.install(2);
 <body class="article" style="max-width:800px">
 <div id="header">
 <h1>django-hstore documentation</h1>
-<span id="author">0.1.0, 2014-04-17</span><br>
+<span id="author">1.3.0, 2014-07-17</span><br>
 <div id="toc">
   <div id="toctitle">Table of Contents</div>
   <noscript><p><b>JavaScript must be enabled in your browser to display the table of contents.</b></p></noscript>
@@ -53,6 +53,11 @@ Python3 support.
 Nice admin widgets.
 </p>
 </li>
+<li>
+<p>
+Possibility to define a schema and use the standard django fields (since django_hstore 1.3.0 and django 1.6)
+</p>
+</li>
 </ul></div>
 </div>
 <div class="sect2">
@@ -80,7 +85,7 @@ Nice admin widgets.
 <p>
 PostgreSQL&#8217;s implementation of hstore has no concept of type; it stores a
   mapping of string keys to string values. Values are stored as strings in the
-  database regarding of their original type.
+  database regarding of their original type. <strong>This limitation can be overcome by using the schema mode since version 1.3.0 of django_hstore</strong>.
 </p>
 </li>
 <li>
@@ -95,6 +100,11 @@ To run tests, hstore extension must be installed on template1 database.
 </li>
 <li>
 <p>
+The admin widget will work with inlines only if using <span class="monospaced">StackedInline</span>. It won&#8217;t work on <span class="monospaced">TabularInline</span>.
+</p>
+</li>
+<li>
+<p>
 If <span class="monospaced">django.middleware.transaction.TransactionMiddleware</span> is enabled and the project is deployed
   through <span class="monospaced">uwsgi</span>, the first request to a view working with models featuring hstore fields will raise an exception;
   see <a href="https://code.djangoproject.com/ticket/22297">Django Ticket #22297</a> for more details on this issue.
@@ -102,8 +112,6 @@ If <span class="monospaced">django.middleware.transaction.TransactionMiddleware<
 </p>
 </li>
 </ul></div>
-<div class="paragraph"><p>The future version of HStore will bring types, nested structures, and more advanced
-features. For more info read <a href="https://blog.engineyard.com/2013/on-the-state-of-hstore">On the state of HStore</a> by Engine Yard.</p></div>
 <div class="admonitionblock">
 <table><tr>
 <td class="icon">
@@ -118,12 +126,12 @@ if hstore extension is installed individually in each database.</p></div>
 <li>
 <p>
 Install hstore on <strong>template1</strong> postgresql template database and recreate all databases/templates
-  from it, which allows all database to have the same oid for the hstore type (this is a recommended way).
+  from it, which allows all database to have the same oid for the hstore type (this is the recommended way).
 </p>
 </li>
 <li>
 <p>
-Disable global registering setting <span class="monospaced">DJANGO_HSTORE_GLOBAL_REGISTER</span> by setting it to <span class="monospaced">False</span> in your settings. This
+Disable global registering setting <span class="monospaced">DJANGO_HSTORE_ADAPTER_REGISTRATION</span> by setting it to <span class="monospaced">connection</span> in your settings. This
   can have a performance impact because it registers the hstore extension for each new connection created
   (if you are using django 1.6, persistent connections - or any other connection pool - will help to
   reduce this impact).
@@ -295,7 +303,7 @@ for your database., add the following to settings.py:</p></div>
 <div class="sect3">
 <h4 id="_model_setup">4.3.1. Model setup</h4>
 <div class="listingblock">
-<div class="title">Model definition is straightforward</div>
+<div class="title">the <span class="monospaced">DictionaryField</span> definition is straightforward:</div>
 <div class="content"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.db</span> <span class="kn">import</span> <span class="n">models</span>
 <span class="kn">from</span> <span class="nn">django_hstore</span> <span class="kn">import</span> <span class="n">hstore</span>
 
@@ -307,8 +315,140 @@ for your database., add the following to settings.py:</p></div>
     <span class="c"># IF YOU ARE USING POSTGIS:</span>
     <span class="c"># objects = hstore.HStoreGeoManager()</span>
 </pre></div></div></div>
+<div class="paragraph"><div class="title">Since <strong>django_hstore 1.3.0</strong> it is possible to use the <span class="monospaced">DictionaryField</span> in <strong>schema mode</strong> in order to overcome the limit of values being only strings.</div><p>Another advantage of using the schema mode is that you can recycle the standard django fields in the admin and hopefully elsewhere.
+<strong>This feature is available only from django 1.6 onwards</strong>.</p></div>
+<div class="paragraph"><p>Use <span class="monospaced">hstore.SchemaModel</span> as a base class for your model and supply a <span class="monospaced">schema</span> parameter to the <span class="monospaced">DictionaryField</span>:</p></div>
 <div class="listingblock">
-<div class="title">ReferenceField model field is also straightforward</div>
+<div class="content"><div class="highlight"><pre><span class="c"># models.py</span>
+<span class="kn">from</span> <span class="nn">django.db</span> <span class="kn">import</span> <span class="n">models</span>
+<span class="kn">from</span> <span class="nn">django_hstore</span> <span class="kn">import</span> <span class="n">hstore</span>
+
+<span class="k">class</span> <span class="nc">SomethingWithSchema</span><span class="p">(</span><span class="n">hstore</span><span class="o">.</span><span class="n">SchemaModel</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">hstore</span><span class="o">.</span><span class="n">DictionaryField</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;number&#39;</span><span class="p">,</span>
+            <span class="s">&#39;class&#39;</span><span class="p">:</span> <span class="s">&#39;IntegerField&#39;</span><span class="p">,</span>
+            <span class="s">&#39;kwargs&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s">&#39;default&#39;</span><span class="p">:</span> <span class="mi">0</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;float&#39;</span><span class="p">,</span>
+            <span class="s">&#39;class&#39;</span><span class="p">:</span> <span class="s">&#39;FloatField&#39;</span><span class="p">,</span>
+            <span class="s">&#39;kwargs&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s">&#39;default&#39;</span><span class="p">:</span> <span class="mf">1.0</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;char&#39;</span><span class="p">,</span>
+            <span class="s">&#39;class&#39;</span><span class="p">:</span> <span class="s">&#39;CharField&#39;</span><span class="p">,</span>
+            <span class="s">&#39;kwargs&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s">&#39;default&#39;</span><span class="p">:</span> <span class="s">&#39;test&#39;</span><span class="p">,</span> <span class="s">&#39;blank&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span> <span class="s">&#39;max_length&#39;</span><span class="p">:</span> <span class="mi">10</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">,</span>
+            <span class="s">&#39;class&#39;</span><span class="p">:</span> <span class="s">&#39;TextField&#39;</span><span class="p">,</span>
+            <span class="s">&#39;kwargs&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s">&#39;blank&#39;</span><span class="p">:</span> <span class="bp">True</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;choice&#39;</span><span class="p">,</span>
+            <span class="s">&#39;class&#39;</span><span class="p">:</span> <span class="s">&#39;CharField&#39;</span><span class="p">,</span>
+            <span class="s">&#39;kwargs&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s">&#39;blank&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+                <span class="s">&#39;max_length&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+                <span class="s">&#39;choices&#39;</span><span class="p">:</span> <span class="p">((</span><span class="s">&#39;choice1&#39;</span><span class="p">,</span> <span class="s">&#39;choice1&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s">&#39;choice2&#39;</span><span class="p">,</span> <span class="s">&#39;choice2&#39;</span><span class="p">))</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">])</span>
+
+    <span class="n">objects</span> <span class="o">=</span> <span class="n">hstore</span><span class="o">.</span><span class="n">HStoreManager</span><span class="p">()</span>
+</pre></div></div></div>
+<div class="paragraph"><p>After this declaration some additional virtual fields will be available in the model.
+Each virtual field will map to a key in the dictionary field, types are mantained behind the scenes
+by using the <span class="monospaced">to_python</span> method of the field class that has been specified for that key.</p></div>
+<div class="paragraph"><p>The <span class="monospaced">schema</span> parameter is a list of dictionaries, each dictionary representing a field.</p></div>
+<div class="paragraph"><p>Each dictionary should have the following keys:</p></div>
+<div class="paragraph"><p><strong>name</strong>: indicates the name of the attribute that will be created on the model</p></div>
+<div class="paragraph"><p><strong>class</strong>: the field class that will be used to create the virtual field, you can pass it a string and it will look into django.db.models, alternatively you can pass it a concrete class derived from <span class="monospaced">django.db.models.Field</span> imported from anywhere</p></div>
+<div class="paragraph"><p><strong>kwargs</strong>: the keyword arguments that will be passed to the Field class. Common arguments are <span class="monospaced">verbose_name</span>, <span class="monospaced">max_length</span>, <span class="monospaced">blank</span>, <span class="monospaced">choices</span>, <span class="monospaced">default</span>.</p></div>
+<div class="paragraph"><p>The following standard django fields fields have been tested successfully:</p></div>
+<div class="ulist"><ul>
+<li>
+<p>
+<span class="monospaced">IntegerField</span>
+</p>
+</li>
+<li>
+<p>
+<span class="monospaced">FloatField</span>
+</p>
+</li>
+<li>
+<p>
+<span class="monospaced">DecimalField</span>
+</p>
+</li>
+<li>
+<p>
+<span class="monospaced">BooleanField</span>
+</p>
+</li>
+<li>
+<p>
+<span class="monospaced">CharField</span>
+</p>
+</li>
+<li>
+<p>
+<span class="monospaced">TextField</span>
+</p>
+</li>
+<li>
+<p>
+<span class="monospaced">DateField</span>
+</p>
+</li>
+<li>
+<p>
+<span class="monospaced">DateTimeField</span>
+</p>
+</li>
+<li>
+<p>
+<span class="monospaced">EmailField</span>
+</p>
+</li>
+<li>
+<p>
+<span class="monospaced">GenericIPAddressField</span>
+</p>
+</li>
+<li>
+<p>
+<span class="monospaced">URLField</span>
+</p>
+</li>
+</ul></div>
+<div class="paragraph"><p>Other fields might work as well except for <span class="monospaced">FileField</span>, <span class="monospaced">ImageField</span>, and <span class="monospaced">BinaryField</span> which would need some additional work.</p></div>
+<div class="listingblock">
+<div class="title">To add support for <strong>schema mode</strong> in the <strong>admin</strong> use <span class="monospaced">django_hstore.admin.HStoreSchemaAdmin</span>:</div>
+<div class="content"><div class="highlight"><pre><span class="c"># admin.py</span>
+<span class="kn">from</span> <span class="nn">django.contrib</span> <span class="kn">import</span> <span class="n">admin</span>
+<span class="kn">from</span> <span class="nn">django_hstore.admin</span> <span class="kn">import</span> <span class="n">HStoreSchemaAdmin</span>
+<span class="kn">from</span> <span class="nn">.models</span> <span class="kn">import</span> <span class="n">Something</span>
+
+<span class="k">class</span> <span class="nc">SomethingAdmin</span><span class="p">(</span><span class="n">HStoreSchemaAdmin</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+<span class="n">admin</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">Something</span><span class="p">,</span> <span class="n">SomethingAdmin</span><span class="p">)</span>
+</pre></div></div></div>
+<div class="paragraph"><p>An ta-da! The standard django fields can be used in the admin as if you were using real fields.</p></div>
+<div class="listingblock">
+<div class="title">the <span class="monospaced">ReferenceField</span> definition is also straightforward:</div>
 <div class="content"><div class="highlight"><pre><span class="k">class</span> <span class="nc">ReferenceContainer</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
     <span class="n">name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
     <span class="n">refs</span> <span class="o">=</span> <span class="n">hstore</span><span class="o">.</span><span class="n">ReferencesField</span><span class="p">()</span>
@@ -331,8 +471,8 @@ for your database., add the following to settings.py:</p></div>
 <span class="n">empty</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
 <span class="k">assert</span> <span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;empty&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;3&#39;</span>
 </pre></div></div></div>
-<div class="paragraph"><p>Booleans, integers, floats, lists, and dictionaries will be converted to strings.
-Lists, dictionaries, and booleans are converted into JSON formatted strings, so
+<div class="paragraph"><p>In <strong>default mode</strong>, Booleans, integers, floats, lists, and dictionaries will be converted to strings,
+while lists, dictionaries, and booleans are converted into JSON formatted strings, so
 can be decoded if needed:</p></div>
 <div class="listingblock">
 <div class="content"><div class="highlight"><pre><span class="n">instance</span> <span class="o">=</span> <span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;something&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;int&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s">&#39;bool&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">})</span>
@@ -345,6 +485,28 @@ can be decoded if needed:</p></div>
 <span class="n">instance</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;dict&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;{&quot;list&quot;: [&quot;a&quot;, false, 1]}&#39;</span>
 <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">instance</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;dict&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="p">{</span> <span class="s">&#39;list&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="p">}</span>
 <span class="c"># =&gt; True</span>
+</pre></div></div></div>
+<div class="paragraph"><p>Since version <strong>1.3.0</strong> you can use the <strong>schema mode</strong> and you will be able to use
+virtual fields derived from standard django fields which will take care of validation, default values, type casting, choices and so on.
+Each virtual field will be mapped to a key of the <span class="monospaced">DictionaryField</span>:</p></div>
+<div class="listingblock">
+<div class="content"><div class="highlight"><pre><span class="o">&gt;&gt;&gt;</span> <span class="n">obj</span> <span class="o">=</span> <span class="n">SomethingWithSchema</span><span class="p">()</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">obj</span><span class="o">.</span><span class="n">number</span>
+<span class="mi">0</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">obj</span><span class="o">.</span><span class="n">float</span>
+<span class="mf">1.0</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">obj</span><span class="o">.</span><span class="n">number</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">obj</span><span class="o">.</span><span class="n">float</span> <span class="o">=</span> <span class="mf">9.99</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">obj</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">obj</span> <span class="o">=</span> <span class="n">SomethingWithSchema</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">last</span><span class="p">()</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">obj</span><span class="o">.</span><span class="n">number</span>
+<span class="mi">3</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">obj</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;number]</span>
+<span class="mi">3</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">obj</span><span class="o">.</span><span class="n">float</span>
+<span class="mf">9.99</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">obj</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;float&#39;</span><span class="p">]</span>
+<span class="mf">9.99</span>
 </pre></div></div></div>
 <div class="paragraph"><p>You can issue indexed queries against hstore fields:</p></div>
 <div class="listingblock">
@@ -581,7 +743,7 @@ THE SOFTWARE.
 <div id="footnotes"><hr></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2014-05-13 00:05:01 CEST
+Last updated 2014-07-26 00:49:40 CEST
 </div>
 </div>
 </body>
