@@ -257,7 +257,7 @@ Use `hstore.SchemaModel` as a base class for your model and supply a `schema` pa
 from django.db import models
 from django_hstore import hstore
 
-class Something(hstore.SchemaModel):
+class SomethingWithSchema(hstore.SchemaModel):
     name = models.CharField(max_length=32)
     data = hstore.DictionaryField(schema=[
         {
@@ -302,7 +302,38 @@ class Something(hstore.SchemaModel):
     objects = hstore.HStoreManager()
 ----
 
-.To add support for `schema` mode in the admin use `django_hstore.admin.HStoreSchemaAdmin`:
+After this declaration some additional virtual fields will be available in the model.
+Each virtual field will map to a key in the dictionary field, types are mantained behind the scenes
+by using the `to_python` method of the field class that has been specified for that key.
+
+The `schema` parameter is a list of dictionaries, each dictionary representing a field.
+
+Each dictionary should have the following keys:
+
+*name*: indicates the name of the attribute that will be created on the model
+
+*class*: the field class that will be used to create the virtual field, you can pass it a string and it will look into django.db.models, alternatively you can pass it a concrete class derived from `django.db.models.Field` imported from anywhere
+
+*kwargs*: the keyword arguments that will be passed to the Field class. Common arguments are `verbose_name`, `max_length`, `blank`, `choices`, `default`.
+
+The following standard django fields fields have been tested successfully:
+
+ * `IntegerField`
+ * `FloatField`
+ * `DecimalField`
+ * `BooleanField`
+ * `CharField`
+ * `TextField`
+ * `DateField`
+ * `DateTimeField`
+ * `EmailField`
+ * `GenericIPAddressField`
+ * `URLField`
+ 
+Other fields might work as well except for `FileField`, `ImageField`, and `BinaryField` which would need some additional work.
+
+.To add support for *schema mode* in the *admin* use `django_hstore.admin.HStoreSchemaAdmin`:
+
 [source,python]
 ----
 # admin.py
@@ -315,6 +346,8 @@ class SomethingAdmin(HStoreSchemaAdmin):
 
 admin.site.register(Something, SomethingAdmin)
 ----
+
+An ta-da! The standard django fields can be used in the admin as if you were using real fields.
 
 .the `ReferenceField` definition is also straightforward:
 [source,python]
@@ -344,8 +377,8 @@ empty.save()
 assert Something.objects.get(name='empty').data['a'] == '3'
 ----
 
-Booleans, integers, floats, lists, and dictionaries will be converted to strings.
-Lists, dictionaries, and booleans are converted into JSON formatted strings, so
+In *default mode*, Booleans, integers, floats, lists, and dictionaries will be converted to strings,
+while lists, dictionaries, and booleans are converted into JSON formatted strings, so
 can be decoded if needed:
 
 [source,python]
@@ -360,6 +393,31 @@ instance.data['dict'] = { 'list': ['a', False, 1] }
 instance.data['dict'] == '{"list": ["a", false, 1]}'
 json.loads(instance.data['dict']) == { 'list': ['a', False, 1] }
 # => True
+----
+
+Since version *1.3.0* you can use the *schema mode* and you will be able to use
+virtual fields derived from standard django fields which will take care of validation, default values, type casting, choices and so on.
+Each virtual field will be mapped to a key of the `DictionaryField`:
+
+[source, python]
+----
+>>> obj = SomethingWithSchema()
+>>> obj.number
+0
+>>> obj.float
+1.0
+>>> obj.number = 3
+>>> obj.float = 9.99
+>>> obj.save()
+>>> obj = SomethingWithSchema.objects.last()
+>>> obj.number
+3
+>>> obj.data['number]
+3
+>>> obj.float
+9.99
+>>> obj.data['float']
+9.99
 ----
 
 You can issue indexed queries against hstore fields:
