@@ -375,6 +375,13 @@ Something.objects.filter(data__gte={'a': '1'})
 Something.objects.filter(data__lt={'a': '2'})
 Something.objects.filter(data__lte={'a': '2'})
 
+# more than one key can be supplied, the result will include the objects which satisfy the 
+# condition (greater than, less than or equal to, ecc) on all supplied keys
+Something.objects.filter(data__gt={'a': '1','b': '2'})
+Something.objects.filter(data__gte={'a': '1','b': '2'})
+Something.objects.filter(data__lt={'a': '2', 'b': '3'})
+Something.objects.filter(data__lte={'a': '2', 'b: '3'})
+
 # subset by key/value mapping
 Something.objects.filter(data__contains={'a': '1'})
 
