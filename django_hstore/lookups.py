@@ -34,7 +34,13 @@ class HStoreComparisonLookupMixin(object):
             param = rhs_params[0]
             sign = (self.lookup_name[0] == 'g' and '>%s' or '<%s') % (self.lookup_name[-1] == 'e' and '=' or '')
             param_keys = list(param.keys())
-            return '%s->\'%s\' %s %%s' % (lhs, param_keys[0], sign), param.values()
+            conditions = []
+
+            for key in param_keys:
+                conditions.append('(%s->\'%s\') %s %%s' % (lhs, key, sign))
+
+            return (" AND ".join(conditions), param.values())
+
         raise ValueError('invalid value')
 
 

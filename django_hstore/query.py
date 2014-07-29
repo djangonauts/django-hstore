@@ -91,10 +91,15 @@ class HStoreWhereNode(WhereNode):
                 raise ValueError('invalid value')
 
             elif lookup_type in ('gt', 'gte', 'lt', 'lte'):
-                if isinstance(param, dict) and len(param) == 1:
+                if isinstance(param, dict):
                     sign = (lookup_type[0] == 'g' and '>%s' or '<%s') % (lookup_type[-1] == 'e' and '=' or '')
                     param_keys = list(param.keys())
-                    return ('%s->\'%s\' %s %%s' % (field, param_keys[0], sign), param.values())
+                    conditions = []
+
+                    for key in param_keys:
+                        conditions.append('(%s->\'%s\') %s %%s' % (field, key, sign))
+
+                    return (" AND ".join(conditions), param.values())
 
                 raise ValueError('invalid value')
 
