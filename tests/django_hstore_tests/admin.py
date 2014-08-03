@@ -26,9 +26,7 @@ admin.site.register(RefsBag, RefsBagAdmin)
 
 
 if get_version()[0:3] >= '1.6':
-    from django_hstore.admin import HStoreSchemaAdmin
-    
-    class SchemaDataBagAdmin(HStoreSchemaAdmin):
+    class SchemaDataBagAdmin(admin.ModelAdmin):
         list_display = ['name']
     
     admin.site.register(SchemaDataBag, SchemaDataBagAdmin)

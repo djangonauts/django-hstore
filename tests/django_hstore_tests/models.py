@@ -82,7 +82,7 @@ class UniqueTogetherDataBag(HStoreModel):
         unique_together =  ("name", "data")
 
 if get_version()[0:3] >= '1.6':
-    class SchemaDataBag(hstore.SchemaModel):
+    class SchemaDataBag(HStoreModel):
         name = models.CharField(max_length=32)
         data = hstore.DictionaryField(schema=[
             {
@@ -162,7 +162,9 @@ if get_version()[0:3] >= '1.6':
                 'name': 'decimal',
                 'class': 'DecimalField',
                 'kwargs': {
-                    'blank': True
+                    'blank': True,
+                    'decimal_places': 2,
+                    'max_digits': 4
                 }
             },
             {
@@ -176,7 +178,8 @@ if get_version()[0:3] >= '1.6':
                 'name': 'ip',
                 'class': 'GenericIPAddressField',
                 'kwargs': {
-                    'blank': True
+                    'blank': True,
+                    'null': True
                 }
             },
             {
@@ -187,8 +190,6 @@ if get_version()[0:3] >= '1.6':
                 }
             },
         ])
-        
-        objects = hstore.HStoreManager()
     
     __all__.append('SchemaDataBag')
 

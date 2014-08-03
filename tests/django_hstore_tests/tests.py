@@ -638,27 +638,6 @@ class SchemaTests(TestCase):
             d.choice = 'choice1'
             d.full_clean()
             d.save()
-        
-        def test_hstore_virtual_fields(self):
-            d = SchemaDataBag()
-            fields_length = len(d._meta.fields)
-            virtual_fields_length = len(d._meta.hstore_virtual_fields.values())
-            
-            d._add_hstore_virtual_fields_to_fields()
-            self.assertEqual(len(d._meta.fields), fields_length+virtual_fields_length)
-            for field in d._meta.hstore_virtual_fields.values():
-                self.assertIn(field, d._meta.fields)
-            
-            # repeating does not create issues
-            d._add_hstore_virtual_fields_to_fields()
-            self.assertEqual(len(d._meta.fields), fields_length+virtual_fields_length)
-            for field in d._meta.hstore_virtual_fields.values():
-                self.assertIn(field, d._meta.fields)
-            
-            d._remove_hstore_virtual_fields_from_fields()
-            self.assertEqual(len(d._meta.fields), fields_length)
-            for field in d._meta.hstore_virtual_fields.values():
-                self.assertNotIn(field, d._meta.fields)
             
         def test_admin_list(self):
             self._login_as_admin()
@@ -710,12 +689,26 @@ class SchemaTests(TestCase):
             self.assertEqual(d.data['float'], 2.6)
         
         def test_create_hstore_virtual_field(self):
-            integer = create_hstore_virtual_field('IntegerField', { 'hstore_field_name': 'data', 'default': 0 } )
+            integer = create_hstore_virtual_field('IntegerField', { 'default': 0 }, 'data')
             self.assertIsInstance(integer, models.IntegerField)
-            char = create_hstore_virtual_field('CharField', { 'hstore_field_name': 'data', 'default': 'test', 'blank': True, 'max_length': 10 } )
+            char = create_hstore_virtual_field('CharField', { 'default': 'test', 'blank': True, 'max_length': 10 }, 'data')
             self.assertIsInstance(char, models.CharField)
-            text = create_hstore_virtual_field('TextField', { 'hstore_field_name': 'data', 'blank': True } )
+            text = create_hstore_virtual_field('TextField', { 'blank': True }, 'data')
             self.assertIsInstance(text, models.TextField)
+        
+        def test_create_hstore_virtual_field_wrong_class(self):
+            with self.assertRaises(ValueError):
+                create_hstore_virtual_field(float, { 'blank': True }, 'data')
+        
+        def test_create_hstore_virtual_field_wrong_class_string(self):
+            with self.assertRaises(ValueError):
+                create_hstore_virtual_field('IdoNotExist', { 'blank': True }, 'data')
+        
+        def test_create_hstore_virtual_field_concrete_class(self):
+            integer = create_hstore_virtual_field(models.IntegerField, { 'default': 0 }, 'data')
+            url = create_hstore_virtual_field(models.URLField, { 'blank': True }, 'data')
+            self.assertTrue(isinstance(integer, models.IntegerField))
+            self.assertTrue(isinstance(url, models.URLField))
         
         def test_DictionaryField_with_schema(self):
             data = hstore.DictionaryField(schema=[
@@ -754,30 +747,6 @@ class SchemaTests(TestCase):
                     { 'name': 'test' }
                 ])
         
-        def test_create_hstore_virtual_field(self):
-            integer = create_hstore_virtual_field('IntegerField', { 'hstore_field_name': 'data', 'default': 0 } )
-            self.assertIsInstance(integer, models.IntegerField)
-            char = create_hstore_virtual_field('CharField', { 'hstore_field_name': 'data', 'default': 'test', 'blank': True, 'max_length': 10 } )
-            self.assertIsInstance(char, models.CharField)
-            text = create_hstore_virtual_field('TextField', { 'hstore_field_name': 'data', 'blank': True } )
-            self.assertIsInstance(text, models.TextField)
-        
-        def test_model_definition_in_schema_mode_wrong_class(self):
-            with self.assertRaises(ValueError):
-                create_hstore_virtual_field(float, { 'hstore_field_name': 'data' } )
-        
-        def test_model_definition_in_schema_mode_wrong_class_string(self):
-            with self.assertRaises(ValueError):
-                create_hstore_virtual_field('IdoNotExist', { 'hstore_field_name': 'data' } )
-        
-        def test_model_definition_in_schema_mode_with_class(self):
-            class TestModel(hstore.SchemaModel):
-                field = create_hstore_virtual_field(models.IntegerField, { 'hstore_field_name': 'data' } )
-                self.assertTrue(isinstance(field, models.IntegerField))
-                
-                field = create_hstore_virtual_field(models.URLField, { 'hstore_field_name': 'data' } )
-                self.assertTrue(isinstance(field, models.URLField))
-        
         def test_utf8(self):
             d = SchemaDataBag()
             d.name = 'test'
@@ -799,7 +768,7 @@ class SchemaTests(TestCase):
     else:
         def test_improperly_configured(self):            
             with self.assertRaises(ImproperlyConfigured):
-                class SchemaDataBag(hstore.SchemaModel):
+                class SchemaDataBag(models.Model):
                     name = models.CharField(max_length=32)
                     data = hstore.DictionaryField(schema=[
                         {
@@ -1057,7 +1026,6 @@ class TestReferencesField(TestCase):
         self.assertEqual(result.count(), 0)
         result = NumberedDataBag.objects.filter(number__lt=1)
         self.assertEqual(result.count(), 0)
-
 
     def test_native_lte(self):
         d = NumberedDataBag()

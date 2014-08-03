@@ -3,27 +3,7 @@ from django.utils import six
 from django.utils.functional import curry
 
 
-__all__ = [
-    '_add_hstore_virtual_fields_to_fields',
-    '_remove_hstore_virtual_fields_from_fields',
-    'create_hstore_virtual_field',
-]
-
-
-def _add_hstore_virtual_fields_to_fields(self):
-    """
-    add hstore virtual fields to model meta fields
-    """
-    for field in self._meta.hstore_virtual_fields.values():
-        if field not in self._meta.fields:
-            self._meta.fields.append(field)
-
-def _remove_hstore_virtual_fields_from_fields(self):
-    """
-    remove hstore virtual fields from model meta fields
-    """
-    for field in self._meta.hstore_virtual_fields.values():
-        self._meta.fields.remove(field)
+__all__ = ['create_hstore_virtual_field']
 
 
 class HStoreVirtualMixin(object):
@@ -31,15 +11,28 @@ class HStoreVirtualMixin(object):
     must be mixed-in with django fields
     """
     def contribute_to_class(self, cls, name):
-        self.set_attributes_from_name(name)
-        self.model = cls
-        cls._meta.add_virtual_field(self)
         if self.choices:
             setattr(cls, 'get_%s_display' % self.name,
                     curry(cls._get_FIELD_display, field=self))
-        
+        self.attname = name
+        self.name = name
+        self.model = cls
+        # setting column as none will tell django to not consider this a concrete field
+        self.column = None
         # Connect myself as the descriptor for this field
         setattr(cls, name, self)
+        # add field to class
+        cls._meta.add_field(self)
+        # add also into virtual fields in order to support admin
+        cls._meta.virtual_fields.append(self)
+    
+    def db_type(self, connection):
+        """
+        returning None here will cause django to exclude this field
+        from the concrete field list (_meta.concrete_fields)
+        resulting in the fact that syncdb will skip this field when creating tables in PostgreSQL
+        """
+        return None
     
     # begin descriptor methods
     
@@ -62,15 +55,11 @@ class HStoreVirtualMixin(object):
     # end descriptor methods
 
 
-def create_hstore_virtual_field(field_cls, kwargs=None):
+def create_hstore_virtual_field(field_cls, kwargs, hstore_field_name):
     """
-    returns an instance of an HStore virtual field which is mixed with the specified field class
-    and initializated with the kwargs passed
+    returns an instance of an HStore virtual field which is mixed-in
+    with the specified field class and initializated with the kwargs passed
     """
-    # http://stackoverflow.com/questions/9526465/best-practice-for-setting-the-default-value-of-a-parameter-thats-supposed-to-be
-    if kwargs is None:
-        kwargs = {}
-    
     if isinstance(field_cls, six.string_types):
         try:
             BaseField = getattr(models, field_cls)
@@ -84,7 +73,7 @@ def create_hstore_virtual_field(field_cls, kwargs=None):
     class VirtualField(HStoreVirtualMixin, BaseField):
         def __init__(self, *args, **kwargs):
             try:
-                self.hstore_field_name = kwargs.pop('hstore_field_name')
+                self.hstore_field_name = hstore_field_name
             except KeyError:
                 raise ValueError('missing hstore_field_name keyword argument')
             super(VirtualField, self).__init__(*args, **kwargs)

@@ -117,7 +117,7 @@ class DictionaryField(HStoreField):
         setattr(cls, self.name, HStoreDescriptor(self, schema_mode=self.schema_mode))
         
         if self.schema:
-            self._add_virtual_fields_on_class(cls, name)
+            self._create_hstore_virtual_fields(cls, name)
     
     def _validate_schema(self, schema):
         if not isinstance(schema, list):
@@ -136,43 +136,23 @@ class DictionaryField(HStoreField):
             if 'class' not in field:
                 raise ValueError('schema element %s is missing the class key' % field)
 
-    def _add_virtual_fields_on_class(self, cls, hstore_field_name):
+    def _create_hstore_virtual_fields(self, cls, hstore_field_name):
         """
         this methods creates all the virtual fields automatically by reading the schema attribute
         """
         # add hstore_virtual_fields attribute to class
-        if not hasattr(cls._meta, 'hstore_virtual_fields'):
-            cls._meta.hstore_virtual_fields = {}
-    
-        if not hasattr(cls, '_add_hstore_virtual_fields_to_fields'):
-            cls._add_hstore_virtual_fields_to_fields = _add_hstore_virtual_fields_to_fields
-
-        if not hasattr(cls, '_remove_hstore_virtual_fields_from_fields'):
-            cls._remove_hstore_virtual_fields_from_fields = _remove_hstore_virtual_fields_from_fields
+        if not hasattr(cls, '_hstore_virtual_fields'):
+            cls._hstore_virtual_fields = {}
         
         for field in self.schema:
-            # if kwargs key is not set
-            if 'kwargs' not in field:
-                # set it as an empty dict
-                field['kwargs'] = {}
-            # insert the name of the hstore field, which is necessary
-            # for the initialization of the virtual field
-            field['kwargs']['hstore_field_name'] = hstore_field_name
-            # initialize the virtual field by specifying the class and the kwargs
-            virtual_field = create_hstore_virtual_field(
-                field_cls=field['class'],
-                kwargs=field['kwargs'],
-            )
-            # set the name and the attname properties of the field
-            virtual_field.name = field['name']
-            virtual_field.attname = field['name']
-            virtual_field.model = cls  # django 1.7
-            # add the field on the class
-            setattr(cls, field['name'], virtual_field)
-            # add the field in the virtual fields
-            cls._meta.virtual_fields.append(virtual_field)
+            # initialize the virtual field by specifying the class, the kwargs and the hstore field name
+            virtual_field = create_hstore_virtual_field(field['class'],
+                                                        field.get('kwargs', {}),
+                                                        hstore_field_name)
+            # this will call the contribute_to_class method in virtual.HStoreVirtualMixin
+            cls.add_to_class(field['name'], virtual_field)
             # add this field to hstore_virtual_fields dict
-            cls._meta.hstore_virtual_fields[field['name']] = virtual_field
+            cls._hstore_virtual_fields[field['name']] = virtual_field
 
     def formfield(self, **kwargs):
         kwargs['form_class'] = forms.DictionaryField
