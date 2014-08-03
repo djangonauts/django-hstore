@@ -765,6 +765,29 @@ class SchemaTests(TestCase):
             
             d = SchemaDataBag.objects.get(pk=d.id)
             self.assertEqual(d.char, u'è')
+        
+        def test_create(self):
+            s1 = SchemaDataBag.objects.create(
+                name='create1',
+                number=2,
+                float=2.2,
+                boolean=True,
+                boolean_true=False,
+                choice='choice2',
+                choice2='choice1',
+                char='create2',
+                text='create3'
+            )
+            s1 = SchemaDataBag.objects.get(pk=s1.pk)
+            self.assertEqual(s1.name, 'create1')
+            self.assertEqual(s1.number, 2)
+            self.assertEqual(s1.float, 2.2)
+            self.assertEqual(s1.boolean, True)
+            self.assertEqual(s1.boolean_true, False)
+            self.assertEqual(s1.choice, 'choice2')
+            self.assertEqual(s1.choice2, 'choice1')
+            self.assertEqual(s1.char, 'create2')
+            self.assertEqual(s1.text, 'create3')
     else:
         def test_improperly_configured(self):            
             with self.assertRaises(ImproperlyConfigured):
