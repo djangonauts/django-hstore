@@ -1,6 +1,6 @@
 django-hstore documentation
 ===========================
-1.3.0, 2014-07-17
+1.3.0, 2014-08-03
 
 :toc:
 :numbered:
@@ -12,7 +12,7 @@ Introduction
 _django-hstore_ is a niche library which integrates the link:http://www.postgresql.org/docs/9.1/interactive/hstore.html[hstore]
 extension of PostgreSQL into Django.
 
-HStore brings the power of schemaless databases into PostgreSQL, giving us the
+HStore brings the power of NoSQL key/value stores into PostgreSQL, giving us the
 link:http://www.craigkerstiens.com/2013/07/03/hstore-vs-json/[advantage of flexibility and performance]
 without renouncing to the robustness of SQL databases.
 
@@ -106,7 +106,7 @@ Requirements
 ^^^^^^^^^^^^
 
 - Python 2.6, 2.7 or 3.3+
-- Django 1.4, 1.5, 1.6 and 1.7 (experimental)
+- Django 1.5, 1.6 and 1.7
 - Psycopg2 2.4.3+
 - PostgreSQL 9.0+
 
@@ -246,18 +246,17 @@ class Something(models.Model):
     # objects = hstore.HStoreGeoManager()
 ----
 
-.Since *django_hstore 1.3.0* it is possible to use the `DictionaryField` in *schema mode* in order to overcome the limit of values being only strings.
+Since *django_hstore 1.3.0* it is possible to use the `DictionaryField` in *schema mode* in order to overcome the limit of values being only strings.
 Another advantage of using the schema mode is that you can recycle the standard django fields in the admin and hopefully elsewhere.
 *This feature is available only from django 1.6 onwards*.
 
-Use `hstore.SchemaModel` as a base class for your model and supply a `schema` parameter to the `DictionaryField`:
+To use the schema mode you just need to supply a `schema` parameter to the `DictionaryField`:
 [source, python]
 ----
 # models.py
 from django.db import models
-from django_hstore import hstore
 
-class SomethingWithSchema(hstore.SchemaModel):
+class SomethingWithSchema(models.Model):
     name = models.CharField(max_length=32)
     data = hstore.DictionaryField(schema=[
         {
@@ -304,7 +303,7 @@ class SomethingWithSchema(hstore.SchemaModel):
 
 After this declaration some additional virtual fields will be available in the model.
 Each virtual field will map to a key in the dictionary field, types are mantained behind the scenes
-by using the `to_python` method of the field class that has been specified for that key.
+by using the `to_python` method of the field class that has been specified for each key.
 
 The `schema` parameter is a list of dictionaries, each dictionary representing a field.
 
@@ -331,23 +330,6 @@ The following standard django fields fields have been tested successfully:
  * `URLField`
  
 Other fields might work as well except for `FileField`, `ImageField`, and `BinaryField` which would need some additional work.
-
-.To add support for *schema mode* in the *admin* use `django_hstore.admin.HStoreSchemaAdmin`:
-
-[source,python]
-----
-# admin.py
-from django.contrib import admin
-from django_hstore.admin import HStoreSchemaAdmin
-from .models import Something
-
-class SomethingAdmin(HStoreSchemaAdmin):
-    pass
-
-admin.site.register(Something, SomethingAdmin)
-----
-
-An ta-da! The standard django fields can be used in the admin as if you were using real fields.
 
 .the `ReferenceField` definition is also straightforward:
 [source,python]
