@@ -394,7 +394,7 @@ Each virtual field will be mapped to a key of the `DictionaryField`:
 >>> obj = SomethingWithSchema.objects.last()
 >>> obj.number
 3
->>> obj.data['number]
+>>> obj.data['number']
 3
 >>> obj.float
 9.99
