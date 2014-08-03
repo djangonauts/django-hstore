@@ -2,12 +2,9 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta name="generator" content="AsciiDoc 8.6.9">
+<meta name="generator" content="AsciiDoc 8.6.7">
 <title>django-hstore documentation</title>
 <link rel="stylesheet" href="static/niwi.css" type="text/css">
-<link rel="stylesheet" href="static/pygments.css" type="text/css">
-
-
 <script type="text/javascript" src="static/asciidoc.js"></script>
 <script type="text/javascript" src="static/niwi.js"></script>
 <script type="text/javascript">
@@ -19,7 +16,7 @@ asciidoc.install(2);
 <body class="article" style="max-width:800px">
 <div id="header">
 <h1>django-hstore documentation</h1>
-<span id="author">1.3.0, 2014-07-17</span><br>
+<span id="author">1.3.0, 2014-08-03</span><br>
 <div id="toc">
   <div id="toctitle">Table of Contents</div>
   <noscript><p><b>JavaScript must be enabled in your browser to display the table of contents.</b></p></noscript>
@@ -31,7 +28,7 @@ asciidoc.install(2);
 <div class="sectionbody">
 <div class="paragraph"><p><em>django-hstore</em> is a niche library which integrates the <a href="http://www.postgresql.org/docs/9.1/interactive/hstore.html">hstore</a>
 extension of PostgreSQL into Django.</p></div>
-<div class="paragraph"><p>HStore brings the power of schemaless databases into PostgreSQL, giving us the
+<div class="paragraph"><p>HStore brings the power of NoSQL key/value stores into PostgreSQL, giving us the
 <a href="http://www.craigkerstiens.com/2013/07/03/hstore-vs-json/">advantage of flexibility and performance</a>
 without renouncing to the robustness of SQL databases.</p></div>
 <div class="paragraph"><p>Mailing List: <a href="https://groups.google.com/forum/#!forum/django-hstore">https://groups.google.com/forum/#!forum/django-hstore</a></p></div>
@@ -175,7 +172,7 @@ Python 2.6, 2.7 or 3.3+
 </li>
 <li>
 <p>
-Django 1.4, 1.5, 1.6 and 1.7 (experimental)
+Django 1.5, 1.6 and 1.7
 </p>
 </li>
 <li>
@@ -193,14 +190,20 @@ PostgreSQL 9.0+
 <div class="sect3">
 <h4 id="_stable_version">4.1.2. Stable version</h4>
 <div class="listingblock">
-<div class="content"><div class="highlight"><pre>pip install django-hstore
-</pre></div></div></div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1.6
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt>pip install django-hstore</tt></pre></div></div>
 </div>
 <div class="sect3">
 <h4 id="_development_version">4.1.3. Development version</h4>
 <div class="listingblock">
-<div class="content"><div class="highlight"><pre>pip install -e git+git://github.com/djangonauts/django-hstore#egg<span class="o">=</span>django-hstore
-</pre></div></div></div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1.6
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt>pip install -e git<span style="color: #990000">+</span>git<span style="color: #990000">:</span>//github<span style="color: #990000">.</span>com/djangonauts/django-hstore<span style="font-style: italic"><span style="color: #9A1900">#egg=django-hstore</span></span></tt></pre></div></div>
 </div>
 <div class="sect3">
 <h4 id="_upgrade_from_older_versions">4.1.4. Upgrade from older versions</h4>
@@ -217,16 +220,22 @@ to the older version of django-hstore (1.1.1).</p></div>
 <h4 id="_basic_setup">4.2.1. Basic setup</h4>
 <div class="paragraph"><p>First, add <strong>django_hstore</strong> to your <span class="monospaced">settings.INSTALLED_APPS</span>:</p></div>
 <div class="listingblock">
-<div class="content"><div class="highlight"><pre><span class="n">INSTALLED_APPS</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="o">...</span>
-    <span class="s">&quot;django_hstore&quot;</span><span class="p">,</span>
-    <span class="o">...</span>
-<span class="p">)</span>
-</pre></div></div></div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1.6
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt>INSTALLED_APPS <span style="color: #990000">=</span> <span style="color: #990000">(</span>
+    <span style="color: #990000">...</span>
+    <span style="color: #FF0000">"django_hstore"</span><span style="color: #990000">,</span>
+    <span style="color: #990000">...</span>
+<span style="color: #990000">)</span></tt></pre></div></div>
 <div class="paragraph"><p>Second, collect static files (needed for the admin widget) with:</p></div>
 <div class="listingblock">
-<div class="content"><div class="highlight"><pre>python manage.py collectstatic
-</pre></div></div></div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1.6
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt>python manage<span style="color: #990000">.</span>py collectstatic</tt></pre></div></div>
 </div>
 <div class="sect3">
 <h4 id="_multiple_database_setup">4.2.2. Multiple database setup</h4>
@@ -235,26 +244,29 @@ some of the database you are using don&#8217;t have the hstore extension install
 you can skip hstore registration by setting <span class="monospaced">HAS_HSTORE</span> to <span class="monospaced">False</span> in your
 database config:</p></div>
 <div class="listingblock">
-<div class="content"><div class="highlight"><pre><span class="n">DATABASES</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s">&#39;default&#39;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s">&#39;ENGINE&#39;</span><span class="p">:</span> <span class="s">&#39;django.db.backends.postgresql_psycopg2&#39;</span><span class="p">,</span>
-        <span class="s">&#39;NAME&#39;</span><span class="p">:</span> <span class="s">&#39;name&#39;</span><span class="p">,</span>
-        <span class="s">&#39;USER&#39;</span><span class="p">:</span> <span class="s">&#39;user&#39;</span><span class="p">,</span>
-        <span class="s">&#39;PASSWORD&#39;</span><span class="p">:</span> <span class="s">&#39;pass&#39;</span><span class="p">,</span>
-        <span class="s">&#39;HOST&#39;</span><span class="p">:</span> <span class="s">&#39;localhost&#39;</span><span class="p">,</span>
-        <span class="s">&#39;PORT&#39;</span><span class="p">:</span> <span class="s">&#39;&#39;</span><span class="p">,</span>
-    <span class="p">},</span>
-    <span class="s">&#39;other&#39;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s">&#39;ENGINE&#39;</span><span class="p">:</span> <span class="s">&#39;django.db.backends.postgresql_psycopg2&#39;</span><span class="p">,</span>
-        <span class="s">&#39;NAME&#39;</span><span class="p">:</span> <span class="s">&#39;other&#39;</span><span class="p">,</span>
-        <span class="s">&#39;USER&#39;</span><span class="p">:</span> <span class="s">&#39;user&#39;</span><span class="p">,</span>
-        <span class="s">&#39;PASSWORD&#39;</span><span class="p">:</span> <span class="s">&#39;pass&#39;</span><span class="p">,</span>
-        <span class="s">&#39;HOST&#39;</span><span class="p">:</span> <span class="s">&#39;localhost&#39;</span><span class="p">,</span>
-        <span class="s">&#39;PORT&#39;</span><span class="p">:</span> <span class="s">&#39;&#39;</span><span class="p">,</span>
-        <span class="s">&#39;HAS_HSTORE&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-</pre></div></div></div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1.6
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt>DATABASES <span style="color: #990000">=</span> <span style="color: #990000">{</span>
+    <span style="color: #FF0000">'default'</span><span style="color: #990000">:</span> <span style="color: #990000">{</span>
+        <span style="color: #FF0000">'ENGINE'</span><span style="color: #990000">:</span> <span style="color: #FF0000">'django.db.backends.postgresql_psycopg2'</span><span style="color: #990000">,</span>
+        <span style="color: #FF0000">'NAME'</span><span style="color: #990000">:</span> <span style="color: #FF0000">'name'</span><span style="color: #990000">,</span>
+        <span style="color: #FF0000">'USER'</span><span style="color: #990000">:</span> <span style="color: #FF0000">'user'</span><span style="color: #990000">,</span>
+        <span style="color: #FF0000">'PASSWORD'</span><span style="color: #990000">:</span> <span style="color: #FF0000">'pass'</span><span style="color: #990000">,</span>
+        <span style="color: #FF0000">'HOST'</span><span style="color: #990000">:</span> <span style="color: #FF0000">'localhost'</span><span style="color: #990000">,</span>
+        <span style="color: #FF0000">'PORT'</span><span style="color: #990000">:</span> <span style="color: #FF0000">''</span><span style="color: #990000">,</span>
+    <span style="color: #990000">},</span>
+    <span style="color: #FF0000">'other'</span><span style="color: #990000">:</span> <span style="color: #990000">{</span>
+        <span style="color: #FF0000">'ENGINE'</span><span style="color: #990000">:</span> <span style="color: #FF0000">'django.db.backends.postgresql_psycopg2'</span><span style="color: #990000">,</span>
+        <span style="color: #FF0000">'NAME'</span><span style="color: #990000">:</span> <span style="color: #FF0000">'other'</span><span style="color: #990000">,</span>
+        <span style="color: #FF0000">'USER'</span><span style="color: #990000">:</span> <span style="color: #FF0000">'user'</span><span style="color: #990000">,</span>
+        <span style="color: #FF0000">'PASSWORD'</span><span style="color: #990000">:</span> <span style="color: #FF0000">'pass'</span><span style="color: #990000">,</span>
+        <span style="color: #FF0000">'HOST'</span><span style="color: #990000">:</span> <span style="color: #FF0000">'localhost'</span><span style="color: #990000">,</span>
+        <span style="color: #FF0000">'PORT'</span><span style="color: #990000">:</span> <span style="color: #FF0000">''</span><span style="color: #990000">,</span>
+        <span style="color: #FF0000">'HAS_HSTORE'</span><span style="color: #990000">:</span> False<span style="color: #990000">,</span>
+    <span style="color: #990000">}</span>
+<span style="color: #990000">}</span></tt></pre></div></div>
 <div class="paragraph"><p>If you do that, then don&#8217;t try to create <span class="monospaced">DictionaryField</span> in that database.</p></div>
 <div class="paragraph"><p>Be sure to check out <a href="https://docs.djangoproject.com/en/1.5/topics/db/multi-db/#allow_syncdb">allow_syncdb</a>
 documentation.</p></div>
@@ -264,8 +276,11 @@ documentation.</p></div>
 <div class="paragraph"><p>If you keep getting errors like "There is no South database module <em>south.db.None</em>"
 for your database., add the following to settings.py:</p></div>
 <div class="listingblock">
-<div class="content"><div class="highlight"><pre><span class="n">SOUTH_DATABASE_ADAPTERS</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;default&#39;</span><span class="p">:</span> <span class="s">&#39;south.db.postgresql_psycopg2&#39;</span><span class="p">}</span>
-</pre></div></div></div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1.6
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt>SOUTH_DATABASE_ADAPTERS <span style="color: #990000">=</span> <span style="color: #990000">{</span><span style="color: #FF0000">'default'</span><span style="color: #990000">:</span> <span style="color: #FF0000">'south.db.postgresql_psycopg2'</span><span style="color: #990000">}</span></tt></pre></div></div>
 </div>
 </div>
 <div class="sect2">
@@ -304,72 +319,78 @@ for your database., add the following to settings.py:</p></div>
 <h4 id="_model_setup">4.3.1. Model setup</h4>
 <div class="listingblock">
 <div class="title">the <span class="monospaced">DictionaryField</span> definition is straightforward:</div>
-<div class="content"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.db</span> <span class="kn">import</span> <span class="n">models</span>
-<span class="kn">from</span> <span class="nn">django_hstore</span> <span class="kn">import</span> <span class="n">hstore</span>
+<div class="content"><!-- Generator: GNU source-highlight 3.1.6
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><span style="font-weight: bold"><span style="color: #000080">from</span></span> django<span style="color: #990000">.</span>db <span style="font-weight: bold"><span style="color: #000080">import</span></span> models
+<span style="font-weight: bold"><span style="color: #000080">from</span></span> django_hstore <span style="font-weight: bold"><span style="color: #000080">import</span></span> hstore
 
-<span class="k">class</span> <span class="nc">Something</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">hstore</span><span class="o">.</span><span class="n">DictionaryField</span><span class="p">()</span>  <span class="c"># can pass attributes like null, blank, ecc.</span>
+<span style="font-weight: bold"><span style="color: #0000FF">class</span></span> <span style="font-weight: bold"><span style="color: #000000">Something</span></span><span style="color: #990000">(</span>models<span style="color: #990000">.</span>Model<span style="color: #990000">):</span>
+    name <span style="color: #990000">=</span> models<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">CharField</span></span><span style="color: #990000">(</span>max_length<span style="color: #990000">=</span><span style="color: #993399">32</span><span style="color: #990000">)</span>
+    data <span style="color: #990000">=</span> hstore<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">DictionaryField</span></span><span style="color: #990000">()</span>  <span style="font-style: italic"><span style="color: #9A1900"># can pass attributes like null, blank, ecc.</span></span>
 
-    <span class="n">objects</span> <span class="o">=</span> <span class="n">hstore</span><span class="o">.</span><span class="n">HStoreManager</span><span class="p">()</span>
-    <span class="c"># IF YOU ARE USING POSTGIS:</span>
-    <span class="c"># objects = hstore.HStoreGeoManager()</span>
-</pre></div></div></div>
-<div class="paragraph"><div class="title">Since <strong>django_hstore 1.3.0</strong> it is possible to use the <span class="monospaced">DictionaryField</span> in <strong>schema mode</strong> in order to overcome the limit of values being only strings.</div><p>Another advantage of using the schema mode is that you can recycle the standard django fields in the admin and hopefully elsewhere.
+    objects <span style="color: #990000">=</span> hstore<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">HStoreManager</span></span><span style="color: #990000">()</span>
+    <span style="font-style: italic"><span style="color: #9A1900"># IF YOU ARE USING POSTGIS:</span></span>
+    <span style="font-style: italic"><span style="color: #9A1900"># objects = hstore.HStoreGeoManager()</span></span></tt></pre></div></div>
+<div class="paragraph"><p>Since <strong>django_hstore 1.3.0</strong> it is possible to use the <span class="monospaced">DictionaryField</span> in <strong>schema mode</strong> in order to overcome the limit of values being only strings.
+Another advantage of using the schema mode is that you can recycle the standard django fields in the admin and hopefully elsewhere.
 <strong>This feature is available only from django 1.6 onwards</strong>.</p></div>
-<div class="paragraph"><p>Use <span class="monospaced">hstore.SchemaModel</span> as a base class for your model and supply a <span class="monospaced">schema</span> parameter to the <span class="monospaced">DictionaryField</span>:</p></div>
+<div class="paragraph"><p>To use the schema mode you just need to supply a <span class="monospaced">schema</span> parameter to the <span class="monospaced">DictionaryField</span>:</p></div>
 <div class="listingblock">
-<div class="content"><div class="highlight"><pre><span class="c"># models.py</span>
-<span class="kn">from</span> <span class="nn">django.db</span> <span class="kn">import</span> <span class="n">models</span>
-<span class="kn">from</span> <span class="nn">django_hstore</span> <span class="kn">import</span> <span class="n">hstore</span>
+<div class="content"><!-- Generator: GNU source-highlight 3.1.6
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><span style="font-style: italic"><span style="color: #9A1900"># models.py</span></span>
+<span style="font-weight: bold"><span style="color: #000080">from</span></span> django<span style="color: #990000">.</span>db <span style="font-weight: bold"><span style="color: #000080">import</span></span> models
 
-<span class="k">class</span> <span class="nc">SomethingWithSchema</span><span class="p">(</span><span class="n">hstore</span><span class="o">.</span><span class="n">SchemaModel</span><span class="p">):</span>
-    <span class="n">name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">hstore</span><span class="o">.</span><span class="n">DictionaryField</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="p">[</span>
-        <span class="p">{</span>
-            <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;number&#39;</span><span class="p">,</span>
-            <span class="s">&#39;class&#39;</span><span class="p">:</span> <span class="s">&#39;IntegerField&#39;</span><span class="p">,</span>
-            <span class="s">&#39;kwargs&#39;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s">&#39;default&#39;</span><span class="p">:</span> <span class="mi">0</span>
-            <span class="p">}</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-            <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;float&#39;</span><span class="p">,</span>
-            <span class="s">&#39;class&#39;</span><span class="p">:</span> <span class="s">&#39;FloatField&#39;</span><span class="p">,</span>
-            <span class="s">&#39;kwargs&#39;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s">&#39;default&#39;</span><span class="p">:</span> <span class="mf">1.0</span>
-            <span class="p">}</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-            <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;char&#39;</span><span class="p">,</span>
-            <span class="s">&#39;class&#39;</span><span class="p">:</span> <span class="s">&#39;CharField&#39;</span><span class="p">,</span>
-            <span class="s">&#39;kwargs&#39;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s">&#39;default&#39;</span><span class="p">:</span> <span class="s">&#39;test&#39;</span><span class="p">,</span> <span class="s">&#39;blank&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span> <span class="s">&#39;max_length&#39;</span><span class="p">:</span> <span class="mi">10</span>
-            <span class="p">}</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-            <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;text&#39;</span><span class="p">,</span>
-            <span class="s">&#39;class&#39;</span><span class="p">:</span> <span class="s">&#39;TextField&#39;</span><span class="p">,</span>
-            <span class="s">&#39;kwargs&#39;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s">&#39;blank&#39;</span><span class="p">:</span> <span class="bp">True</span>
-            <span class="p">}</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-            <span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;choice&#39;</span><span class="p">,</span>
-            <span class="s">&#39;class&#39;</span><span class="p">:</span> <span class="s">&#39;CharField&#39;</span><span class="p">,</span>
-            <span class="s">&#39;kwargs&#39;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s">&#39;blank&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
-                <span class="s">&#39;max_length&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
-                <span class="s">&#39;choices&#39;</span><span class="p">:</span> <span class="p">((</span><span class="s">&#39;choice1&#39;</span><span class="p">,</span> <span class="s">&#39;choice1&#39;</span><span class="p">),</span> <span class="p">(</span><span class="s">&#39;choice2&#39;</span><span class="p">,</span> <span class="s">&#39;choice2&#39;</span><span class="p">))</span>
-            <span class="p">}</span>
-        <span class="p">}</span>
-    <span class="p">])</span>
+<span style="font-weight: bold"><span style="color: #0000FF">class</span></span> <span style="font-weight: bold"><span style="color: #000000">SomethingWithSchema</span></span><span style="color: #990000">(</span>models<span style="color: #990000">.</span>Model<span style="color: #990000">):</span>
+    name <span style="color: #990000">=</span> models<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">CharField</span></span><span style="color: #990000">(</span>max_length<span style="color: #990000">=</span><span style="color: #993399">32</span><span style="color: #990000">)</span>
+    data <span style="color: #990000">=</span> hstore<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">DictionaryField</span></span><span style="color: #990000">(</span>schema<span style="color: #990000">=[</span>
+        <span style="color: #990000">{</span>
+            <span style="color: #FF0000">'name'</span><span style="color: #990000">:</span> <span style="color: #FF0000">'number'</span><span style="color: #990000">,</span>
+            <span style="color: #FF0000">'class'</span><span style="color: #990000">:</span> <span style="color: #FF0000">'IntegerField'</span><span style="color: #990000">,</span>
+            <span style="color: #FF0000">'kwargs'</span><span style="color: #990000">:</span> <span style="color: #990000">{</span>
+                <span style="color: #FF0000">'default'</span><span style="color: #990000">:</span> <span style="color: #993399">0</span>
+            <span style="color: #990000">}</span>
+        <span style="color: #990000">},</span>
+        <span style="color: #990000">{</span>
+            <span style="color: #FF0000">'name'</span><span style="color: #990000">:</span> <span style="color: #FF0000">'float'</span><span style="color: #990000">,</span>
+            <span style="color: #FF0000">'class'</span><span style="color: #990000">:</span> <span style="color: #FF0000">'FloatField'</span><span style="color: #990000">,</span>
+            <span style="color: #FF0000">'kwargs'</span><span style="color: #990000">:</span> <span style="color: #990000">{</span>
+                <span style="color: #FF0000">'default'</span><span style="color: #990000">:</span> <span style="color: #993399">1.0</span>
+            <span style="color: #990000">}</span>
+        <span style="color: #990000">},</span>
+        <span style="color: #990000">{</span>
+            <span style="color: #FF0000">'name'</span><span style="color: #990000">:</span> <span style="color: #FF0000">'char'</span><span style="color: #990000">,</span>
+            <span style="color: #FF0000">'class'</span><span style="color: #990000">:</span> <span style="color: #FF0000">'CharField'</span><span style="color: #990000">,</span>
+            <span style="color: #FF0000">'kwargs'</span><span style="color: #990000">:</span> <span style="color: #990000">{</span>
+                <span style="color: #FF0000">'default'</span><span style="color: #990000">:</span> <span style="color: #FF0000">'test'</span><span style="color: #990000">,</span> <span style="color: #FF0000">'blank'</span><span style="color: #990000">:</span> True<span style="color: #990000">,</span> <span style="color: #FF0000">'max_length'</span><span style="color: #990000">:</span> <span style="color: #993399">10</span>
+            <span style="color: #990000">}</span>
+        <span style="color: #990000">},</span>
+        <span style="color: #990000">{</span>
+            <span style="color: #FF0000">'name'</span><span style="color: #990000">:</span> <span style="color: #FF0000">'text'</span><span style="color: #990000">,</span>
+            <span style="color: #FF0000">'class'</span><span style="color: #990000">:</span> <span style="color: #FF0000">'TextField'</span><span style="color: #990000">,</span>
+            <span style="color: #FF0000">'kwargs'</span><span style="color: #990000">:</span> <span style="color: #990000">{</span>
+                <span style="color: #FF0000">'blank'</span><span style="color: #990000">:</span> True
+            <span style="color: #990000">}</span>
+        <span style="color: #990000">},</span>
+        <span style="color: #990000">{</span>
+            <span style="color: #FF0000">'name'</span><span style="color: #990000">:</span> <span style="color: #FF0000">'choice'</span><span style="color: #990000">,</span>
+            <span style="color: #FF0000">'class'</span><span style="color: #990000">:</span> <span style="color: #FF0000">'CharField'</span><span style="color: #990000">,</span>
+            <span style="color: #FF0000">'kwargs'</span><span style="color: #990000">:</span> <span style="color: #990000">{</span>
+                <span style="color: #FF0000">'blank'</span><span style="color: #990000">:</span> True<span style="color: #990000">,</span>
+                <span style="color: #FF0000">'max_length'</span><span style="color: #990000">:</span> <span style="color: #993399">10</span><span style="color: #990000">,</span>
+                <span style="color: #FF0000">'choices'</span><span style="color: #990000">:</span> <span style="color: #990000">((</span><span style="color: #FF0000">'choice1'</span><span style="color: #990000">,</span> <span style="color: #FF0000">'choice1'</span><span style="color: #990000">),</span> <span style="color: #990000">(</span><span style="color: #FF0000">'choice2'</span><span style="color: #990000">,</span> <span style="color: #FF0000">'choice2'</span><span style="color: #990000">))</span>
+            <span style="color: #990000">}</span>
+        <span style="color: #990000">}</span>
+    <span style="color: #990000">])</span>
 
-    <span class="n">objects</span> <span class="o">=</span> <span class="n">hstore</span><span class="o">.</span><span class="n">HStoreManager</span><span class="p">()</span>
-</pre></div></div></div>
+    objects <span style="color: #990000">=</span> hstore<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">HStoreManager</span></span><span style="color: #990000">()</span></tt></pre></div></div>
 <div class="paragraph"><p>After this declaration some additional virtual fields will be available in the model.
 Each virtual field will map to a key in the dictionary field, types are mantained behind the scenes
-by using the <span class="monospaced">to_python</span> method of the field class that has been specified for that key.</p></div>
+by using the <span class="monospaced">to_python</span> method of the field class that has been specified for each key.</p></div>
 <div class="paragraph"><p>The <span class="monospaced">schema</span> parameter is a list of dictionaries, each dictionary representing a field.</p></div>
 <div class="paragraph"><p>Each dictionary should have the following keys:</p></div>
 <div class="paragraph"><p><strong>name</strong>: indicates the name of the attribute that will be created on the model</p></div>
@@ -435,138 +456,153 @@ by using the <span class="monospaced">to_python</span> method of the field class
 </ul></div>
 <div class="paragraph"><p>Other fields might work as well except for <span class="monospaced">FileField</span>, <span class="monospaced">ImageField</span>, and <span class="monospaced">BinaryField</span> which would need some additional work.</p></div>
 <div class="listingblock">
-<div class="title">To add support for <strong>schema mode</strong> in the <strong>admin</strong> use <span class="monospaced">django_hstore.admin.HStoreSchemaAdmin</span>:</div>
-<div class="content"><div class="highlight"><pre><span class="c"># admin.py</span>
-<span class="kn">from</span> <span class="nn">django.contrib</span> <span class="kn">import</span> <span class="n">admin</span>
-<span class="kn">from</span> <span class="nn">django_hstore.admin</span> <span class="kn">import</span> <span class="n">HStoreSchemaAdmin</span>
-<span class="kn">from</span> <span class="nn">.models</span> <span class="kn">import</span> <span class="n">Something</span>
-
-<span class="k">class</span> <span class="nc">SomethingAdmin</span><span class="p">(</span><span class="n">HStoreSchemaAdmin</span><span class="p">):</span>
-    <span class="k">pass</span>
-
-<span class="n">admin</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">Something</span><span class="p">,</span> <span class="n">SomethingAdmin</span><span class="p">)</span>
-</pre></div></div></div>
-<div class="paragraph"><p>An ta-da! The standard django fields can be used in the admin as if you were using real fields.</p></div>
-<div class="listingblock">
 <div class="title">the <span class="monospaced">ReferenceField</span> definition is also straightforward:</div>
-<div class="content"><div class="highlight"><pre><span class="k">class</span> <span class="nc">ReferenceContainer</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
-    <span class="n">name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
-    <span class="n">refs</span> <span class="o">=</span> <span class="n">hstore</span><span class="o">.</span><span class="n">ReferencesField</span><span class="p">()</span>
+<div class="content"><!-- Generator: GNU source-highlight 3.1.6
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><span style="font-weight: bold"><span style="color: #0000FF">class</span></span> <span style="font-weight: bold"><span style="color: #000000">ReferenceContainer</span></span><span style="color: #990000">(</span>models<span style="color: #990000">.</span>Model<span style="color: #990000">):</span>
+    name <span style="color: #990000">=</span> models<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">CharField</span></span><span style="color: #990000">(</span>max_length<span style="color: #990000">=</span><span style="color: #993399">32</span><span style="color: #990000">)</span>
+    refs <span style="color: #990000">=</span> hstore<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">ReferencesField</span></span><span style="color: #990000">()</span>
 
-    <span class="n">objects</span> <span class="o">=</span> <span class="n">hstore</span><span class="o">.</span><span class="n">HStoreManager</span><span class="p">()</span>
-</pre></div></div></div>
+    objects <span style="color: #990000">=</span> hstore<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">HStoreManager</span></span><span style="color: #990000">()</span></tt></pre></div></div>
 </div>
 </div>
 <div class="sect2">
 <h3 id="_python_api">4.4. Python API</h3>
 <div class="paragraph"><p>You then treat the <span class="monospaced">data</span> field as simply a dictionary of string pairs:</p></div>
 <div class="listingblock">
-<div class="content"><div class="highlight"><pre><span class="n">instance</span> <span class="o">=</span> <span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;something&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="s">&#39;1&#39;</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">:</span> <span class="s">&#39;2&#39;</span><span class="p">})</span>
-<span class="k">assert</span> <span class="n">instance</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;1&#39;</span>
+<div class="content"><!-- Generator: GNU source-highlight 3.1.6
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt>instance <span style="color: #990000">=</span> Something<span style="color: #990000">.</span>objects<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">create</span></span><span style="color: #990000">(</span>name<span style="color: #990000">=</span><span style="color: #FF0000">'something'</span><span style="color: #990000">,</span> data<span style="color: #990000">={</span><span style="color: #FF0000">'a'</span><span style="color: #990000">:</span> <span style="color: #FF0000">'1'</span><span style="color: #990000">,</span> <span style="color: #FF0000">'b'</span><span style="color: #990000">:</span> <span style="color: #FF0000">'2'</span><span style="color: #990000">})</span>
+<span style="font-weight: bold"><span style="color: #0000FF">assert</span></span> instance<span style="color: #990000">.</span>data<span style="color: #990000">[</span><span style="color: #FF0000">'a'</span><span style="color: #990000">]</span> <span style="color: #990000">==</span> <span style="color: #FF0000">'1'</span>
 
-<span class="n">empty</span> <span class="o">=</span> <span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;empty&#39;</span><span class="p">)</span>
-<span class="k">assert</span> <span class="n">empty</span><span class="o">.</span><span class="n">data</span> <span class="o">==</span> <span class="p">{}</span>
+empty <span style="color: #990000">=</span> Something<span style="color: #990000">.</span>objects<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">create</span></span><span style="color: #990000">(</span>name<span style="color: #990000">=</span><span style="color: #FF0000">'empty'</span><span style="color: #990000">)</span>
+<span style="font-weight: bold"><span style="color: #0000FF">assert</span></span> empty<span style="color: #990000">.</span>data <span style="color: #990000">==</span> <span style="color: #990000">{}</span>
 
-<span class="n">empty</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;3&#39;</span>
-<span class="n">empty</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
-<span class="k">assert</span> <span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;empty&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;3&#39;</span>
-</pre></div></div></div>
+empty<span style="color: #990000">.</span>data<span style="color: #990000">[</span><span style="color: #FF0000">'a'</span><span style="color: #990000">]</span> <span style="color: #990000">=</span> <span style="color: #FF0000">'3'</span>
+empty<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">save</span></span><span style="color: #990000">()</span>
+<span style="font-weight: bold"><span style="color: #0000FF">assert</span></span> Something<span style="color: #990000">.</span>objects<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">get</span></span><span style="color: #990000">(</span>name<span style="color: #990000">=</span><span style="color: #FF0000">'empty'</span><span style="color: #990000">).</span>data<span style="color: #990000">[</span><span style="color: #FF0000">'a'</span><span style="color: #990000">]</span> <span style="color: #990000">==</span> <span style="color: #FF0000">'3'</span></tt></pre></div></div>
 <div class="paragraph"><p>In <strong>default mode</strong>, Booleans, integers, floats, lists, and dictionaries will be converted to strings,
 while lists, dictionaries, and booleans are converted into JSON formatted strings, so
 can be decoded if needed:</p></div>
 <div class="listingblock">
-<div class="content"><div class="highlight"><pre><span class="n">instance</span> <span class="o">=</span> <span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;something&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;int&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s">&#39;bool&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">})</span>
+<div class="content"><!-- Generator: GNU source-highlight 3.1.6
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt>instance <span style="color: #990000">=</span> Something<span style="color: #990000">.</span>objects<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">create</span></span><span style="color: #990000">(</span>name<span style="color: #990000">=</span><span style="color: #FF0000">'something'</span><span style="color: #990000">,</span> data<span style="color: #990000">={</span><span style="color: #FF0000">'int'</span><span style="color: #990000">:</span> <span style="color: #993399">1</span><span style="color: #990000">,</span> <span style="color: #FF0000">'bool'</span><span style="color: #990000">:</span> True<span style="color: #990000">})</span>
 
-<span class="n">instance</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;int&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;1&#39;</span>
-<span class="n">instance</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;bool&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;true&#39;</span>
+instance<span style="color: #990000">.</span>data<span style="color: #990000">[</span><span style="color: #FF0000">'int'</span><span style="color: #990000">]</span> <span style="color: #990000">==</span> <span style="color: #FF0000">'1'</span>
+instance<span style="color: #990000">.</span>data<span style="color: #990000">[</span><span style="color: #FF0000">'bool'</span><span style="color: #990000">]</span> <span style="color: #990000">==</span> <span style="color: #FF0000">'true'</span>
 
-<span class="kn">import</span> <span class="nn">json</span>
-<span class="n">instance</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;dict&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span> <span class="s">&#39;list&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="p">}</span>
-<span class="n">instance</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;dict&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#39;{&quot;list&quot;: [&quot;a&quot;, false, 1]}&#39;</span>
-<span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">instance</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;dict&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="p">{</span> <span class="s">&#39;list&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="p">}</span>
-<span class="c"># =&gt; True</span>
-</pre></div></div></div>
+<span style="font-weight: bold"><span style="color: #000080">import</span></span> json
+instance<span style="color: #990000">.</span>data<span style="color: #990000">[</span><span style="color: #FF0000">'dict'</span><span style="color: #990000">]</span> <span style="color: #990000">=</span> <span style="color: #990000">{</span> <span style="color: #FF0000">'list'</span><span style="color: #990000">:</span> <span style="color: #990000">[</span><span style="color: #FF0000">'a'</span><span style="color: #990000">,</span> False<span style="color: #990000">,</span> <span style="color: #993399">1</span><span style="color: #990000">]</span> <span style="color: #990000">}</span>
+instance<span style="color: #990000">.</span>data<span style="color: #990000">[</span><span style="color: #FF0000">'dict'</span><span style="color: #990000">]</span> <span style="color: #990000">==</span> <span style="color: #FF0000">'{"list": ["a", false, 1]}'</span>
+json<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">loads</span></span><span style="color: #990000">(</span>instance<span style="color: #990000">.</span>data<span style="color: #990000">[</span><span style="color: #FF0000">'dict'</span><span style="color: #990000">])</span> <span style="color: #990000">==</span> <span style="color: #990000">{</span> <span style="color: #FF0000">'list'</span><span style="color: #990000">:</span> <span style="color: #990000">[</span><span style="color: #FF0000">'a'</span><span style="color: #990000">,</span> False<span style="color: #990000">,</span> <span style="color: #993399">1</span><span style="color: #990000">]</span> <span style="color: #990000">}</span>
+<span style="font-style: italic"><span style="color: #9A1900"># =&gt; True</span></span></tt></pre></div></div>
 <div class="paragraph"><p>Since version <strong>1.3.0</strong> you can use the <strong>schema mode</strong> and you will be able to use
 virtual fields derived from standard django fields which will take care of validation, default values, type casting, choices and so on.
 Each virtual field will be mapped to a key of the <span class="monospaced">DictionaryField</span>:</p></div>
 <div class="listingblock">
-<div class="content"><div class="highlight"><pre><span class="o">&gt;&gt;&gt;</span> <span class="n">obj</span> <span class="o">=</span> <span class="n">SomethingWithSchema</span><span class="p">()</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">obj</span><span class="o">.</span><span class="n">number</span>
-<span class="mi">0</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">obj</span><span class="o">.</span><span class="n">float</span>
-<span class="mf">1.0</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">obj</span><span class="o">.</span><span class="n">number</span> <span class="o">=</span> <span class="mi">3</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">obj</span><span class="o">.</span><span class="n">float</span> <span class="o">=</span> <span class="mf">9.99</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">obj</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">obj</span> <span class="o">=</span> <span class="n">SomethingWithSchema</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">last</span><span class="p">()</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">obj</span><span class="o">.</span><span class="n">number</span>
-<span class="mi">3</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">obj</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;number]</span>
-<span class="mi">3</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">obj</span><span class="o">.</span><span class="n">float</span>
-<span class="mf">9.99</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">obj</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;float&#39;</span><span class="p">]</span>
-<span class="mf">9.99</span>
-</pre></div></div></div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1.6
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><span style="color: #990000">&gt;&gt;&gt;</span> obj <span style="color: #990000">=</span> <span style="font-weight: bold"><span style="color: #000000">SomethingWithSchema</span></span><span style="color: #990000">()</span>
+<span style="color: #990000">&gt;&gt;&gt;</span> obj<span style="color: #990000">.</span>number
+<span style="color: #993399">0</span>
+<span style="color: #990000">&gt;&gt;&gt;</span> obj<span style="color: #990000">.</span>float
+<span style="color: #993399">1.0</span>
+<span style="color: #990000">&gt;&gt;&gt;</span> obj<span style="color: #990000">.</span>number <span style="color: #990000">=</span> <span style="color: #993399">3</span>
+<span style="color: #990000">&gt;&gt;&gt;</span> obj<span style="color: #990000">.</span>float <span style="color: #990000">=</span> <span style="color: #993399">9.99</span>
+<span style="color: #990000">&gt;&gt;&gt;</span> obj<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">save</span></span><span style="color: #990000">()</span>
+<span style="color: #990000">&gt;&gt;&gt;</span> obj <span style="color: #990000">=</span> SomethingWithSchema<span style="color: #990000">.</span>objects<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">last</span></span><span style="color: #990000">()</span>
+<span style="color: #990000">&gt;&gt;&gt;</span> obj<span style="color: #990000">.</span>number
+<span style="color: #993399">3</span>
+<span style="color: #990000">&gt;&gt;&gt;</span> obj<span style="color: #990000">.</span>data<span style="color: #990000">[</span><span style="color: #FF0000">'number'</span><span style="color: #990000">]</span>
+<span style="color: #993399">3</span>
+<span style="color: #990000">&gt;&gt;&gt;</span> obj<span style="color: #990000">.</span>float
+<span style="color: #993399">9.99</span>
+<span style="color: #990000">&gt;&gt;&gt;</span> obj<span style="color: #990000">.</span>data<span style="color: #990000">[</span><span style="color: #FF0000">'float'</span><span style="color: #990000">]</span>
+<span style="color: #993399">9.99</span></tt></pre></div></div>
 <div class="paragraph"><p>You can issue indexed queries against hstore fields:</p></div>
 <div class="listingblock">
-<div class="content"><div class="highlight"><pre><span class="c"># equivalence</span>
-<span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="s">&#39;1&#39;</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">:</span> <span class="s">&#39;2&#39;</span><span class="p">})</span>
+<div class="content"><!-- Generator: GNU source-highlight 3.1.6
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><span style="font-style: italic"><span style="color: #9A1900"># equivalence</span></span>
+Something<span style="color: #990000">.</span>objects<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">filter</span></span><span style="color: #990000">(</span>data<span style="color: #990000">={</span><span style="color: #FF0000">'a'</span><span style="color: #990000">:</span> <span style="color: #FF0000">'1'</span><span style="color: #990000">,</span> <span style="color: #FF0000">'b'</span><span style="color: #990000">:</span> <span style="color: #FF0000">'2'</span><span style="color: #990000">})</span>
 
-<span class="c"># comparison (greater than, less than or equal to, ecc)</span>
-<span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">data__gt</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="s">&#39;1&#39;</span><span class="p">})</span>
-<span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">data__gte</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="s">&#39;1&#39;</span><span class="p">})</span>
-<span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">data__lt</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="s">&#39;2&#39;</span><span class="p">})</span>
-<span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">data__lte</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="s">&#39;2&#39;</span><span class="p">})</span>
+<span style="font-style: italic"><span style="color: #9A1900"># comparison (greater than, less than or equal to, ecc)</span></span>
+Something<span style="color: #990000">.</span>objects<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">filter</span></span><span style="color: #990000">(</span>data__gt<span style="color: #990000">={</span><span style="color: #FF0000">'a'</span><span style="color: #990000">:</span> <span style="color: #FF0000">'1'</span><span style="color: #990000">})</span>
+Something<span style="color: #990000">.</span>objects<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">filter</span></span><span style="color: #990000">(</span>data__gte<span style="color: #990000">={</span><span style="color: #FF0000">'a'</span><span style="color: #990000">:</span> <span style="color: #FF0000">'1'</span><span style="color: #990000">})</span>
+Something<span style="color: #990000">.</span>objects<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">filter</span></span><span style="color: #990000">(</span>data__lt<span style="color: #990000">={</span><span style="color: #FF0000">'a'</span><span style="color: #990000">:</span> <span style="color: #FF0000">'2'</span><span style="color: #990000">})</span>
+Something<span style="color: #990000">.</span>objects<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">filter</span></span><span style="color: #990000">(</span>data__lte<span style="color: #990000">={</span><span style="color: #FF0000">'a'</span><span style="color: #990000">:</span> <span style="color: #FF0000">'2'</span><span style="color: #990000">})</span>
 
-<span class="c"># subset by key/value mapping</span>
-<span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">data__contains</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="s">&#39;1&#39;</span><span class="p">})</span>
+<span style="font-style: italic"><span style="color: #9A1900"># more than one key can be supplied, the result will include the objects which satisfy the</span></span>
+<span style="font-style: italic"><span style="color: #9A1900"># condition (greater than, less than or equal to, ecc) on all supplied keys</span></span>
+Something<span style="color: #990000">.</span>objects<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">filter</span></span><span style="color: #990000">(</span>data__gt<span style="color: #990000">={</span><span style="color: #FF0000">'a'</span><span style="color: #990000">:</span> <span style="color: #FF0000">'1'</span><span style="color: #990000">,</span><span style="color: #FF0000">'b'</span><span style="color: #990000">:</span> <span style="color: #FF0000">'2'</span><span style="color: #990000">})</span>
+Something<span style="color: #990000">.</span>objects<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">filter</span></span><span style="color: #990000">(</span>data__gte<span style="color: #990000">={</span><span style="color: #FF0000">'a'</span><span style="color: #990000">:</span> <span style="color: #FF0000">'1'</span><span style="color: #990000">,</span><span style="color: #FF0000">'b'</span><span style="color: #990000">:</span> <span style="color: #FF0000">'2'</span><span style="color: #990000">})</span>
+Something<span style="color: #990000">.</span>objects<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">filter</span></span><span style="color: #990000">(</span>data__lt<span style="color: #990000">={</span><span style="color: #FF0000">'a'</span><span style="color: #990000">:</span> <span style="color: #FF0000">'2'</span><span style="color: #990000">,</span> <span style="color: #FF0000">'b'</span><span style="color: #990000">:</span> <span style="color: #FF0000">'3'</span><span style="color: #990000">})</span>
+Something<span style="color: #990000">.</span>objects<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">filter</span></span><span style="color: #990000">(</span>data__lte<span style="color: #990000">={</span><span style="color: #FF0000">'a'</span><span style="color: #990000">:</span> <span style="color: #FF0000">'2'</span><span style="color: #990000">,</span> <span style="color: #FF0000">'b: '</span><span style="color: #993399">3</span>'<span style="color: #990000">})</span>
 
-<span class="c"># subset by list of some key values</span>
-<span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">data__contains</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;1&#39;</span><span class="p">,</span> <span class="s">&#39;2&#39;</span><span class="p">]})</span>
+<span style="font-style: italic"><span style="color: #9A1900"># subset by key/value mapping</span></span>
+Something<span style="color: #990000">.</span>objects<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">filter</span></span><span style="color: #990000">(</span>data__contains<span style="color: #990000">={</span><span style="color: #FF0000">'a'</span><span style="color: #990000">:</span> <span style="color: #FF0000">'1'</span><span style="color: #990000">})</span>
 
-<span class="c"># subset by list of keys</span>
-<span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">data__contains</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">])</span>
+<span style="font-style: italic"><span style="color: #9A1900"># subset by list of some key values</span></span>
+Something<span style="color: #990000">.</span>objects<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">filter</span></span><span style="color: #990000">(</span>data__contains<span style="color: #990000">={</span><span style="color: #FF0000">'a'</span><span style="color: #990000">:</span> <span style="color: #990000">[</span><span style="color: #FF0000">'1'</span><span style="color: #990000">,</span> <span style="color: #FF0000">'2'</span><span style="color: #990000">]})</span>
 
-<span class="c"># subset by single key</span>
-<span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">data__contains</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">])</span>
-</pre></div></div></div>
+<span style="font-style: italic"><span style="color: #9A1900"># subset by list of keys</span></span>
+Something<span style="color: #990000">.</span>objects<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">filter</span></span><span style="color: #990000">(</span>data__contains<span style="color: #990000">=[</span><span style="color: #FF0000">'a'</span><span style="color: #990000">,</span> <span style="color: #FF0000">'b'</span><span style="color: #990000">])</span>
+
+<span style="font-style: italic"><span style="color: #9A1900"># subset by single key</span></span>
+Something<span style="color: #990000">.</span>objects<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">filter</span></span><span style="color: #990000">(</span>data__contains<span style="color: #990000">=[</span><span style="color: #FF0000">'a'</span><span style="color: #990000">])</span></tt></pre></div></div>
 <div class="paragraph"><p>You can still do classic django "contains" lookups as you would normally do for normal text
 fields if you were looking for a particular string. In this case, the HSTORE field
 will be converted to text and the lookup will be performed on all the keys and all the values:</p></div>
 <div class="listingblock">
-<div class="content"><div class="highlight"><pre><span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">{</span> <span class="s">&#39;some_key&#39;</span><span class="p">:</span> <span class="s">&#39;some crazy Value&#39;</span> <span class="p">})</span>
+<div class="content"><!-- Generator: GNU source-highlight 3.1.6
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt>Something<span style="color: #990000">.</span>objects<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">create</span></span><span style="color: #990000">(</span>data<span style="color: #990000">={</span> <span style="color: #FF0000">'some_key'</span><span style="color: #990000">:</span> <span style="color: #FF0000">'some crazy Value'</span> <span style="color: #990000">})</span>
 
-<span class="c"># classic text lookup (look up for occurence of string in all the keys)</span>
-<span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">data__contains</span><span class="o">=</span><span class="s">&#39;crazy&#39;</span><span class="p">)</span>
-<span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">data__contains</span><span class="o">=</span><span class="s">&#39;some_key&#39;</span><span class="p">)</span>
-<span class="c"># classic case insensitive text looup</span>
-<span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">data__icontains</span><span class="o">=</span><span class="s">&#39;value&#39;</span><span class="p">)</span>
-<span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">data__icontains</span><span class="o">=</span><span class="s">&#39;SOME_KEY&#39;</span><span class="p">)</span>
-</pre></div></div></div>
+<span style="font-style: italic"><span style="color: #9A1900"># classic text lookup (look up for occurence of string in all the keys)</span></span>
+Something<span style="color: #990000">.</span>objects<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">filter</span></span><span style="color: #990000">(</span>data__contains<span style="color: #990000">=</span><span style="color: #FF0000">'crazy'</span><span style="color: #990000">)</span>
+Something<span style="color: #990000">.</span>objects<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">filter</span></span><span style="color: #990000">(</span>data__contains<span style="color: #990000">=</span><span style="color: #FF0000">'some_key'</span><span style="color: #990000">)</span>
+<span style="font-style: italic"><span style="color: #9A1900"># classic case insensitive text looup</span></span>
+Something<span style="color: #990000">.</span>objects<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">filter</span></span><span style="color: #990000">(</span>data__icontains<span style="color: #990000">=</span><span style="color: #FF0000">'value'</span><span style="color: #990000">)</span>
+Something<span style="color: #990000">.</span>objects<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">filter</span></span><span style="color: #990000">(</span>data__icontains<span style="color: #990000">=</span><span style="color: #FF0000">'SOME_KEY'</span><span style="color: #990000">)</span></tt></pre></div></div>
 </div>
 <div class="sect2">
 <h3 id="_hstore_manager">4.5. HSTORE manager</h3>
 <div class="paragraph"><p>You can also take advantage of some db-side functionality by using the manager:</p></div>
 <div class="listingblock">
-<div class="content"><div class="highlight"><pre><span class="c"># identify the keys present in an hstore field</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">hkeys</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">instance</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">attr</span><span class="o">=</span><span class="s">&#39;data&#39;</span><span class="p">)</span>
-<span class="p">[</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">]</span>
+<div class="content"><!-- Generator: GNU source-highlight 3.1.6
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><span style="font-style: italic"><span style="color: #9A1900"># identify the keys present in an hstore field</span></span>
+<span style="color: #990000">&gt;&gt;&gt;</span> Something<span style="color: #990000">.</span>objects<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">hkeys</span></span><span style="color: #990000">(</span>id<span style="color: #990000">=</span>instance<span style="color: #990000">.</span>id<span style="color: #990000">,</span> attr<span style="color: #990000">=</span><span style="color: #FF0000">'data'</span><span style="color: #990000">)</span>
+<span style="color: #990000">[</span><span style="color: #FF0000">'a'</span><span style="color: #990000">,</span> <span style="color: #FF0000">'b'</span><span style="color: #990000">]</span>
 
-<span class="c"># peek at a a named value within an hstore field</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">hpeek</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">instance</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">attr</span><span class="o">=</span><span class="s">&#39;data&#39;</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s">&#39;a&#39;</span><span class="p">)</span>
-<span class="s">&#39;1&#39;</span>
+<span style="font-style: italic"><span style="color: #9A1900"># peek at a a named value within an hstore field</span></span>
+<span style="color: #990000">&gt;&gt;&gt;</span> Something<span style="color: #990000">.</span>objects<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">hpeek</span></span><span style="color: #990000">(</span>id<span style="color: #990000">=</span>instance<span style="color: #990000">.</span>id<span style="color: #990000">,</span> attr<span style="color: #990000">=</span><span style="color: #FF0000">'data'</span><span style="color: #990000">,</span> key<span style="color: #990000">=</span><span style="color: #FF0000">'a'</span><span style="color: #990000">)</span>
+<span style="font-style: italic"><span style="color: #9A1900">'1'</span></span>
 
-<span class="c"># do the same, after filter</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">instance</span><span class="o">.</span><span class="n">id</span><span class="p">)</span><span class="o">.</span><span class="n">hpeek</span><span class="p">(</span><span class="n">attr</span><span class="o">=</span><span class="s">&#39;data&#39;</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s">&#39;a&#39;</span><span class="p">)</span>
-<span class="s">&#39;1&#39;</span>
+<span style="font-style: italic"><span style="color: #9A1900"># do the same, after filter</span></span>
+<span style="color: #990000">&gt;&gt;&gt;</span> Something<span style="color: #990000">.</span>objects<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">filter</span></span><span style="color: #990000">(</span>id<span style="color: #990000">=</span>instance<span style="color: #990000">.</span>id<span style="color: #990000">).</span><span style="font-weight: bold"><span style="color: #000000">hpeek</span></span><span style="color: #990000">(</span>attr<span style="color: #990000">=</span><span style="color: #FF0000">'data'</span><span style="color: #990000">,</span> key<span style="color: #990000">=</span><span style="color: #FF0000">'a'</span><span style="color: #990000">)</span>
+<span style="font-style: italic"><span style="color: #9A1900">'1'</span></span>
 
-<span class="c"># remove a key/value pair from an hstore field</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">Something</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;something&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">hremove</span><span class="p">(</span><span class="s">&#39;data&#39;</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">)</span>
+<span style="font-style: italic"><span style="color: #9A1900"># remove a key/value pair from an hstore field</span></span>
+<span style="color: #990000">&gt;&gt;&gt;</span> Something<span style="color: #990000">.</span>objects<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">filter</span></span><span style="color: #990000">(</span>name<span style="color: #990000">=</span><span style="color: #FF0000">'something'</span><span style="color: #990000">).</span><span style="font-weight: bold"><span style="color: #000000">hremove</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'data'</span><span style="color: #990000">,</span> <span style="color: #FF0000">'b'</span><span style="color: #990000">)</span>
 
-<span class="n">The</span> <span class="n">hstore</span> <span class="n">methods</span> <span class="n">on</span> <span class="n">manager</span> <span class="k">pass</span> <span class="nb">all</span> <span class="n">keyword</span> <span class="n">arguments</span> <span class="n">aside</span> <span class="kn">from</span> <span class="sb">`attr`</span> <span class="ow">and</span>
-<span class="sb">`key`</span> <span class="n">to</span> <span class="sb">`.filter()`</span><span class="o">.</span>
-</pre></div></div></div>
+The hstore methods on manager <span style="font-weight: bold"><span style="color: #0000FF">pass</span></span> all keyword arguments aside <span style="font-weight: bold"><span style="color: #000080">from</span></span> `attr` <span style="font-weight: bold"><span style="color: #0000FF">and</span></span>
+`key` to `<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">filter</span></span><span style="color: #990000">()</span>`<span style="color: #990000">.</span></tt></pre></div></div>
 </div>
 <div class="sect2">
 <h3 id="_referencefield_usage">4.6. ReferenceField Usage</h3>
@@ -574,35 +610,41 @@ will be converted to text and the lookup will be performed on all the keys and a
 without using a classic ManyToMany relationship.</p></div>
 <div class="paragraph"><p>Here&#8217;s an example with the <span class="monospaced">ReferenceContainer</span> model defined in the <strong>Model fields</strong> section:</p></div>
 <div class="listingblock">
-<div class="content"><div class="highlight"><pre><span class="n">r</span> <span class="o">=</span> <span class="n">ReferenceContainer</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;test&#39;</span><span class="p">)</span>
-<span class="n">r</span><span class="o">.</span><span class="n">refs</span><span class="p">[</span><span class="s">&#39;another_object&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">AnotherModel</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">slug</span><span class="o">=</span><span class="s">&#39;another-object&#39;</span><span class="p">)</span>
-<span class="n">r</span><span class="o">.</span><span class="n">refs</span><span class="p">[</span><span class="s">&#39;some_object&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">AnotherModel</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">slug</span><span class="o">=</span><span class="s">&#39;some-object&#39;</span><span class="p">)</span>
-<span class="n">r</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+<div class="content"><!-- Generator: GNU source-highlight 3.1.6
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt>r <span style="color: #990000">=</span> <span style="font-weight: bold"><span style="color: #000000">ReferenceContainer</span></span><span style="color: #990000">(</span>name<span style="color: #990000">=</span><span style="color: #FF0000">'test'</span><span style="color: #990000">)</span>
+r<span style="color: #990000">.</span>refs<span style="color: #990000">[</span><span style="color: #FF0000">'another_object'</span><span style="color: #990000">]</span> <span style="color: #990000">=</span> AnotherModel<span style="color: #990000">.</span>objects<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">get</span></span><span style="color: #990000">(</span>slug<span style="color: #990000">=</span><span style="color: #FF0000">'another-object'</span><span style="color: #990000">)</span>
+r<span style="color: #990000">.</span>refs<span style="color: #990000">[</span><span style="color: #FF0000">'some_object'</span><span style="color: #990000">]</span> <span style="color: #990000">=</span> AnotherModel<span style="color: #990000">.</span>objects<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">get</span></span><span style="color: #990000">(</span>slug<span style="color: #990000">=</span><span style="color: #FF0000">'some-object'</span><span style="color: #990000">)</span>
+r<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">save</span></span><span style="color: #990000">()</span>
 
-<span class="n">r</span> <span class="o">=</span> <span class="n">ReferenceContainer</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;test&#39;</span><span class="p">)</span>
-<span class="n">r</span><span class="o">.</span><span class="n">refs</span><span class="p">[</span><span class="s">&#39;another_object&#39;</span><span class="p">]</span>
-<span class="s">&#39;&lt;AnotherModel: AnotherModel object&gt;&#39;</span>
-<span class="n">r</span><span class="o">.</span><span class="n">refs</span><span class="p">[</span><span class="s">&#39;some_object&#39;</span><span class="p">]</span>
-<span class="s">&#39;&lt;AnotherModel: AnotherModel some_object&gt;&#39;</span>
-</pre></div></div></div>
+r <span style="color: #990000">=</span> ReferenceContainer<span style="color: #990000">.</span>objects<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">get</span></span><span style="color: #990000">(</span>name<span style="color: #990000">=</span><span style="color: #FF0000">'test'</span><span style="color: #990000">)</span>
+r<span style="color: #990000">.</span>refs<span style="color: #990000">[</span><span style="color: #FF0000">'another_object'</span><span style="color: #990000">]</span>
+<span style="font-style: italic"><span style="color: #9A1900">'&lt;AnotherModel: AnotherModel object&gt;'</span></span>
+r<span style="color: #990000">.</span>refs<span style="color: #990000">[</span><span style="color: #FF0000">'some_object'</span><span style="color: #990000">]</span>
+<span style="font-style: italic"><span style="color: #9A1900">'&lt;AnotherModel: AnotherModel some_object&gt;'</span></span></tt></pre></div></div>
 <div class="paragraph"><p>The database is queried only when references are accessed directly.
 Once references have been retrieved they will be stored for any eventual subsequent access:</p></div>
 <div class="listingblock">
-<div class="content"><div class="highlight"><pre><span class="n">r</span> <span class="o">=</span> <span class="n">ReferenceContainer</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;test&#39;</span><span class="p">)</span>
-<span class="c"># this won&#39;t query the database</span>
-<span class="n">r</span><span class="o">.</span><span class="n">refs</span>
-<span class="p">{</span> <span class="s">u&#39;another_object&#39;</span><span class="p">:</span> <span class="s">u&#39;myapp.models.AnotherModel:1&#39;</span><span class="p">,</span>
-  <span class="s">u&#39;some_object&#39;</span><span class="p">:</span> <span class="s">u&#39;myapp.models.AnotherModel:2&#39;</span> <span class="p">}</span>
+<div class="content"><!-- Generator: GNU source-highlight 3.1.6
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt>r <span style="color: #990000">=</span> ReferenceContainer<span style="color: #990000">.</span>objects<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">get</span></span><span style="color: #990000">(</span>name<span style="color: #990000">=</span><span style="color: #FF0000">'test'</span><span style="color: #990000">)</span>
+<span style="font-style: italic"><span style="color: #9A1900"># this won't query the database</span></span>
+r<span style="color: #990000">.</span>refs
+<span style="color: #990000">{</span> u<span style="color: #FF0000">'another_object'</span><span style="color: #990000">:</span> u<span style="color: #FF0000">'myapp.models.AnotherModel:1'</span><span style="color: #990000">,</span>
+  u<span style="color: #FF0000">'some_object'</span><span style="color: #990000">:</span> u<span style="color: #FF0000">'myapp.models.AnotherModel:2'</span> <span style="color: #990000">}</span>
 
-<span class="c"># this will query the database</span>
-<span class="n">r</span><span class="o">.</span><span class="n">refs</span><span class="p">[</span><span class="s">&#39;another_object&#39;</span><span class="p">]</span>
-<span class="s">&#39;&lt;AnotherModel: AnotherModel object&gt;&#39;</span>
+<span style="font-style: italic"><span style="color: #9A1900"># this will query the database</span></span>
+r<span style="color: #990000">.</span>refs<span style="color: #990000">[</span><span style="color: #FF0000">'another_object'</span><span style="color: #990000">]</span>
+<span style="font-style: italic"><span style="color: #9A1900">'&lt;AnotherModel: AnotherModel object&gt;'</span></span>
 
-<span class="c"># retrieved reference is now visible also when calling the HStoreDict object:</span>
-<span class="n">r</span><span class="o">.</span><span class="n">refs</span>
-<span class="p">{</span> <span class="s">u&#39;another_object&#39;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">AnotherModel</span><span class="p">:</span> <span class="n">AnotherModel</span> <span class="nb">object</span><span class="o">&gt;</span><span class="p">,</span>
-  <span class="s">u&#39;some_object&#39;</span><span class="p">:</span> <span class="s">u&#39;myapp.models.AnotherModel:2&#39;</span> <span class="p">}</span>
-</pre></div></div></div>
+<span style="font-style: italic"><span style="color: #9A1900"># retrieved reference is now visible also when calling the HStoreDict object:</span></span>
+r<span style="color: #990000">.</span>refs
+<span style="color: #990000">{</span> u<span style="color: #FF0000">'another_object'</span><span style="color: #990000">:</span> <span style="color: #990000">&lt;</span>AnotherModel<span style="color: #990000">:</span> AnotherModel object<span style="color: #990000">&gt;,</span>
+  u<span style="color: #FF0000">'some_object'</span><span style="color: #990000">:</span> u<span style="color: #FF0000">'myapp.models.AnotherModel:2'</span> <span style="color: #990000">}</span></tt></pre></div></div>
 </div>
 </div>
 </div>
@@ -615,13 +657,19 @@ Once references have been retrieved they will be stored for any eventual subsequ
 <div class="paragraph"><p>Assuming one has the dependencies installed, and a <strong>PostgreSQL 9.0+</strong> server up and
 running:</p></div>
 <div class="listingblock">
-<div class="content"><div class="highlight"><pre>python runtests.py
-</pre></div></div></div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1.6
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt>python runtests<span style="color: #990000">.</span>py</tt></pre></div></div>
 <div class="paragraph"><p>By default the tests run with the postgis backend.</p></div>
 <div class="paragraph"><p>If you want to run the tests with psycopg2 backend you can do:</p></div>
 <div class="listingblock">
-<div class="content"><div class="highlight"><pre>python runtests.py --settings<span class="o">=</span>settings_psycopg
-</pre></div></div></div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1.6
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt>python runtests<span style="color: #990000">.</span>py --settings<span style="color: #990000">=</span>settings_psycopg</tt></pre></div></div>
 <div class="paragraph"><p>You might need to tweak the DB settings according to your DB configuration.</p></div>
 <div class="paragraph"><p>If you need to do so you can copy the file <span class="monospaced">local_settings.py.example</span> to <span class="monospaced">local_settings.py</span> and add
 your database tweaks on it. <span class="monospaced">local_settings.py</span> will be automatically imported in <span class="monospaced">settings.py</span>.
@@ -633,8 +681,11 @@ The same applies for <span class="monospaced">local_settings_psycopg.py.example<
 </pre></div></div></div>
 <div class="paragraph"><p>Try this:</p></div>
 <div class="listingblock">
-<div class="content"><div class="highlight"><pre>psql template1 -c <span class="s1">&#39;create extension hstore;&#39;</span>
-</pre></div></div></div>
+<div class="content"><!-- Generator: GNU source-highlight 3.1.6
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt>psql template1 -c <span style="color: #FF0000">'create extension hstore;'</span></tt></pre></div></div>
 <div class="paragraph"><p>More details here on link: <a href="http://clarkdave.net/2012/09/postgresql-error-type-hstore-does-not-exist/">PostgreSQL error type hstore does not exist</a>.</p></div>
 </div>
 <div class="sect2">
@@ -743,7 +794,7 @@ THE SOFTWARE.
 <div id="footnotes"><hr></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2014-07-26 00:49:40 CEST
+Last updated 2014-08-03 23:26:11 CEST
 </div>
 </div>
 </body>
