@@ -100,8 +100,6 @@ class DictionaryField(HStoreField):
             self.schema_mode = True
             # DictionaryField with schema is not editable via admin
             kwargs['editable'] = False
-            # DictionaryField with schema defaults to empty dict
-            kwargs['default'] = {}
         
         super(DictionaryField, self).__init__(*args, **kwargs)
     
