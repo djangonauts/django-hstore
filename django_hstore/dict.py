@@ -73,7 +73,10 @@ class HStoreDict(UnicodeMixin, dict):
         value = super(HStoreDict, self).__getitem__(*args, **kwargs)
         
         if self.schema_mode:
-            return self.instance._hstore_virtual_fields[args[0]].to_python(value)
+            try:
+                return self.instance._hstore_virtual_fields[args[0]].to_python(value)
+            except KeyError:
+                pass
         
         return value
     

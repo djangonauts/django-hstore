@@ -788,6 +788,11 @@ class SchemaTests(TestCase):
             self.assertEqual(s1.choice2, 'choice1')
             self.assertEqual(s1.char, 'create2')
             self.assertEqual(s1.text, 'create3')
+        
+        def test_extra_key_regression(self):
+            s = SchemaDataBag()
+            s.data['extrakey'] = 2
+            self.assertEqual(s.data['extrakey'], '2')
     else:
         def test_improperly_configured(self):            
             with self.assertRaises(ImproperlyConfigured):
