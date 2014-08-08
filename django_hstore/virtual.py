@@ -89,6 +89,16 @@ def create_hstore_virtual_field(field_cls, kwargs, hstore_field_name):
         import datetime
         kwargs['default'] = datetime.datetime.utcnow()
     
+    # support Date and DateTime in django-rest-framework-hstore
+    if BaseField == models.DateTimeField or BaseField == models.DateField:
+        def value_to_string(self, obj):
+            val = self._get_val_from_obj(obj)
+            try:
+                return '' if val is None else val.isoformat()
+            except AttributeError as e:
+                return val
+        VirtualField.value_to_string = value_to_string
+    
     field = VirtualField(**kwargs)
     
     if field.default == models.fields.NOT_PROVIDED:

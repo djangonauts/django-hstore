@@ -793,6 +793,14 @@ class SchemaTests(TestCase):
             s = SchemaDataBag()
             s.data['extrakey'] = 2
             self.assertEqual(s.data['extrakey'], '2')
+        
+        def test_virtual_date_drf_support(self):
+            class FakeModel(object):
+                date = '2014-08-08'
+            
+            virtual_date = SchemaDataBag()._hstore_virtual_fields['date']
+            
+            self.assertEqual(virtual_date.value_to_string(FakeModel()), '2014-08-08')
     else:
         def test_improperly_configured(self):            
             with self.assertRaises(ImproperlyConfigured):
