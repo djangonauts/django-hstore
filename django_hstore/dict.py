@@ -68,7 +68,7 @@ class HStoreDict(UnicodeMixin, dict):
     
     def __getitem__(self, *args, **kwargs):
         """
-        unschema_mode value if necessary
+        retrieve value preserving type if in schema mode, string only otherwise
         """
         value = super(HStoreDict, self).__getitem__(*args, **kwargs)
         
