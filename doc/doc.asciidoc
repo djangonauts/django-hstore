@@ -54,7 +54,8 @@ Limitations
   mapping of string keys to string values. Values are stored as strings in the
   database regarding of their original type. *This limitation can be overcome by using the schema mode since version 1.3.0 of django_hstore*.
 - The hstore extension is not automatically installed on use with this package: you must install it manually.
-- To run tests, hstore extension must be installed on template1 database.
+- To run tests, hstore extension must be installed on template1 database. 
+  To install hstore on template1: `$ psql -d template1 -c 'create extension hstore;'`
 - The admin widget will work with inlines only if using `StackedInline`. It won't work on `TabularInline`.
 - If `django.middleware.transaction.TransactionMiddleware` is enabled and the project is deployed
   through `uwsgi`, the first request to a view working with models featuring hstore fields will raise an exception;
