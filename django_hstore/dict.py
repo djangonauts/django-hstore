@@ -123,9 +123,9 @@ class HStoreDict(UnicodeMixin, dict):
         if not self.schema_mode:
             if isinstance(value, bool):
                 return force_text(value).lower()
-            elif isinstance(value, (int, float, Decimal)):
+            elif isinstance(value, six.integer_types + (float, Decimal)):
                 return force_text(value)
-            elif isinstance(value, list) or isinstance(value, dict):
+            elif isinstance(value, (list, dict)):
                 return force_text(json.dumps(value))
             else:
                 return value
