@@ -3,7 +3,10 @@ from django.utils import six
 from django.utils.functional import curry
 
 
-__all__ = ['create_hstore_virtual_field']
+__all__ = [
+    'create_hstore_virtual_field',
+    'VirtualField'
+]
 
 
 
@@ -56,6 +59,11 @@ class HStoreVirtualMixin(object):
     # end descriptor methods
 
 
+# dummy class, used by django 1.7 schema editor only
+class VirtualField(HStoreVirtualMixin, models.Field):
+    pass
+
+
 def create_hstore_virtual_field(field_cls, kwargs, hstore_field_name):
     """
     returns an instance of an HStore virtual field which is mixed-in
@@ -81,13 +89,10 @@ def create_hstore_virtual_field(field_cls, kwargs, hstore_field_name):
         
         def deconstruct(self, *args, **kwargs):
             """
-            substitute path with the path of the BaseField
-            in order to avoid breaking the django 1.7 migration framework
+            specific for django 1.7 and greater (migration framework)
             """
             name, path, args, kwargs = super(VirtualField, self).deconstruct(*args, **kwargs)
-            path = "%s.%s" % (BaseField.__module__, BaseField.__name__)
-            path = path.replace("django.db.models.fields", "django.db.models")
-            return (name, path, args, kwargs)
+            return (name, path, args, { 'default': kwargs.get('default')})
     
     # support DateTimeField
     if BaseField == models.DateTimeField and kwargs.get('default') is None:
