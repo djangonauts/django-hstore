@@ -78,11 +78,33 @@ def create_hstore_virtual_field(field_cls, kwargs, hstore_field_name):
             except KeyError:
                 raise ValueError('missing hstore_field_name keyword argument')
             super(VirtualField, self).__init__(*args, **kwargs)
-            # trick django into thinking this is the original field
-            # this avoids overriding the deconstruct method in order to avoid
-            # breaking django 1.7 migration framework
-            self.__class__.__module__ = BaseField.__module__
-            self.__class__.__name__ = BaseField.__name__
+        
+        def deconstruct(self, *args, **kwargs):
+            """
+            substitute path with the path of the BaseField
+            in order to avoid breaking the django 1.7 migration framework
+            
+            if this pull request gets accepted this method can be removed:
+                https://code.djangoproject.com/ticket/23159
+                https://github.com/django/django/pull/3013
+            """
+            name, path, args, kwargs = super(VirtualField, self).deconstruct(*args, **kwargs)
+            # Work out path - we shorten it for known Django core fields
+            path = "%s.%s" % (BaseField.__module__, BaseField.__name__)
+            if path.startswith("django.db.models.fields.related"):
+                path = path.replace("django.db.models.fields.related", "django.db.models")
+            if path.startswith("django.db.models.fields.files"):
+                path = path.replace("django.db.models.fields.files", "django.db.models")
+            if path.startswith("django.db.models.fields.proxy"):
+                path = path.replace("django.db.models.fields.proxy", "django.db.models")
+            if path.startswith("django.db.models.fields"):
+                path = path.replace("django.db.models.fields", "django.db.models")
+            return (
+                name,
+                path,
+                args,
+                kwargs
+            )
     
     # support DateTimeField
     if BaseField == models.DateTimeField and kwargs.get('default') is None:
