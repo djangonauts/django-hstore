@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import sys
 import json
 import pickle
 from decimal import Decimal
@@ -63,17 +64,18 @@ class TestDictionaryField(TestCase):
         self.assertEqual(databag.data['dec'], force_text(Decimal('1.01')))
     
     def test_long(self):
-        l = long(100000000000)
-        databag = DataBag(name='long')
-        databag.data['long'] = l
-        self.assertEqual(databag.data['long'], force_text(l))
-
-        databag.save()
-        databag = DataBag.objects.get(name='long')
-        self.assertEqual(databag.data['long'], force_text(l))
-
-        databag = DataBag(name='long', data={'long': l})
-        self.assertEqual(databag.data['long'], force_text(l))
+        if sys.version < '3':
+            l = long(100000000000)
+            databag = DataBag(name='long')
+            databag.data['long'] = l
+            self.assertEqual(databag.data['long'], force_text(l))
+    
+            databag.save()
+            databag = DataBag.objects.get(name='long')
+            self.assertEqual(databag.data['long'], force_text(l))
+    
+            databag = DataBag(name='long', data={'long': l})
+            self.assertEqual(databag.data['long'], force_text(l))
 
     def test_number(self):
         databag = DataBag(name='number')
