@@ -554,9 +554,7 @@ class TestDictionaryField(TestCase):
     def test_get_default(self):
         d = HStoreDict()
         self.assertIsNone(d.get('none_key', None))
-        
-        with self.assertRaises(KeyError):
-            d.get('none_key')
+        self.assertIsNone(d.get('none_key'))
 
 
 class SchemaTests(TestCase):
@@ -590,11 +588,8 @@ class SchemaTests(TestCase):
             
             d['number'] = 2
             self.assertEqual(d.get('number'), 2)
-        
             self.assertEqual(d.get('default_test', 'default'), 'default')
-            
-            with self.assertRaises(KeyError):
-                d.get('default_test')
+            self.assertIsNone(d.get('default_test'))
         
         def test_virtual_field_default_value(self):
             d = SchemaDataBag()

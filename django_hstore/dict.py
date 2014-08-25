@@ -88,7 +88,7 @@ class HStoreDict(UnicodeMixin, dict):
             if len(args) > 1:
                 return args[1]  # return default value
             else:
-                raise e
+                return None
 
     # This method is used both for python3 and python2
     # thanks to UnicodeMixin
