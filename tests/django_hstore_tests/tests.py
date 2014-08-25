@@ -811,6 +811,11 @@ class SchemaTests(TestCase):
             virtual_date = SchemaDataBag()._hstore_virtual_fields['date']
             
             self.assertEqual(virtual_date.value_to_string(FakeModel()), '2014-08-08')
+        
+        def test_basefield_attribute(self):
+            virtual_field = SchemaDataBag()._hstore_virtual_fields['char']
+            self.assertEqual(virtual_field.__basefield__.__name__, 'CharField')
+        
     else:
         def test_improperly_configured(self):            
             with self.assertRaises(ImproperlyConfigured):

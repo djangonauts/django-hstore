@@ -80,11 +80,14 @@ def create_hstore_virtual_field(field_cls, kwargs, hstore_field_name):
         raise ValueError('field must be either a django standard field or a subclass of django.db.models.Field')
         
     class VirtualField(HStoreVirtualMixin, BaseField):
+        # keep basefield info (added for django-rest-framework-hstore)
+        __basefield__ = BaseField
+        
         def __init__(self, *args, **kwargs):
             try:
                 self.hstore_field_name = hstore_field_name
             except KeyError:
-                raise ValueError('missing hstore_field_name keyword argument')
+                raise ValueError('missing hstore_field_name keyword argument')    
             super(VirtualField, self).__init__(*args, **kwargs)
         
         def deconstruct(self, *args, **kwargs):
