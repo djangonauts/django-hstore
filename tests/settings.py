@@ -26,29 +26,24 @@ DATABASES = {
 
 ALLOWED_HOSTS = []
 
+INSTALLED_APPS = (
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'django_hstore',
+    'django_hstore_tests'
+)
 
 if django.VERSION[:2] >= (1, 7):
     INSTALLED_APPS = (
         'django.contrib.admin.apps.AdminConfig',
-        'django.contrib.auth',
-        'django.contrib.contenttypes',
-        'django.contrib.sessions',
-        'django.contrib.messages',
-        'django.contrib.staticfiles',
-        'django_hstore',
-        'django_hstore_tests',
-    )
+    ) + INSTALLED_APPS
 else:
     INSTALLED_APPS = (
         'django.contrib.admin',
-        'django.contrib.auth',
-        'django.contrib.contenttypes',
-        'django.contrib.sessions',
-        'django.contrib.messages',
-        'django.contrib.staticfiles',
-        'django_hstore',
-        'django_hstore_tests',
-    )
+    ) + INSTALLED_APPS
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
