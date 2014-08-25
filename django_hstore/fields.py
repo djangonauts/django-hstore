@@ -101,7 +101,9 @@ class DictionaryField(HStoreField):
             # DictionaryField with schema is not editable via admin
             kwargs['editable'] = False
             # DictionaryField with schema defaults to empty dict
-            kwargs['default'] = {}
+            kwargs['default'] = kwargs.get('default', {})
+            # null defaults to True to facilitate migrations
+            kwargs['null'] = kwargs.get('null', True)
         
         super(DictionaryField, self).__init__(*args, **kwargs)
     
@@ -160,6 +162,13 @@ class DictionaryField(HStoreField):
 
     def _value_to_python(self, value):
         return value
+    
+    def south_field_triple(self):
+        name, args, kwargs = super(DictionaryField, self).south_field_triple()
+        # if schema mode replace the default value {} with None as {} would break south
+        if self.schema_mode:
+            kwargs['default'] = None
+        return name, args, kwargs
 
 
 class ReferencesField(HStoreField):

@@ -127,3 +127,11 @@ def create_hstore_virtual_field(field_cls, kwargs, hstore_field_name):
         field.default = ''
     
     return field
+
+
+# south compatibility, ignore virtual fields
+try:
+    from south.modelsinspector import add_ignored_fields
+    add_ignored_fields(["^django_hstore\.virtual\.VirtualField"])
+except ImportError:
+    pass
