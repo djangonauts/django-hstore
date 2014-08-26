@@ -19,9 +19,6 @@ django-hstore
 .. image:: https://badge.fury.io/py/django-hstore.png
     :target: http://badge.fury.io/py/django-hstore
 
-.. image:: https://pypip.in/d/django-hstore/badge.png
-    :target: http://badge.fury.io/py/django-hstore
-
 ------------
 
 You need **dynamic columns** in your tables. What do you do?
