@@ -3,14 +3,12 @@ import sys
 import django
 from django.conf import settings
 from django.db.backends.signals import connection_created
+from psycopg2.extras import register_hstore
 
 try:
     from django.apps import AppConfig
 except ImportError:
     AppConfig = object
-
-from .utils import register_hstore
-
 
 # keep backward compatibility until django hstore 1.3.0
 HSTORE_GLOBAL_REGISTER = getattr(settings, "DJANGO_HSTORE_GLOBAL_REGISTER", None)
@@ -80,7 +78,7 @@ def register_hstore_handler(connection, **kwargs):
         return
 
     if sys.version_info[0] < 3:
-        register_hstore(connection.connection, globally=HSTORE_REGISTER_GLOBALLY, _unicode=True)
+        register_hstore(connection.connection, globally=HSTORE_REGISTER_GLOBALLY, unicode=True)
     else:
         register_hstore(connection.connection, globally=HSTORE_REGISTER_GLOBALLY)
 
