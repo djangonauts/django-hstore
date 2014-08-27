@@ -30,12 +30,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = (
-    "django.contrib.admin",
     "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages",
-    "django.contrib.staticfiles",
     "django_hstore",
     # "testproj",
     "testapp",
@@ -44,15 +39,12 @@ INSTALLED_APPS = (
 MIDDLEWARE_CLASSES = (
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
     # Uncommenting this, causes the "can't adapt HstoreDi..." error
     # with django 1.6.x and is known bug that can't be solved because
     # is a django 1.6.x transaction refactor backward incompatibility.
     # and because transaction middleware is deprecated in these version.
     # "django.middleware.transaction.TransactionMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "django.contrib.messages.middleware.MessageMiddleware",
-    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 )
 
 ROOT_URLCONF = "testproj.urls"
