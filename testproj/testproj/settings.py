@@ -55,7 +55,7 @@ MIDDLEWARE_CLASSES = (
 )
 
 ROOT_URLCONF = "testproj.urls"
-
+# DJANGO_HSTORE_ADAPTER_REGISTRATION = "connection"
 WSGI_APPLICATION = "testproj.wsgi.application"
 
 
