@@ -9,7 +9,10 @@ try:
 except ImportError:
     AppConfig = object
 
-from .utils import register_hstore
+# from .utils import register_hstore
+
+print("apps.py")
+from psycopg2.extras import register_hstore
 
 
 # keep backward compatibility until django hstore 1.3.0

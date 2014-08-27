@@ -9,7 +9,6 @@ https://docs.djangoproject.com/en/dev/howto/deployment/wsgi/
 
 import os
 import sys
-sys.path.insert(0, "..")
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "testproj.settings")
 

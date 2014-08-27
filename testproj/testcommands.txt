@@ -1,2 +1,2 @@
-gunicorn --workers=1 --max-requests=5 --bind=127.0.0.1:8000 --debug --log-level debug testproj.wsgi:application --error-logfile 
-uwsgi --http :8000 --wsgi-file testproj/wsgi.py -M -t 1 -i -R 4 -T
+gunicorn --workers=1 --max-requests=5 --bind=127.0.0.1:8000 --debug --log-level debug testproj.wsgi:application --pythonpath ..
+uwsgi --http :8000 --wsgi-file testproj/wsgi.py -M -t 1 -i -R 4 -T --pythonpath ..

@@ -2,6 +2,8 @@ from __future__ import unicode_literals, absolute_import
 
 from django.db import models
 
+print("managers.py")
+
 from django_hstore.query import HStoreQuerySet
 
 try:
