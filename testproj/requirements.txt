@@ -1,0 +1,4 @@
+Django==1.6.6
+gunicorn==19.1.1
+psycopg2==2.5.3
+uWSGI==2.0.6
