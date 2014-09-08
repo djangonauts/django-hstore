@@ -33,3 +33,11 @@ Documentation_ - `Mailing List`_
 
 .. _Documentation: http://djangonauts.github.io/django-hstore/
 .. _`Mailing List`: https://groups.google.com/forum/#!forum/django-hstore
+
+------------
+
+Projects using this package
+---------------------------
+
+- `django-rest-framework-hstore <https://github.com/djangonauts/django-rest-framework-hstore>`__: **django-rest-framework** tools for **django-hstore**
+- `Nodeshot <https://github.com/ninuxorg/nodeshot>`__: extensible django web application for management of community-led georeferenced data - some features of **django-hstore**, like the ``schema-mode`` have been developed for this project
