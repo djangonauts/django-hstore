@@ -128,11 +128,29 @@ class TestDictionaryField(TestCase):
         self.assertTrue(DataBag.objects.filter(data__contains={}))
 
     def test_nullable_queryinig(self):
+        # backward incompatible change in 1.3.3:
+        # default value of a dictionary field which is can be null will never be None
+        # but always an empty HStoreDict
         NullableDataBag.objects.create(name='nullable')
-        self.assertTrue(NullableDataBag.objects.get(data=None))
-        self.assertTrue(NullableDataBag.objects.filter(data__exact=None))
-        self.assertTrue(NullableDataBag.objects.filter(data__isnull=True))
-        self.assertFalse(NullableDataBag.objects.filter(data__isnull=False))
+        self.assertFalse(NullableDataBag.objects.filter(data__exact=None))
+        self.assertFalse(NullableDataBag.objects.filter(data__isnull=True))
+        self.assertTrue(NullableDataBag.objects.filter(data__isnull=False))
+
+    def test_nullable_set(self):
+        n = NullableDataBag()
+        n.data['test'] = 'test'
+        self.assertEqual(n.data['test'], 'test')
+
+    def test_nullable_get(self):
+        n = NullableDataBag()
+        self.assertEqual(n.data.get('test', 'test'), 'test')
+        self.assertEqual(n.data.get('test', False), False)
+        self.assertEqual(n.data.get('test'), None)
+
+    def test_nullable_getitem(self):
+        n = NullableDataBag()
+        with self.assertRaises(KeyError):
+            n.data['test']
 
     def test_named_querying(self):
         alpha, beta = self._create_bags()
@@ -823,7 +841,6 @@ class SchemaTests(TestCase):
         def test_str(self):
             d = SchemaDataBag()
             self.assertEqual(str(d.data), '{}')
-
     else:
         def test_improperly_configured(self):
             with self.assertRaises(ImproperlyConfigured):

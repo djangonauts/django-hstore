@@ -13,7 +13,7 @@ from . import forms, utils
 
 class HStoreField(models.Field):
     """ HStore Base Field """
-    
+
     def __init_dict(self, value):
         """
         initializes HStoreDict
@@ -42,10 +42,6 @@ class HStoreField(models.Field):
                 return self.__init_dict(self.default)
             # else just return it
             return self.default
-        # if allowed to return None
-        if (not self.empty_strings_allowed or (self.null and
-                   not connection.features.interprets_empty_strings_as_nulls)):
-            return None
         # default to empty dict
         return self.__init_dict({})
 
@@ -86,11 +82,11 @@ if get_version() >= '1.7':
 
 class DictionaryField(HStoreField):
     description = _("A python dictionary in a postgresql hstore field.")
-    
+
     def __init__(self, *args, **kwargs):
         self.schema = kwargs.pop('schema', None)
         self.schema_mode = False
-        
+
         # if schema parameter is supplied the behaviour is slightly different
         if self.schema is not None:
             # schema mode available only from django 1.6 onward
@@ -104,9 +100,9 @@ class DictionaryField(HStoreField):
             kwargs['default'] = kwargs.get('default', {})
             # null defaults to True to facilitate migrations
             kwargs['null'] = kwargs.get('null', True)
-        
+
         super(DictionaryField, self).__init__(*args, **kwargs)
-    
+
     def __init_dict(self, value):
         """
         init HStoreDict
@@ -117,24 +113,24 @@ class DictionaryField(HStoreField):
     def contribute_to_class(self, cls, name):
         super(DictionaryField, self).contribute_to_class(cls, name)
         setattr(cls, self.name, HStoreDescriptor(self, schema_mode=self.schema_mode))
-        
+
         if self.schema:
             self._create_hstore_virtual_fields(cls, name)
-    
+
     def _validate_schema(self, schema):
         if not isinstance(schema, list):
             raise ValueError('schema parameter must be a list')
-    
+
         if len(schema) == 0:
             raise ValueError('schema parameter cannot be an empty list')
-        
+
         for field in schema:
             if not isinstance(field, dict):
                 raise ValueError('schema parameter must contain dicts representing fields, read the docs to see the format')
-            
+
             if 'name' not in field:
                 raise ValueError('schema element %s is missing the name key' % field)
-            
+
             if 'class' not in field:
                 raise ValueError('schema element %s is missing the class key' % field)
 
@@ -145,7 +141,7 @@ class DictionaryField(HStoreField):
         # add hstore_virtual_fields attribute to class
         if not hasattr(cls, '_hstore_virtual_fields'):
             cls._hstore_virtual_fields = {}
-        
+
         for field in self.schema:
             # initialize the virtual field by specifying the class, the kwargs and the hstore field name
             virtual_field = create_hstore_virtual_field(field['class'],
@@ -162,7 +158,7 @@ class DictionaryField(HStoreField):
 
     def _value_to_python(self, value):
         return value
-    
+
     def south_field_triple(self):
         name, args, kwargs = super(DictionaryField, self).south_field_triple()
         # if schema mode replace the default value {} with None as {} would break south
