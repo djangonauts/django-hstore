@@ -22,12 +22,12 @@ class HStoreDict(UnicodeMixin, dict):
     """
     A dictionary subclass which implements hstore support.
     """
-    
+
     schema_mode = False  # python2.6 compatibility
 
     def __init__(self, value=None, field=None, instance=None, schema_mode=False, **kwargs):
         self.schema_mode = schema_mode
-        
+
         # if passed value is string
         # ensure is json formatted
         if isinstance(value, six.string_types):
@@ -65,21 +65,21 @@ class HStoreDict(UnicodeMixin, dict):
         # prepare *args
         args = (args[0], value)
         super(HStoreDict, self).__setitem__(*args, **kwargs)
-    
+
     def __getitem__(self, *args, **kwargs):
         """
         retrieve value preserving type if in schema mode, string only otherwise
         """
         value = super(HStoreDict, self).__getitem__(*args, **kwargs)
-        
+
         if self.schema_mode:
             try:
                 return self.instance._hstore_virtual_fields[args[0]].to_python(value)
             except KeyError:
                 pass
-        
+
         return value
-    
+
     def get(self, *args):
         key = args[0]
         try:
@@ -93,9 +93,7 @@ class HStoreDict(UnicodeMixin, dict):
     # This method is used both for python3 and python2
     # thanks to UnicodeMixin
     def __unicode__(self):
-        if self:
-            return force_text(json.dumps(self))
-        return u''
+        return force_text(json.dumps(self))
 
     def __getstate__(self):
         return self.__dict__
