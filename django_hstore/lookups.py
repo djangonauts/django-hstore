@@ -10,6 +10,8 @@ from django.db.models.lookups import (
     IContains
 )
 
+from django_hstore.query import get_cast_for_param
+
 
 __all__ = [
     'HStoreComparisonLookupMixin',
@@ -22,12 +24,20 @@ __all__ = [
 ]
 
 
-class HStoreComparisonLookupMixin(object):
+class HStoreLookupMixin(object):
+    def __init__(self, lhs, rhs, *args, **kwargs):
+        # We need to record the types of the rhs parameters before they are converted to strings
+        if isinstance(rhs, dict):
+            self.value_annot = dict((key, type(subvalue)) for key, subvalue in six.iteritems(rhs))
+        super(HStoreLookupMixin, self).__init__(lhs, rhs)
+
+
+class HStoreComparisonLookupMixin(HStoreLookupMixin):
     """
     Mixin for hstore comparison custom lookups.
     """
 
-    def as_postgresql(self, qn , connection):
+    def as_postgresql(self, qn, connection):
         lhs, lhs_params = self.process_lhs(qn, connection)
         rhs, rhs_params = self.process_rhs(qn, connection)
         if len(rhs_params) == 1 and isinstance(rhs_params[0], dict):
@@ -37,7 +47,8 @@ class HStoreComparisonLookupMixin(object):
             conditions = []
 
             for key in param_keys:
-                conditions.append('(%s->\'%s\') %s %%s' % (lhs, key, sign))
+                cast = get_cast_for_param(self.value_annot, key)
+                conditions.append('(%s->\'%s\')%s %s %%s' % (lhs, key, cast, sign))
 
             return (" AND ".join(conditions), param.values())
 
@@ -60,7 +71,7 @@ class HStoreLessThanOrEqual(HStoreComparisonLookupMixin, LessThanOrEqual):
     pass
 
 
-class HStoreContains(Contains):
+class HStoreContains(HStoreLookupMixin, Contains):
 
     def as_postgresql(self, qn, connection):
         lhs, lhs_params = self.process_lhs(qn, connection)
@@ -77,7 +88,12 @@ class HStoreContains(Contains):
             keys = list(param.keys())
 
             if len(values) == 1 and isinstance(values[0], (list, tuple)):
+                # Can't cast here because the list could contain multiple types
                 return '%s->\'%s\' = ANY(%%s)' % (lhs, keys[0]), [[str(x) for x in values[0]]]
+            elif len(keys) == 1 and len(values) == 1:
+                # Retrieve key and compare to param instead of using '@>' in order to cast hstore value
+                cast = get_cast_for_param(self.value_annot, keys[0])
+                return ('(%s->\'%s\')%s = %%s' % (lhs, keys[0], cast), [values[0]])
 
             return '%s @> %%s' % lhs, [param]
 

@@ -3,6 +3,7 @@ import sys
 import json
 import pickle
 from decimal import Decimal
+import datetime
 
 import django
 
@@ -256,6 +257,22 @@ class TestDictionaryField(TestCase):
         self.assertEqual(r[0], beta)
         r = DataBag.objects.filter(data__gte={'v': alpha.data['v']})
         self.assertEqual(len(r), 2)
+
+    def test_key_value_gt_casting_number_query(self):
+        alpha = DataBag.objects.create(name='alpha', data={'v': 10})
+        DataBag.objects.create(name='alpha', data={'v': 1})
+
+        r = DataBag.objects.filter(data__gt={'v': 2})
+        self.assertEqual(len(r), 1)
+        self.assertEqual(r[0], alpha)
+
+    def test_key_value_contains_casting_date_query(self):
+        date = datetime.date(2014, 9, 28)
+        alpha = DataBag.objects.create(name='alpha', data={'v': date.isoformat()})
+
+        r = DataBag.objects.filter(data__contains={'v': date})
+        self.assertEqual(len(r), 1)
+        self.assertEqual(r[0], alpha)
 
     def test_multiple_key_value_gt_querying(self):
         alpha, beta = self._create_bags()
