@@ -96,8 +96,6 @@ class DictionaryField(HStoreField):
             self.schema_mode = True
             # DictionaryField with schema is not editable via admin
             kwargs['editable'] = False
-            # DictionaryField with schema defaults to empty dict
-            kwargs['default'] = kwargs.get('default', {})
             # null defaults to True to facilitate migrations
             kwargs['null'] = kwargs.get('null', True)
 
