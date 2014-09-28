@@ -1,6 +1,6 @@
 django-hstore documentation
 ===========================
-1.3.0, 2014-08-03
+1.3.4, 2014-09-28
 
 :toc:
 :numbered:
@@ -54,7 +54,7 @@ Limitations
   mapping of string keys to string values. Values are stored as strings in the
   database regarding of their original type. *This limitation can be overcome by using the schema mode since version 1.3.0 of django_hstore*.
 - The hstore extension is not automatically installed on use with this package: you must install it manually.
-- To run tests, hstore extension must be installed on template1 database. 
+- To run tests, hstore extension must be installed on template1 database.
   To install hstore on template1: `$ psql -d template1 -c 'create extension hstore;'`
 - The admin widget will work with inlines only if using `StackedInline`. It won't work on `TabularInline`.
 - If `django.middleware.transaction.TransactionMiddleware` is enabled and the project is deployed
@@ -329,8 +329,22 @@ The following standard django fields fields have been tested successfully:
  * `EmailField`
  * `GenericIPAddressField`
  * `URLField`
- 
+
 Other fields might work as well except for `FileField`, `ImageField`, and `BinaryField` which would need some additional work.
+
+The schema of a DictionaryField can be changed at run-time if needed by using the `reload_schema` method (introduced in version 1.3.4):
+[source, python]
+----
+field = SchemaDataBag._meta.get_field('data')
+# load a different schema
+field.reload_schema([
+    {
+        'name': 'url',
+        'class': 'URLField'
+    }
+])
+# turn off schema mode
+field.reload_schema(None)
 
 .the `ReferenceField` definition is also straightforward:
 [source,python]
@@ -416,7 +430,7 @@ Something.objects.filter(data__gte={'a': '1'})
 Something.objects.filter(data__lt={'a': '2'})
 Something.objects.filter(data__lte={'a': '2'})
 
-# more than one key can be supplied, the result will include the objects which satisfy the 
+# more than one key can be supplied, the result will include the objects which satisfy the
 # condition (greater than, less than or equal to, ecc) on all supplied keys
 Something.objects.filter(data__gt={'a': '1','b': '2'})
 Something.objects.filter(data__gte={'a': '1','b': '2'})

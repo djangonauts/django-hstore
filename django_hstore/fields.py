@@ -86,7 +86,6 @@ class DictionaryField(HStoreField):
     def __init__(self, *args, **kwargs):
         self.schema = kwargs.pop('schema', None)
         self.schema_mode = False
-
         # if schema parameter is supplied the behaviour is slightly different
         if self.schema is not None:
             # schema mode available only from django 1.6 onward
@@ -125,10 +124,8 @@ class DictionaryField(HStoreField):
         for field in schema:
             if not isinstance(field, dict):
                 raise ValueError('schema parameter must contain dicts representing fields, read the docs to see the format')
-
             if 'name' not in field:
                 raise ValueError('schema element %s is missing the name key' % field)
-
             if 'class' not in field:
                 raise ValueError('schema element %s is missing the class key' % field)
 
@@ -136,10 +133,12 @@ class DictionaryField(HStoreField):
         """
         this methods creates all the virtual fields automatically by reading the schema attribute
         """
+        if not self.schema and self.schema_mode is False:
+            return
         # add hstore_virtual_fields attribute to class
         if not hasattr(cls, '_hstore_virtual_fields'):
             cls._hstore_virtual_fields = {}
-
+        # loop over all fields defined in schema
         for field in self.schema:
             # initialize the virtual field by specifying the class, the kwargs and the hstore field name
             virtual_field = create_hstore_virtual_field(field['class'],
@@ -163,6 +162,46 @@ class DictionaryField(HStoreField):
         if self.schema_mode:
             kwargs['default'] = None
         return name, args, kwargs
+
+    def reload_schema(self, schema):
+        """
+        Reload schema arbitrarily at run-time
+        """
+        if schema:
+            self._validate_schema(schema)
+            self.schema = schema
+            self.schema_mode = True
+            self.editable = False
+        else:
+            self.schema = None
+            self.schema_mode = False
+            self.editable = True
+        # remove any existing virtual field
+        self._remove_hstore_virtual_fields()
+        # set new descriptor on model class
+        setattr(self.model, self.name, HStoreDescriptor(self, schema_mode=self.schema_mode))
+        # create virtual fields
+        self._create_hstore_virtual_fields(self.model, self.name)
+
+    def _remove_hstore_virtual_fields(self):
+        """ remove hstore virtual fields from class """
+        cls = self.model
+        # remove all hstore virtual fields related attributes
+        if hasattr(cls, '_hstore_virtual_fields'):
+            # remove attributes from class
+            for field_name in cls._hstore_virtual_fields.keys():
+                delattr(cls, field_name)
+            delattr(cls, '_hstore_virtual_fields')
+        # remove  all hstore virtual fields from meta
+        for meta_fields in ['fields', 'local_fields', 'virtual_fields']:
+            hstore_fields = []
+            # get all the existing hstore virtual fields
+            for field in getattr(cls._meta, meta_fields):
+                if hasattr(field, 'hstore_field_name'):
+                    hstore_fields.append(field)
+            # remove from meta
+            for field in hstore_fields:
+                getattr(cls._meta, meta_fields).remove(field)
 
 
 class ReferencesField(HStoreField):

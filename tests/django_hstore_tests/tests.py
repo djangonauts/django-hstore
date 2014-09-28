@@ -841,6 +841,48 @@ class SchemaTests(TestCase):
         def test_str(self):
             d = SchemaDataBag()
             self.assertEqual(str(d.data), '{}')
+
+        def test_reload_schema(self):
+            # cache some stuff
+            f = SchemaDataBag._meta.get_field('data')
+            original_schema = list(f.schema)
+            concrete_fields_length = len(SchemaDataBag._meta.concrete_fields)
+            hstore_virtual_fields_keys = list(SchemaDataBag._hstore_virtual_fields.keys())
+
+            # original state
+            d = SchemaDataBag()
+            self.assertTrue(d.data.schema_mode)
+            self.assertEqual(len(SchemaDataBag._meta.virtual_fields), len(original_schema))
+            self.assertEqual(len(SchemaDataBag._meta.fields), len(original_schema)+concrete_fields_length)
+            self.assertEqual(len(SchemaDataBag._meta.local_fields), len(original_schema)+concrete_fields_length)
+            self.assertTrue(hasattr(SchemaDataBag, '_hstore_virtual_fields'))
+            for key in hstore_virtual_fields_keys:
+                self.assertTrue(hasattr(d, key))
+
+            # schema erased
+            f.reload_schema(None)
+            self.assertIsNone(f.schema)
+            self.assertFalse(f.schema_mode)
+            self.assertTrue(f.editable)
+            self.assertEqual(len(SchemaDataBag._meta.virtual_fields), 0)
+            self.assertEqual(len(SchemaDataBag._meta.fields), concrete_fields_length)
+            self.assertEqual(len(SchemaDataBag._meta.local_fields), concrete_fields_length)
+            self.assertFalse(hasattr(SchemaDataBag, '_hstore_virtual_fields'))
+            d = SchemaDataBag()
+            self.assertFalse(d.data.schema_mode)
+            for key in hstore_virtual_fields_keys:
+                self.assertFalse(hasattr(d, key))
+
+            # reload original schema
+            f.reload_schema(original_schema)
+            d = SchemaDataBag()
+            self.assertTrue(d.data.schema_mode)
+            self.assertEqual(len(SchemaDataBag._meta.virtual_fields), len(original_schema))
+            self.assertEqual(len(SchemaDataBag._meta.fields), len(original_schema)+concrete_fields_length)
+            self.assertEqual(len(SchemaDataBag._meta.local_fields), len(original_schema)+concrete_fields_length)
+            self.assertTrue(hasattr(SchemaDataBag, '_hstore_virtual_fields'))
+            for key in hstore_virtual_fields_keys:
+                self.assertTrue(hasattr(d, key))
     else:
         def test_improperly_configured(self):
             with self.assertRaises(ImproperlyConfigured):
