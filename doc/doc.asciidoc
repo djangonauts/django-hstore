@@ -345,6 +345,7 @@ field.reload_schema([
 ])
 # turn off schema mode
 field.reload_schema(None)
+----
 
 .the `ReferenceField` definition is also straightforward:
 [source,python]
