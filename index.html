@@ -16,7 +16,7 @@ asciidoc.install(2);
 <body class="article" style="max-width:800px">
 <div id="header">
 <h1>django-hstore documentation</h1>
-<span id="author">1.3.0, 2014-08-03</span><br>
+<span id="author">1.3.4, 2014-09-28</span><br>
 <div id="toc">
   <div id="toctitle">Table of Contents</div>
   <noscript><p><b>JavaScript must be enabled in your browser to display the table of contents.</b></p></noscript>
@@ -93,6 +93,7 @@ The hstore extension is not automatically installed on use with this package: yo
 <li>
 <p>
 To run tests, hstore extension must be installed on template1 database.
+  To install hstore on template1: <span class="monospaced">$ psql -d template1 -c 'create extension hstore;'</span>
 </p>
 </li>
 <li>
@@ -455,6 +456,22 @@ by using the <span class="monospaced">to_python</span> method of the field class
 </li>
 </ul></div>
 <div class="paragraph"><p>Other fields might work as well except for <span class="monospaced">FileField</span>, <span class="monospaced">ImageField</span>, and <span class="monospaced">BinaryField</span> which would need some additional work.</p></div>
+<div class="paragraph"><p>The schema of a DictionaryField can be changed at run-time if needed by using the <span class="monospaced">reload_schema</span> method (introduced in version 1.3.4):</p></div>
+<div class="listingblock">
+<div class="content"><!-- Generator: GNU source-highlight 3.1.6
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt>field <span style="color: #990000">=</span> SchemaDataBag<span style="color: #990000">.</span>_meta<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">get_field</span></span><span style="color: #990000">(</span><span style="color: #FF0000">'data'</span><span style="color: #990000">)</span>
+<span style="font-style: italic"><span style="color: #9A1900"># load a different schema</span></span>
+field<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">reload_schema</span></span><span style="color: #990000">([</span>
+    <span style="color: #990000">{</span>
+        <span style="color: #FF0000">'name'</span><span style="color: #990000">:</span> <span style="color: #FF0000">'url'</span><span style="color: #990000">,</span>
+        <span style="color: #FF0000">'class'</span><span style="color: #990000">:</span> <span style="color: #FF0000">'URLField'</span>
+    <span style="color: #990000">}</span>
+<span style="color: #990000">])</span>
+<span style="font-style: italic"><span style="color: #9A1900"># turn off schema mode</span></span>
+field<span style="color: #990000">.</span><span style="font-weight: bold"><span style="color: #000000">reload_schema</span></span><span style="color: #990000">(</span>None<span style="color: #990000">)</span></tt></pre></div></div>
 <div class="listingblock">
 <div class="title">the <span class="monospaced">ReferenceField</span> definition is also straightforward:</div>
 <div class="content"><!-- Generator: GNU source-highlight 3.1.6
@@ -794,7 +811,7 @@ THE SOFTWARE.
 <div id="footnotes"><hr></div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2014-08-03 23:26:11 CEST
+Last updated 2014-09-28 18:48:36 CEST
 </div>
 </div>
 </body>
