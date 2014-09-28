@@ -114,6 +114,20 @@ class DictionaryField(HStoreField):
         if self.schema:
             self._create_hstore_virtual_fields(cls, name)
 
+    def formfield(self, **kwargs):
+        kwargs['form_class'] = forms.DictionaryField
+        return super(DictionaryField, self).formfield(**kwargs)
+
+    def _value_to_python(self, value):
+        return value
+
+    def south_field_triple(self):
+        name, args, kwargs = super(DictionaryField, self).south_field_triple()
+        # if schema mode replace the default value {} with None as {} would break south
+        if self.schema_mode:
+            kwargs['default'] = None
+        return name, args, kwargs
+
     def _validate_schema(self, schema):
         if not isinstance(schema, list):
             raise ValueError('schema parameter must be a list')
@@ -148,20 +162,6 @@ class DictionaryField(HStoreField):
             cls.add_to_class(field['name'], virtual_field)
             # add this field to hstore_virtual_fields dict
             cls._hstore_virtual_fields[field['name']] = virtual_field
-
-    def formfield(self, **kwargs):
-        kwargs['form_class'] = forms.DictionaryField
-        return super(DictionaryField, self).formfield(**kwargs)
-
-    def _value_to_python(self, value):
-        return value
-
-    def south_field_triple(self):
-        name, args, kwargs = super(DictionaryField, self).south_field_triple()
-        # if schema mode replace the default value {} with None as {} would break south
-        if self.schema_mode:
-            kwargs['default'] = None
-        return name, args, kwargs
 
     def reload_schema(self, schema):
         """

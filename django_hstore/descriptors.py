@@ -10,11 +10,11 @@ __all__ = [
 
 class HStoreDescriptor(models.fields.subclassing.Creator):
     _DictClass = HStoreDict
-    
+
     def __init__(self, *args, **kwargs):
         self.schema_mode = kwargs.pop('schema_mode', False)
         super(HStoreDescriptor, self).__init__(*args, **kwargs)
-    
+
     def __set__(self, obj, value):
         value = self.field.to_python(value)
         if isinstance(value, dict):

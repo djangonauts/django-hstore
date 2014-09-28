@@ -9,7 +9,6 @@ __all__ = [
 ]
 
 
-
 class HStoreVirtualMixin(object):
     """
     must be mixed-in with django fields
@@ -29,7 +28,7 @@ class HStoreVirtualMixin(object):
         cls._meta.add_field(self)
         # add also into virtual fields in order to support admin
         cls._meta.virtual_fields.append(self)
-    
+
     def db_type(self, connection):
         """
         returning None here will cause django to exclude this field
@@ -37,25 +36,25 @@ class HStoreVirtualMixin(object):
         resulting in the fact that syncdb will skip this field when creating tables in PostgreSQL
         """
         return None
-    
+
     # begin descriptor methods
-    
+
     def __get__(self, instance, instance_type=None):
         """
         retrieve value from hstore dictionary
         """
         if instance is None:
             raise AttributeError('Can only be accessed via instance')
-        
+
         return getattr(instance, self.hstore_field_name).get(self.name, self.default)
-    
+
     def __set__(self, instance, value):
         """
         set value on hstore dictionary
         """
         hstore_dictionary = getattr(instance, self.hstore_field_name)
         hstore_dictionary[self.name] = value
-    
+
     # end descriptor methods
 
 
@@ -78,30 +77,30 @@ def create_hstore_virtual_field(field_cls, kwargs, hstore_field_name):
         BaseField = field_cls
     else:
         raise ValueError('field must be either a django standard field or a subclass of django.db.models.Field')
-        
+
     class VirtualField(HStoreVirtualMixin, BaseField):
         # keep basefield info (added for django-rest-framework-hstore)
         __basefield__ = BaseField
-        
+
         def __init__(self, *args, **kwargs):
             try:
                 self.hstore_field_name = hstore_field_name
             except KeyError:
-                raise ValueError('missing hstore_field_name keyword argument')    
+                raise ValueError('missing hstore_field_name keyword argument')
             super(VirtualField, self).__init__(*args, **kwargs)
-        
+
         def deconstruct(self, *args, **kwargs):
             """
             specific for django 1.7 and greater (migration framework)
             """
             name, path, args, kwargs = super(VirtualField, self).deconstruct(*args, **kwargs)
             return (name, path, args, { 'default': kwargs.get('default')})
-    
+
     # support DateTimeField
     if BaseField == models.DateTimeField and kwargs.get('default') is None:
         import datetime
         kwargs['default'] = datetime.datetime.utcnow()
-    
+
     # support Date and DateTime in django-rest-framework-hstore
     if BaseField == models.DateTimeField or BaseField == models.DateField:
         def value_to_string(self, obj):
@@ -111,12 +110,12 @@ def create_hstore_virtual_field(field_cls, kwargs, hstore_field_name):
             except AttributeError as e:
                 return val
         VirtualField.value_to_string = value_to_string
-    
+
     field = VirtualField(**kwargs)
-    
+
     if field.default == models.fields.NOT_PROVIDED:
         field.default = ''
-    
+
     return field
 
 
