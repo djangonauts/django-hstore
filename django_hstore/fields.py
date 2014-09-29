@@ -78,6 +78,7 @@ if get_version() >= '1.7':
     HStoreField.register_lookup(HStoreLessThanOrEqual)
     HStoreField.register_lookup(HStoreContains)
     HStoreField.register_lookup(HStoreIContains)
+    HStoreField.register_lookup(HStoreIsNull)
 
 
 class DictionaryField(HStoreField):

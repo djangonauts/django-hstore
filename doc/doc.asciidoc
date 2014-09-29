@@ -434,6 +434,13 @@ Something.objects.filter(data__contains=['a', 'b'])
 
 # subset by single key
 Something.objects.filter(data__contains=['a'])
+
+# filter by is null on individual key/value pairs
+Something.objects.filter(data__isnull={'a': True})
+Something.objects.filter(data__isnull={'a': True, 'b': False})
+
+# filter by is null on the column works as normal
+Something.objects.filter(data__isnull=True)
 ----
 
 

@@ -7,10 +7,11 @@ from django.db.models.lookups import (
     LessThan,
     LessThanOrEqual,
     Contains,
-    IContains
+    IContains,
+    IsNull
 )
 
-from django_hstore.query import get_cast_for_param
+from django_hstore.query import get_cast_for_param, get_value_annotations
 
 
 __all__ = [
@@ -20,7 +21,8 @@ __all__ = [
     'HStoreLessThan',
     'HStoreLessThanOrEqual',
     'HStoreContains',
-    'HStoreIContains'
+    'HStoreIContains',
+    'HStoreIsNull'
 ]
 
 
@@ -28,7 +30,7 @@ class HStoreLookupMixin(object):
     def __init__(self, lhs, rhs, *args, **kwargs):
         # We need to record the types of the rhs parameters before they are converted to strings
         if isinstance(rhs, dict):
-            self.value_annot = dict((key, type(subvalue)) for key, subvalue in six.iteritems(rhs))
+            self.value_annot = get_value_annotations(rhs)
         super(HStoreLookupMixin, self).__init__(lhs, rhs)
 
 
@@ -118,3 +120,22 @@ class HStoreContains(HStoreLookupMixin, Contains):
 
 class HStoreIContains(IContains, HStoreContains):
     pass
+
+
+class HStoreIsNull(IsNull):
+
+    def as_postgresql(self, qn, connection):
+        lhs, lhs_params = self.process_lhs(qn, connection)
+
+        if isinstance(self.rhs, dict):
+            param = self.rhs
+            param_keys = list(param.keys())
+            conditions = []
+
+            for key in param_keys:
+                op = 'IS NULL' if param[key] else 'IS NOT NULL'
+                conditions.append('(%s->\'%s\') %s' % (lhs, key, op))
+
+            return (" AND ".join(conditions), lhs_params)
+
+        return super(HStoreIsNull, self).as_sql(qn, connection)
