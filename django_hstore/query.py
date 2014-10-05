@@ -1,5 +1,8 @@
 from __future__ import unicode_literals, absolute_import
 
+from decimal import Decimal
+from datetime import date, time, datetime
+
 from django import VERSION
 from django.db import transaction
 from django.utils import six
@@ -69,7 +72,66 @@ def update_query(method):
     return updater
 
 
+def get_cast_for_param(value_annot, key):
+    if not isinstance(value_annot, dict):
+        return ''
+
+    if issubclass(value_annot[key], datetime):
+        return '::timestamp'
+    elif issubclass(value_annot[key], date):
+        return '::date'
+    elif issubclass(value_annot[key], time):
+        return '::time'
+    elif issubclass(value_annot[key], six.integer_types):
+        return '::bigint'
+    elif issubclass(value_annot[key], float):
+        return '::float8'
+    elif issubclass(value_annot[key], Decimal):
+        return '::numeric'
+    elif issubclass(value_annot[key], bool):
+        return '::boolean'
+    else:
+        return ''
+
+
 class HStoreWhereNode(WhereNode):
+
+    def add(self, data, *args, **kwargs):
+        # WhereNode will convert params into strings, so we need to record
+        # the type of the params as part of the value_annotation before calling
+        # the super class
+        if not isinstance(data, (list, tuple)):
+            return super(HStoreWhereNode, self).add(data, *args, **kwargs)
+
+        original_value = data[2]
+
+        if isinstance(original_value, dict):
+            len_children = len(self.children) if self.children else 0
+
+            value_annot = dict((key, type(subvalue))
+                               for key, subvalue in six.iteritems(original_value))
+            # We should be able to get the normal child node here, but it is not returned in Django 1.5
+            super(HStoreWhereNode, self).add(data, *args, **kwargs)
+
+            # We also need to place the type annotation into self.children
+            # It will either be the last item in the last child, or be the last child
+            # We can tell which by comparing the lengths before and after calling the super method
+            if len_children < len(self.children):
+                child = self.children[-1]
+
+                obj, lookup_type, _, value = child
+                annotated_child = (obj, lookup_type, value_annot, value)
+
+                self.children[-1] = annotated_child
+            else:
+                child = self.children[-1][-1]
+
+                obj, lookup_type, _, value = child
+                annotated_child = (obj, lookup_type, value_annot, value)
+
+                self.children[-1][-1] = annotated_child
+        else:
+            return super(HStoreWhereNode, self).add(data, *args, **kwargs)
 
     # FIXME: this method shuld be more clear.
     def make_atom(self, child, qn, connection):
@@ -97,7 +159,8 @@ class HStoreWhereNode(WhereNode):
                     conditions = []
 
                     for key in param_keys:
-                        conditions.append('(%s->\'%s\') %s %%s' % (field, key, sign))
+                        cast = get_cast_for_param(value_annot, key)
+                        conditions.append('(%s->\'%s\')%s %s %%s' % (field, key, cast, sign))
 
                     return (" AND ".join(conditions), param.values())
 
@@ -109,14 +172,19 @@ class HStoreWhereNode(WhereNode):
                     keys = list(param.keys())
 
                     if len(values) == 1 and isinstance(values[0], (list, tuple)):
+                        # Can't cast here because the list could contain multiple types
                         return ('%s->\'%s\' = ANY(%%s)' % (field, keys[0]), [[str(x) for x in values[0]]])
+                    elif len(keys) == 1 and len(values) == 1:
+                        # Retrieve key and compare to param instead of using '@>' in order to cast hstore value
+                        cast = get_cast_for_param(value_annot, keys[0])
+                        return ('(%s->\'%s\')%s = %%s' % (field, keys[0], cast), [values[0]])
 
                     return ('%s @> %%s' % field, [param])
 
                 elif isinstance(param, (list, tuple)):
                     if len(param) == 0:
                         raise ValueError('invalid value')
-                    
+
                     if len(param) < 2:
                         return ('%s ? %%s' % field, [param[0]])
 
