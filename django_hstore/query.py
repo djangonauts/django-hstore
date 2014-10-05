@@ -88,10 +88,16 @@ def get_cast_for_param(value_annot, key):
         return '::float8'
     elif issubclass(value_annot[key], Decimal):
         return '::numeric'
-    elif issubclass(value_annot[key], bool):
+    elif value_annot[key] in (True, False):
         return '::boolean'
     else:
         return ''
+
+
+def get_value_annotations(param):
+    # We need to store the actual value for booleans, not just the type, for isnull
+    get_type = lambda v: v if isinstance(v, bool) else type(v)
+    return dict((key, get_type(subvalue)) for key, subvalue in six.iteritems(param))
 
 
 class HStoreWhereNode(WhereNode):
@@ -108,8 +114,8 @@ class HStoreWhereNode(WhereNode):
         if isinstance(original_value, dict):
             len_children = len(self.children) if self.children else 0
 
-            value_annot = dict((key, type(subvalue))
-                               for key, subvalue in six.iteritems(original_value))
+            value_annot = get_value_annotations(original_value)
+
             # We should be able to get the normal child node here, but it is not returned in Django 1.5
             super(HStoreWhereNode, self).add(data, *args, **kwargs)
 
@@ -202,6 +208,15 @@ class HStoreWhereNode(WhereNode):
                     raise ValueError('invalid value')
 
             elif lookup_type == 'isnull':
+                if isinstance(param, dict):
+                    param_keys = list(param.keys())
+                    conditions = []
+
+                    for key in param_keys:
+                        op = 'IS NULL' if value_annot[key] else 'IS NOT NULL'
+                        conditions.append('(%s->\'%s\') %s' % (field, key, op))
+
+                    return (" AND ".join(conditions), [])
                 # do not perform any special format
                 return super(HStoreWhereNode, self).make_atom(child, qn, connection)
 

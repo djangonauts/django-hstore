@@ -153,6 +153,18 @@ class TestDictionaryField(TestCase):
         with self.assertRaises(KeyError):
             n.data['test']
 
+    def test_null_values(self):
+        null_v = DataBag.objects.create(name="test", data={"v": None})
+        nonnull_v = DataBag.objects.create(name="test", data={"v": "item"})
+
+        r = DataBag.objects.filter(data__isnull={"v": True})
+        self.assertEqual(len(r), 1)
+        self.assertEqual(r[0], null_v)
+
+        r = DataBag.objects.filter(data__isnull={"v": False})
+        self.assertEqual(len(r), 1)
+        self.assertEqual(r[0], nonnull_v)
+
     def test_named_querying(self):
         alpha, beta = self._create_bags()
         self.assertEqual(DataBag.objects.get(name='alpha'), alpha)
