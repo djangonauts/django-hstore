@@ -102,7 +102,7 @@ class HStoreDict(UnicodeMixin, dict):
         return self.__class__(self, self.field)
 
     def update(self, *args, **kwargs):
-        for key, value in dict(*args, **kwargs).iteritems():
+        for key, value in dict(*args, **kwargs).items():
             self[key] = value
 
     def ensure_acceptable_value(self, value):
