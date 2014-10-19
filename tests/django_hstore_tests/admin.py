@@ -21,6 +21,7 @@ class RefsBagAdmin(admin.ModelAdmin):
 
 
 admin.site.register(DataBag, DataBagAdmin)
+admin.site.register(SerializedDataBag, DataBagAdmin)
 admin.site.register(DefaultsModel, DefaultsModelAdmin)
 admin.site.register(RefsBag, RefsBagAdmin)
 

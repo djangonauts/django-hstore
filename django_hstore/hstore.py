@@ -1,4 +1,4 @@
-from django_hstore.fields import DictionaryField, ReferencesField  # noqa
+from django_hstore.fields import DictionaryField, ReferencesField, SerializedDictionaryField  # noqa
 from django_hstore.managers import HStoreManager  # noqa
 
 
@@ -11,3 +11,4 @@ except:
 import django
 if django.get_version() < '1.7':
     from . import apps  # noqa
+

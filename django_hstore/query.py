@@ -204,6 +204,12 @@ class HStoreWhereNode(WhereNode):
                     # that is: look for occurence of string in all the keys
                     pass
 
+                elif hasattr(child[0].field, 'serializer'):
+                    try:
+                        child[0].field._serialize_value(param)
+                        pass
+                    except Exception:
+                        raise ValueError('invalid value')
                 else:
                     raise ValueError('invalid value')
 
@@ -309,8 +315,10 @@ class HStoreQuerySet(QuerySet):
         """
         Updates the specified hstore.
         """
-        value = QueryWrapper('"%s" || %%s' % attr, [updates])
         field, model, direct, m2m = self.model._meta.get_field_by_name(attr)
+        if hasattr(field, 'serializer'):
+            updates = field.get_prep_value(updates)
+        value = QueryWrapper('"%s" || %%s' % attr, [updates])
         query.add_update_fields([(field, None, value)])
         return query
 
