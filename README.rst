@@ -17,7 +17,10 @@ django-hstore
    :alt: Requirements Status
 
 .. image:: https://badge.fury.io/py/django-hstore.png
-    :target: http://badge.fury.io/py/django-hstore
+    :target: https://pypi.python.org/pypi/django-hstore
+
+.. image:: https://pypip.in/d/django-hstore/badge.png
+   :target: https://pypi.python.org/pypi/django-hstore
 
 ------------
 
