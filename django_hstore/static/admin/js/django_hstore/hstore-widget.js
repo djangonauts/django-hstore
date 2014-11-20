@@ -5,7 +5,7 @@ var initDjangoHStoreWidget = function(hstore_field_name, inline_prefix) {
         return;
     }
 
-    $ = django.jQuery;
+    var $ = django.jQuery;
     
     // processing inlines
     if(hstore_field_name.indexOf('inline') > -1){
