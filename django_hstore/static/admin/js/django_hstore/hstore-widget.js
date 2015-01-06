@@ -6,7 +6,7 @@ var initDjangoHStoreWidget = function(hstore_field_name, inline_prefix) {
     }
 
     var $ = django.jQuery;
-    
+
     // processing inlines
     if(hstore_field_name.indexOf('inline') > -1){
         var inlineClass = $('#id_'+hstore_field_name).parents('.inline-related, .grp-group').attr('class');
@@ -78,8 +78,8 @@ var initDjangoHStoreWidget = function(hstore_field_name, inline_prefix) {
 
         return compiled_ui_html;
     };
-    
-    
+
+
 
     // generate UI
     compileUI({ replace_original: true });
@@ -171,7 +171,8 @@ var initDjangoHStoreWidget = function(hstore_field_name, inline_prefix) {
 django.jQuery(window).load(function() {
     // support inlines
     // bind only once
-    if(window.hstoreWidgetBoundInlines === undefined){
+    if(django.hstoreWidgetBoundInlines === undefined){
+        var $ = django.jQuery;
         $('.grp-group .grp-add-handler, .inline-group .hs-add-row a, .inline-group .add-row').click(function(e){
             var hstore_original_textareas = $(this).parents('.grp-group, .inline-group').eq(0).find('.hstore-original-textarea');
             // if module contains .hstore-original-textarea
@@ -194,6 +195,6 @@ django.jQuery(window).load(function() {
                 });
             }
         });
-        window.hstoreWidgetBoundInlines = true;
+        django.hstoreWidgetBoundInlines = true;
     }
 });

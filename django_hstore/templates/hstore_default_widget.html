@@ -37,7 +37,7 @@
                 </div>
             <% } %>
             <% for(key in data){ %>
-                <%= _.template($('.hstore-row-template-inline').eq(0).html(), { 'key': key, 'value': data[key] }) %>
+                <%= _.template(django.jQuery('.hstore-row-template-inline').eq(0).html(), { 'key': key, 'value': data[key] }) %>
             <% } %>
         </div>
 
