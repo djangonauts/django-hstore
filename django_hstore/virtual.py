@@ -45,8 +45,10 @@ class HStoreVirtualMixin(object):
         """
         if instance is None:
             raise AttributeError('Can only be accessed via instance')
-
-        return getattr(instance, self.hstore_field_name).get(self.name, self.default)
+        field = getattr(instance, self.hstore_field_name)
+        if not field:
+            return self.default
+        return field.get(self.name, self.default)
 
     def __set__(self, instance, value):
         """
