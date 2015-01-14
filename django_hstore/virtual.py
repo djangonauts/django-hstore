@@ -55,6 +55,9 @@ class HStoreVirtualMixin(object):
         set value on hstore dictionary
         """
         hstore_dictionary = getattr(instance, self.hstore_field_name)
+        if hstore_dictionary is None:
+            hstore_dictionary = {}
+            setattr(instance, self.hstore_field_name, hstore_dictionary)
         hstore_dictionary[self.name] = value
 
     # end descriptor methods
