@@ -1,7 +1,5 @@
-from setuptools import setup, find_packages
-import re
 import os
-import sys
+from setuptools import setup
 
 from django_hstore import get_version
 
@@ -34,7 +32,7 @@ def get_package_data(package):
 setup(
     name='django-hstore',
     version=get_version(),
-    description="Bring schemaless PostgreSQL (HStore) in Django",
+    description='PostgreSQL HStore support for Django',
     long_description=open('README.rst').read(),
     author='Jordan McCoy',
     maintainer='Djangonauts Organization',
