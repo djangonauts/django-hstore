@@ -912,6 +912,41 @@ class SchemaTests(TestCase):
             self.assertTrue(hasattr(SchemaDataBag, '_hstore_virtual_fields'))
             for key in hstore_virtual_fields_keys:
                 self.assertTrue(hasattr(d, key))
+
+        def test_datetime_is_none(self):
+            """ issue #82 https://github.com/djangonauts/django-hstore/issues/82 """
+            d = SchemaDataBag()
+            d.name = 'datetime'
+            self.assertIsNone(d.datetime, None)
+            d.full_clean()
+            d.save()
+            d = SchemaDataBag.objects.get(name='datetime')
+            self.assertIsNone(d.datetime, None)
+
+        def test_migration_datetime(self):
+            """ issue #82 https://github.com/djangonauts/django-hstore/issues/82 """
+            from django.core.management import call_command
+            from cStringIO import StringIO
+            # start capturing output
+            output = StringIO()
+            sys.stdout = output
+            call_command('makemigrations', 'django_hstore_tests')
+            # stop capturing print statements
+            sys.stdout = sys.__stdout__
+            self.assertIn('0001_initial', output.getvalue())
+            # check migration file
+            path = './django_hstore_tests/migrations'
+            filename = '0001_initial.py'
+            try:
+                migration_file = open('{0}/{1}'.format(path, filename))
+            except IOError:
+                path = path.replace('./', './tests/')
+                migration_file = open('{0}/{1}'.format(path, filename))
+            self.assertNotIn("('datetime', django_hstore.virtual.VirtualField(default=datetime.datetime", migration_file.read())
+            # delete migration files
+            import shutil
+            shutil.rmtree(path)
+
     else:
         def test_improperly_configured(self):
             with self.assertRaises(ImproperlyConfigured):

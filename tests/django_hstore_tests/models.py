@@ -77,7 +77,7 @@ class NumberedDataBag(HStoreModel):
 class UniqueTogetherDataBag(HStoreModel):
     name = models.CharField(max_length=32)
     data = hstore.DictionaryField()
-    
+
     class Meta:
         unique_together =  ("name", "data")
 
@@ -155,7 +155,8 @@ if get_version()[0:3] >= '1.6':
                 'name': 'datetime',
                 'class': 'DateTimeField',
                 'kwargs': {
-                    'blank': True
+                    'blank': True,
+                    'null': True
                 }
             },
             {
@@ -190,7 +191,7 @@ if get_version()[0:3] >= '1.6':
                 }
             },
         ])
-    
+
     __all__.append('SchemaDataBag')
 
 
@@ -201,7 +202,7 @@ if GEODJANGO:
         name = geo_models.CharField(max_length=32)
         data = hstore.DictionaryField()
         point = geo_models.GeometryField()
-    
+
         objects = hstore.HStoreGeoManager()
-    
+
     __all__.append('Location')
