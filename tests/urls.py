@@ -4,13 +4,12 @@ from django.contrib import admin
 admin.autodiscover()
 
 
-urlpatterns = patterns('',
-    # Uncomment the next line to enable the admin:
+urlpatterns = patterns('',  # noqa
     url(r'^admin/', include(admin.site.urls)),
 )
 
 
 if 'grappelli' in settings.INSTALLED_APPS:
-    urlpatterns = urlpatterns + patterns('',
+    urlpatterns = urlpatterns + patterns('',  # noqa
         url(r'^grappelli/', include('grappelli.urls')),
     )

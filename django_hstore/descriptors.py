@@ -1,5 +1,5 @@
 from django.db import models
-from .dict import *
+from .dict import HStoreDict, HStoreReferenceDict
 
 
 __all__ = [

@@ -64,7 +64,7 @@ STATIC_URL = '/static/'
 
 # local settings must be imported before test runner otherwise they'll be ignored
 try:
-    from local_settings import *
+    from local_settings import *  # noqa
 except ImportError:
     pass
 
@@ -72,7 +72,7 @@ if django.VERSION[:2] >= (1, 6):
     TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 else:
     try:
-        import discover_runner
+        import discover_runner  # noqa
         TEST_RUNNER = "discover_runner.DiscoverRunner"
     except ImportError:
         print("For run tests with django <= 1.5 you should install "

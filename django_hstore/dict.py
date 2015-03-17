@@ -22,7 +22,6 @@ class HStoreDict(UnicodeMixin, dict):
     """
     A dictionary subclass which implements hstore support.
     """
-
     schema_mode = False  # python2.6 compatibility
 
     def __init__(self, value=None, field=None, instance=None, schema_mode=False, **kwargs):
@@ -84,7 +83,7 @@ class HStoreDict(UnicodeMixin, dict):
         key = args[0]
         try:
             return self.__getitem__(key)
-        except KeyError as e:
+        except KeyError:
             if len(args) > 1:
                 return args[1]  # return default value
             else:

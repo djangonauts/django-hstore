@@ -1,9 +1,6 @@
 import django
-from django.db import models
-from django.core.exceptions import ValidationError
-
-from .fields import DictionaryField
+from .fields import DictionaryField  # noqa
 
 
 if django.get_version() < '1.7':
-    from . import apps
+    from . import apps  # noqa

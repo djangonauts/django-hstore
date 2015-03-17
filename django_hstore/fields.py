@@ -1,13 +1,13 @@
 from __future__ import unicode_literals, absolute_import
 
-from django.db import models, connection
+from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ImproperlyConfigured
 from django import get_version
 
-from .descriptors import *
-from .dict import *
-from .virtual import *
+from .descriptors import HStoreDescriptor, HStoreReferenceDescriptor
+from .dict import HStoreDict, HStoreReferenceDict
+from .virtual import create_hstore_virtual_field
 from . import forms, utils
 
 
@@ -70,7 +70,8 @@ class HStoreField(models.Field):
 
 
 if get_version() >= '1.7':
-    from .lookups import *
+    from .lookups import (HStoreGreaterThan, HStoreGreaterThanOrEqual, HStoreLessThan,
+                          HStoreLessThanOrEqual, HStoreContains, HStoreIContains, HStoreIsNull)
 
     HStoreField.register_lookup(HStoreGreaterThan)
     HStoreField.register_lookup(HStoreGreaterThanOrEqual)

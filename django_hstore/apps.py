@@ -27,8 +27,7 @@ else:
     warnings.warn("""\n
 DJANGO_HSTORE_GLOBAL_REGISTER setting is deprecated since django-hstore 1.2.5 and will be removed in 1.3.0.
 Use DJANGO_HSTORE_ADAPTER_REGISTRATION by setting it either to 'global' or 'connection'.
-    """,
-    DeprecationWarning)
+    """, DeprecationWarning)
 
 
 class ConnectionCreateHandler(object):
