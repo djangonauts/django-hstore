@@ -97,9 +97,8 @@ def create_hstore_virtual_field(field_cls, kwargs, hstore_field_name):
             return (name, path, args, { 'default': kwargs.get('default')})
 
     # support DateTimeField
-    if BaseField == models.DateTimeField and kwargs.get('default') is None:
-        import datetime
-        kwargs['default'] = datetime.datetime.utcnow()
+    if BaseField == models.DateTimeField and (kwargs.get('null') or kwargs.get('blank')):
+        kwargs['default'] = None
 
     # support Date and DateTime in django-rest-framework-hstore
     if BaseField == models.DateTimeField or BaseField == models.DateField:
