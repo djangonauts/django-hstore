@@ -409,6 +409,12 @@ class TestDictionaryField(TestCase):
         DataBag.objects.filter(name='alpha').hupdate('data', {'v2': '10', 'v3': '20'})
         self.assertEqual(DataBag.objects.get(name='alpha').data, {'v': '1', 'v2': '10', 'v3': '20'})
 
+    def test_hupdate_atomic(self):
+        """ https://github.com/djangonauts/django-hstore/issues/84 """
+        if hasattr(transaction, 'atomic'):
+            with transaction.atomic():
+                self.test_hupdate()
+
     def test_default(self):
         m = DefaultsModel()
         m.save()
