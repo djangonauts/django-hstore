@@ -46,13 +46,17 @@ image:images/hstore-widget.png["Grappeli Widget",width=650]
 .Each time a key or a value is modified, the underlying textarea is updated:
 image:images/hstore-widget-raw.png["Grappeli Widget",width=650]
 
+*Note: When using SerializedDictionaryField, data values are displayed in their
+serialized JSON form. This is done to make their type explicit.
 
 Limitations
 ~~~~~~~~~~~
 
 - PostgreSQL's implementation of hstore has no concept of type; it stores a
   mapping of string keys to string values. Values are stored as strings in the
-  database regarding of their original type. *This limitation can be overcome by using the schema mode since version 1.3.0 of django_hstore*.
+  database regarding of their original type. *This limitation can be overcome by
+  using either the schema mode since version 1.3.0 or by using
+  the serialized dictionary field since version 1.3.6 of django_hstore*.
 - The hstore extension is not automatically installed on use with this package: you must install it manually.
 - To run tests, hstore extension must be installed on template1 database.
   To install hstore on template1: `$ psql -d template1 -c 'create extension hstore;'`
@@ -214,11 +218,16 @@ SOUTH_DATABASE_ADAPTERS = {'default': 'south.db.postgresql_psycopg2'}
 Usage
 ~~~~~
 
-The library provides three principal classes:
+The library provides five principal classes:
 
 - `django_hstore.hstore.DictionaryField` +
   An ORM field which stores a mapping of string key/value pairs in a hstore
   column.
+- `django_hstore.hstore.SerializedDictionaryField` +
+  Similar to the `DictionaryField` with the exception that all submitted values
+  in string key/value are encoded-to JSON upon writes to the database and decoded
+  from JSON upon database reads. This allows for any JSON supported data type to
+  be stored in an hstore column.
 - `django_hstore.hstore.ReferencesField` +
   An ORM field which builds on DictionaryField to store a mapping of string
   keys to django object references, much like ForeignKey.
@@ -240,7 +249,7 @@ from django_hstore import hstore
 
 class Something(models.Model):
     name = models.CharField(max_length=32)
-    data = hstore.DictionaryField()  # can pass attributes like null, blank, ecc.
+    data = hstore.DictionaryField()  # can pass attributes like null, blank, etc.
 
     objects = hstore.HStoreManager()
     # IF YOU ARE USING POSTGIS:
@@ -357,6 +366,29 @@ class ReferenceContainer(models.Model):
     objects = hstore.HStoreManager()
 ----
 
+.the `SerializedDictionaryField` definition is very similar to the standard
+dictionary field:
+[source, python]
+----
+from django.db import models
+from django_hstore import hstore
+
+class Something(models.Model):
+    name = models.CharField(max_length=32)
+    data = hstore.SerializedDictionaryField()  # can pass attributes like null, blank, etc.
+
+    objects = hstore.HStoreManager()
+    # IF YOU ARE USING POSTGIS:
+    # objects = hstore.HStoreGeoManager()
+----
+
+Optionally, the data accepts both a `serializer` and `deserializer` argument
+(which default to `json.dumps` and `json.loads`, respectively).  This allows
+allowing for customized manners of serialization. *Customizing the
+serializer/deserializer is only partially implemented. It is NOT supported with
+the default Django admin widget (which attempts to serialize and deserialize all
+values with `json.dumps` and `json.loads`). Use at your own risk.*
+
 Python API
 ~~~~~~~~~~
 
@@ -418,6 +450,32 @@ Each virtual field will be mapped to a key of the `DictionaryField`:
 9.99
 ----
 
+Since version *1.3.6* you can use the `SerializedDictionaryField` to store any
+data type support in JSON. This has the specific advantage over the schema mode
+of not requiring the user to specify schema ahead of time.
+
+[source, python]
+----
+>>> obj = SerializedExample.objects.create(
+...   name="A Serializable Field!",
+...   data={
+...     'str': 'A string',
+...     'int': 1234,
+...     'float': 3.141,
+...     'bool': True,
+...     'list': [0, 'one', [2.0, 2.1]],
+...     'dict': {
+...       'a': 1,
+...       'b': 'two',
+...       'c': ['three']
+...     }
+...   }
+... )
+
+>>> obj.data
+{'int': 1234, 'float': 3.141, 'list': [0, 'one', [2.0, 2.1]], 'bool': True, 'str': 'A string', 'dict': {'a': 1, 'c': ['three'], 'b': 'two'}
+----
+
 You can issue indexed queries against hstore fields:
 
 [source,python]
@@ -442,12 +500,15 @@ Something.objects.filter(data__lte={'a': '2', 'b: '3'})
 Something.objects.filter(data__contains={'a': '1'})
 
 # subset by list of some key values
+# Note: Incompatible with the SerializedDictionaryField (lists as values are treated as actual values, not subsets)
 Something.objects.filter(data__contains={'a': ['1', '2']})
 
 # subset by list of keys
+# Note: Incompatible with the SerializedDictionaryField (lists as values are treated as actual values, not subsets)
 Something.objects.filter(data__contains=['a', 'b'])
 
 # subset by single key
+# Note: Incompatible with the SerializedDictionaryField (lists as values are treated as actual values, not subsets)
 Something.objects.filter(data__contains=['a'])
 
 # filter by is null on individual key/value pairs
