@@ -1,7 +1,7 @@
 Changelog
 =========
 
-Version 1.3.6 [unreleased]
+Version 1.3.6 [2015-04-10]
 --------------------------
 
 - added SerializedDictionaryField #80
