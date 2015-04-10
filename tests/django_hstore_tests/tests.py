@@ -926,6 +926,13 @@ class SchemaTests(TestCase):
             d = SchemaDataBag.objects.get(name='datetime')
             self.assertIsNone(d.datetime, None)
 
+        def test_none_handling(self):
+            """ failing test for https://github.com/djangonauts/django-hstore/pull/92 """
+            d = NullSchemaDataBag()
+            self.assertIsNone(d.data)
+            d.char = 'test'
+            d.number = 2
+
         if DJANGO_VERSION[:2] >= (1, 7):
             def test_migration_datetime(self):
                 """ issue #82 https://github.com/djangonauts/django-hstore/issues/82 """
