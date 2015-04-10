@@ -76,7 +76,9 @@ def get_cast_for_param(value_annot, key):
     if not isinstance(value_annot, dict):
         return ''
 
-    if issubclass(value_annot[key], datetime):
+    if value_annot[key] in (True, False):
+        return '::boolean'
+    elif issubclass(value_annot[key], datetime):
         return '::timestamp'
     elif issubclass(value_annot[key], date):
         return '::date'
@@ -88,8 +90,6 @@ def get_cast_for_param(value_annot, key):
         return '::float8'
     elif issubclass(value_annot[key], Decimal):
         return '::numeric'
-    elif value_annot[key] in (True, False):
-        return '::boolean'
     else:
         return ''
 
