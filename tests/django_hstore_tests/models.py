@@ -11,6 +11,7 @@ GEODJANGO = settings.DATABASES['default']['ENGINE'] == 'django.contrib.gis.db.ba
 __all__ = [
     'Ref',
     'DataBag',
+    'SerializedDataBag',
     'NullableDataBag',
     'RefsBag',
     'NullableRefsBag',
@@ -37,6 +38,11 @@ class HStoreModel(models.Model):
 class DataBag(HStoreModel):
     name = models.CharField(max_length=32)
     data = hstore.DictionaryField()
+
+
+class SerializedDataBag(HStoreModel):
+    name = models.CharField(max_length=32)
+    data = hstore.SerializedDictionaryField()
 
 
 class NullableDataBag(HStoreModel):

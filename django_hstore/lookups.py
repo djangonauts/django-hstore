@@ -113,6 +113,12 @@ class HStoreContains(HStoreLookupMixin, Contains):
             # if looking for a string perform the normal text lookup
             # that is: look for occurence of string in all the keys
             pass
+        elif hasattr(self.lhs.source, 'serializer'):
+            try:
+                self.lhs.source._serialize_value(param)
+                pass
+            except Exception:
+                raise ValueError('invalid value')
         else:
             raise ValueError('invalid value')
         return super(HStoreContains, self).as_sql(qn, connection)

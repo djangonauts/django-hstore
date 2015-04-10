@@ -1,11 +1,14 @@
 from __future__ import unicode_literals, absolute_import
+import json
+import datetime
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ImproperlyConfigured
+from django.utils import six
 from django import get_version
 
-from .descriptors import HStoreDescriptor, HStoreReferenceDescriptor
+from .descriptors import HStoreDescriptor, HStoreReferenceDescriptor, SerializedDictDescriptor
 from .dict import HStoreDict, HStoreReferenceDict
 from .virtual import create_hstore_virtual_field
 from . import forms, utils
@@ -22,7 +25,7 @@ class HStoreField(models.Field):
 
     def validate(self, value, *args):
         super(HStoreField, self).validate(value, *args)
-        forms.validate_hstore(value)
+        forms.validate_hstore(value, is_serialized=hasattr(self, 'serializer'))
 
     def contribute_to_class(self, cls, name):
         super(HStoreField, self).contribute_to_class(cls, name)
@@ -230,6 +233,94 @@ class ReferencesField(HStoreField):
 
     def _value_to_python(self, value):
         return utils.acquire_reference(value)
+
+
+class SerializedDictionaryField(HStoreField):
+
+    description = _("A python dictionary in a postgresql hstore field.")
+
+    def __init__(self, serializer=json.dumps, deserializer=json.loads, *args, **kwargs):
+        self.serializer = serializer
+        self.deserializer = deserializer
+        super(SerializedDictionaryField, self).__init__(*args, **kwargs)
+
+    def _from_db(self, model_instance):
+        """
+        Helper to determine if model instance is from the DB.
+        """
+        return bool(model_instance._state.adding and model_instance.id)
+
+    def get_default(self):
+        """
+        Returns the default value for this field.
+        """
+        if self.has_default():
+            if callable(self.default):
+                return self.default()
+            return self.default
+        else:
+            return {}
+
+    def clean(self, value, model_instance):
+        if self._from_db(model_instance):  # Only prepare data from DB
+            value = self.to_python(value)
+        self.validate(value, model_instance)
+        self.run_validators(value)
+        return value
+
+    def _serialize_value(self, value):
+        # Don't serialize None type or Datetime, Postgres can handle
+        if (value is None) or isinstance(value, datetime.date):
+            return value
+        else:
+            return self.serializer(value)
+
+    def _serialize_dict(self, value):
+        if value is None:
+            return value
+        return dict((k, self._serialize_value(v)) for k, v in value.items())
+
+    def _deserialize_value(self, value):
+        if (value is None) or isinstance(value, datetime.date):
+            return value
+        else:
+            return self.deserializer(value)
+
+    def _deserialize_dict(self, value):
+        """ Helper to deserialize dict-like data """
+        if not value or isinstance(value, six.string_types):
+            return value
+        return dict((k, self._deserialize_value(v)) for k, v in value.items())
+
+    def contribute_to_class(self, cls, name):
+        super(SerializedDictionaryField, self).contribute_to_class(cls, name)
+        setattr(cls, self.name, SerializedDictDescriptor(self))
+
+    def formfield(self, **kwargs):
+        kwargs['form_class'] = forms.SerializedDictionaryField
+        return super(SerializedDictionaryField, self).formfield(**kwargs)
+
+    def get_prep_value(self, value):
+        """ Convert to query-friendly format. """
+        if not isinstance(value, dict):  # Handle values from hremove
+            return value
+        return self._serialize_dict(value)
+
+    def get_prep_lookup(self, lookup_type, value):
+        """ Prepares value for the database prior to be used in a lookup """
+        if lookup_type == 'isnull':
+            return value
+        return self.get_prep_value(value)
+
+    def _value_to_python(self, value):
+        return self._deserialize_value(value)
+
+    def to_python(self, value):
+        """ Convert from db-friendly format to originally typed values. """
+        if isinstance(value, dict):
+            return self._deserialize_dict(value)
+        else:
+            return value
 
 
 # south compatibility
