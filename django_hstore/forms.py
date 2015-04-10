@@ -51,7 +51,6 @@ def validate_hstore(value, is_serialized=False):
 
 
 class JsonMixin(object):
-
     def to_python(self, value):
         return validate_hstore(value)
 
@@ -62,8 +61,8 @@ class JsonMixin(object):
             value = json.dumps(value, sort_keys=True, indent=4)
         return super(JsonMixin, self).render(name, value, attrs)
 
-class SerializedJsonMixin(JsonMixin):
 
+class SerializedJsonMixin(JsonMixin):
     def to_python(self, value):
         return validate_hstore(value, is_serialized=True)
 
@@ -87,7 +86,6 @@ class SerializedDictionaryFieldWidget(SerializedJsonMixin, AdminHStoreWidget):
 
 
 class ReferencesFieldWidget(JsonMixin, AdminHStoreWidget):
-
     def render(self, name, value, attrs=None):
         value = utils.serialize_references(value)
         return super(ReferencesFieldWidget, self).render(name, value, attrs)
@@ -104,7 +102,7 @@ class DictionaryField(JsonMixin, Field):
 
 class SerializedDictionaryField(SerializedJsonMixin, Field):
     """
-    A dictionary form field.
+    Serialized dictionary field.
     """
     def __init__(self, **params):
         params['widget'] = params.get('widget', SerializedDictionaryFieldWidget)
