@@ -23,15 +23,11 @@ class BaseAdminHStoreWidget(AdminTextareaWidget):
     @property
     def media(self):
         internal_js = [
+            "django_hstore/underscore-min.js",
             "django_hstore/hstore-widget.js"
-            "django_hstore/underscore-min.js"
         ]
 
-        external_js = [
-
-        ]
-
-        js = external_js + [static("admin/js/%s" % path) for path in internal_js]
+        js = [static("admin/js/%s" % path) for path in internal_js]
 
         return forms.Media(js=js)
 
