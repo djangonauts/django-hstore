@@ -938,23 +938,6 @@ class SchemaTests(TestCase):
             d.number = 0
             self.assertEqual(d.char, '')
             self.assertEqual(d.number, 0)
-
-        if DJANGO_VERSION[:2] >= (1, 7):
-            def test_migration_datetime(self):
-                """ issue #82 https://github.com/djangonauts/django-hstore/issues/82 """
-                from django.core.management import call_command
-                if sys.version_info.major >= 3:
-                    from io import StringIO
-                else:
-                    from StringIO import StringIO
-                # start capturing output
-                output = StringIO()
-                sys.stdout = output
-                call_command('makemigrations', 'django_hstore_tests')
-                # stop capturing print statements
-                sys.stdout = sys.__stdout__
-                self.assertIn("No changes detected in app 'django_hstore_tests'", output.getvalue())
-
     else:
         def test_improperly_configured(self):
             with self.assertRaises(ImproperlyConfigured):
