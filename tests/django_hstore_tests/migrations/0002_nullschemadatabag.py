@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=32)),
                 ('data', django_hstore.fields.DictionaryField(default=None, null=True, editable=False)),
-                ('number', django_hstore.virtual.VirtualField(default=0)),
+                ('number', django_hstore.virtual.VirtualField(default=1)),
                 ('char', django_hstore.virtual.VirtualField(default=b'test')),
             ],
             options={

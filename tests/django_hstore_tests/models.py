@@ -200,7 +200,7 @@ if get_version()[0:3] >= '1.6':
                 'name': 'number',
                 'class': 'IntegerField',
                 'kwargs': {
-                    'default': 0
+                    'default': 1
                 }
             },
             {

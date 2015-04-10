@@ -930,8 +930,14 @@ class SchemaTests(TestCase):
             """ failing test for https://github.com/djangonauts/django-hstore/pull/92 """
             d = NullSchemaDataBag()
             self.assertIsNone(d.data)
-            d.char = 'test'
+            d.char = 'testing'
             d.number = 2
+            self.assertEqual(d.char, 'testing')
+            self.assertEqual(d.number, 2)
+            d.char = ''
+            d.number = 0
+            self.assertEqual(d.char, '')
+            self.assertEqual(d.number, 0)
 
         if DJANGO_VERSION[:2] >= (1, 7):
             def test_migration_datetime(self):

@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import six
 from django.utils.functional import curry
+from .dict import HStoreDict
 
 
 __all__ = [
@@ -56,8 +57,10 @@ class HStoreVirtualMixin(object):
         """
         hstore_dictionary = getattr(instance, self.hstore_field_name)
         if hstore_dictionary is None:
-            hstore_dictionary = {}
-            setattr(instance, self.hstore_field_name, hstore_dictionary)
+            # init empty HStoreDict
+            setattr(instance, self.hstore_field_name, HStoreDict())
+            # reassign
+            hstore_dictionary = getattr(instance, self.hstore_field_name)
         hstore_dictionary[self.name] = value
 
     # end descriptor methods
