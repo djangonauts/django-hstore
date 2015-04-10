@@ -106,6 +106,8 @@ class TestDictionaryField(TestCase):
         databag = DataBag.objects.get(name='boolean')
         self.assertEqual(json.loads(databag.data['boolean']), True)
 
+        self.assertTrue(DataBag.objects.get(data__contains={'boolean': True}))
+
     def test_is_pickable(self):
         m = DefaultsModel()
         m.save()
