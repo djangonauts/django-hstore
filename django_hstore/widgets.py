@@ -22,13 +22,13 @@ class BaseAdminHStoreWidget(AdminTextareaWidget):
 
     @property
     def media(self):
-        # load underscore from CDNJS (popular javascript content delivery network)
-        external_js = [
-            "//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js"
-        ]
-
         internal_js = [
             "django_hstore/hstore-widget.js"
+            "django_hstore/underscore-min.js"
+        ]
+
+        external_js = [
+
         ]
 
         js = external_js + [static("admin/js/%s" % path) for path in internal_js]
