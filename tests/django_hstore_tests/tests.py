@@ -940,19 +940,7 @@ class SchemaTests(TestCase):
                 call_command('makemigrations', 'django_hstore_tests')
                 # stop capturing print statements
                 sys.stdout = sys.__stdout__
-                self.assertIn('0001_initial', output.getvalue())
-                # check migration file
-                path = './django_hstore_tests/migrations'
-                filename = '0001_initial.py'
-                try:
-                    migration_file = open('{0}/{1}'.format(path, filename))
-                except IOError:
-                    path = path.replace('./', './tests/')
-                    migration_file = open('{0}/{1}'.format(path, filename))
-                self.assertNotIn("('datetime', django_hstore.virtual.VirtualField(default=datetime.datetime", migration_file.read())
-                # delete migration files
-                import shutil
-                shutil.rmtree(path)
+                self.assertIn("No changes detected in app 'django_hstore_tests'", output.getvalue())
 
     else:
         def test_improperly_configured(self):
