@@ -13,14 +13,7 @@ from django.db.models.sql.query import Query
 from django.db.models.sql.subqueries import UpdateQuery
 from django.db.models.sql.where import EmptyShortCircuit, WhereNode
 
-try:
-    from django.contrib.gis.db.models.query import GeoQuerySet
-    from django.contrib.gis.db.models.sql.query import GeoQuery
-    from django.contrib.gis.db.models.sql.where import \
-        GeoWhereNode, GeoConstraint
-    GEODJANGO_INSTALLED = True
-except:
-    GEODJANGO_INSTALLED = False
+from django_hstore.apps import GEODJANGO_INSTALLED
 
 
 class literal_clause(object):
@@ -38,18 +31,15 @@ except ImportError:
 
 
 def select_query(method):
-
     def selector(self, *args, **params):
         query = self.query.clone()
         query.default_cols = False
         query.clear_select_fields()
         return method(self, query, *args, **params)
-
     return selector
 
 
 def update_query(method):
-
     def updater(self, *args, **params):
         self._for_write = True
         query = method(self, self.query.clone(UpdateQuery), *args, **params)
@@ -75,7 +65,6 @@ def update_query(method):
 def get_cast_for_param(value_annot, key):
     if not isinstance(value_annot, dict):
         return ''
-
     if value_annot[key] in (True, False):
         return '::boolean'
     elif issubclass(value_annot[key], datetime):
@@ -101,7 +90,6 @@ def get_value_annotations(param):
 
 
 class HStoreWhereNode(WhereNode):
-
     def add(self, data, *args, **kwargs):
         # WhereNode will convert params into strings, so we need to record
         # the type of the params as part of the value_annotation before calling
@@ -230,40 +218,15 @@ class HStoreWhereNode(WhereNode):
                 raise TypeError('invalid lookup type')
 
         return super(HStoreWhereNode, self).make_atom(child, qn, connection)
-
     make_hstore_atom = make_atom
 
 
-if GEODJANGO_INSTALLED:
-    class HStoreGeoWhereNode(HStoreWhereNode, GeoWhereNode):
-
-        def make_atom(self, child, qn, connection):
-            lvalue, lookup_type, value_annot, params_or_value = child
-
-            # if spatial query
-            if isinstance(lvalue, GeoConstraint):
-                return GeoWhereNode.make_atom(self, child, qn, connection)
-
-            # else might be an HSTORE query
-            return HStoreWhereNode.make_atom(self, child, qn, connection)
-
-
 class HStoreQuery(Query):
-
     def __init__(self, model):
         super(HStoreQuery, self).__init__(model, HStoreWhereNode)
 
 
-if GEODJANGO_INSTALLED:
-    class HStoreGeoQuery(GeoQuery, Query):
-
-        def __init__(self, *args, **kwargs):
-            model = kwargs.pop('model', None) or args[0]
-            super(HStoreGeoQuery, self).__init__(model, HStoreGeoWhereNode)
-
-
 class HStoreQuerySet(QuerySet):
-
     def __init__(self, model=None, query=None, using=None, *args, **kwargs):
         query = query or HStoreQuery(model)
         super(HStoreQuerySet, self).__init__(model=model, query=query, using=using, *args, **kwargs)
@@ -324,8 +287,27 @@ class HStoreQuerySet(QuerySet):
 
 
 if GEODJANGO_INSTALLED:
-    class HStoreGeoQuerySet(HStoreQuerySet, GeoQuerySet):
+    from django.contrib.gis.db.models.query import GeoQuerySet
+    from django.contrib.gis.db.models.sql.query import GeoQuery
+    from django.contrib.gis.db.models.sql.where import GeoWhereNode, GeoConstraint
 
+    class HStoreGeoWhereNode(HStoreWhereNode, GeoWhereNode):
+        def make_atom(self, child, qn, connection):
+            lvalue, lookup_type, value_annot, params_or_value = child
+
+            # if spatial query
+            if isinstance(lvalue, GeoConstraint):
+                return GeoWhereNode.make_atom(self, child, qn, connection)
+
+            # else might be an HSTORE query
+            return HStoreWhereNode.make_atom(self, child, qn, connection)
+
+    class HStoreGeoQuery(GeoQuery, Query):
+        def __init__(self, *args, **kwargs):
+            model = kwargs.pop('model', None) or args[0]
+            super(HStoreGeoQuery, self).__init__(model, HStoreGeoWhereNode)
+
+    class HStoreGeoQuerySet(HStoreQuerySet, GeoQuerySet):
         def __init__(self, model=None, query=None, using=None, **kwargs):
             query = query or HStoreGeoQuery(model)
             super(HStoreGeoQuerySet, self).__init__(model=model, query=query, using=using, **kwargs)

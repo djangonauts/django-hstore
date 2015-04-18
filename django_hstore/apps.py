@@ -30,6 +30,15 @@ Use DJANGO_HSTORE_ADAPTER_REGISTRATION by setting it either to 'global' or 'conn
     """, DeprecationWarning)
 
 
+# Check if GEODJANGO is being used
+GEODJANGO_INSTALLED = False
+
+for database in settings.DATABASES.values():
+    if 'postgis' in database['ENGINE']:
+        GEODJANGO_INSTALLED = True
+        break
+
+
 class ConnectionCreateHandler(object):
     """
     Generic connection handlers manager.
