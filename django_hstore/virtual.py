@@ -38,6 +38,15 @@ class HStoreVirtualMixin(object):
         """
         return None
 
+    def deconstruct(self, *args, **kwargs):
+        """
+        specific for django 1.7 and greater (migration framework)
+        """
+        name, path, args, kwargs = super(HStoreVirtualMixin, self).deconstruct(*args, **kwargs)
+        # the "to" key has been added to fix issue #103
+        # without it the command makemigrations fails
+        return (name, path, args, {'default': kwargs.get('default'), 'to': None})
+
     # begin descriptor methods
 
     def __get__(self, instance, instance_type=None):
@@ -66,9 +75,40 @@ class HStoreVirtualMixin(object):
     # end descriptor methods
 
 
-# dummy class, used by django 1.7 schema editor only
 class VirtualField(HStoreVirtualMixin, models.Field):
-    pass
+    """
+    dummy class, used by django 1.7 schema editor only
+    """
+    def __init__(self, *args, **kwargs):
+        # --- begin workaround classes needed for #103 --- #
+        # https://github.com/djangonauts/django-hstore/issues/103
+        kwargs.pop('to', None)
+
+        super(VirtualField, self).__init__(*args, **kwargs)
+
+        class _Meta(object):
+            def __init__(self):
+                self.auto_created = False
+                # --- needed to avoid exception when repeating same migration --- #
+                self.app_label = 'django_hstore'
+                self.object_name = 'virtual'
+
+        class _Through(object):
+            def __init__(self):
+                self._meta = _Meta()
+
+        class _Rel(object):
+            def __init__(self):
+                self.to = self
+                self.through = _Through()
+                # --- needed to avoid exception when repeating same migration --- #
+                self._meta = _Meta()
+                # --- needed when creating migrations for the first time --- #
+                self.parent_link = False
+
+        self.rel = _Rel()
+        self.generate_reverse_relation = False
+        # --- end #103 --- #
 
 
 def create_hstore_virtual_field(field_cls, kwargs, hstore_field_name):
@@ -96,13 +136,6 @@ def create_hstore_virtual_field(field_cls, kwargs, hstore_field_name):
             except KeyError:
                 raise ValueError('missing hstore_field_name keyword argument')
             super(VirtualField, self).__init__(*args, **kwargs)
-
-        def deconstruct(self, *args, **kwargs):
-            """
-            specific for django 1.7 and greater (migration framework)
-            """
-            name, path, args, kwargs = super(VirtualField, self).deconstruct(*args, **kwargs)
-            return (name, path, args, {'default': kwargs.get('default')})
 
     # support DateTimeField
     if BaseField == models.DateTimeField and (kwargs.get('null') or kwargs.get('blank')):
