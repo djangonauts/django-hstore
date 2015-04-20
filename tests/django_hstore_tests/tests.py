@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 import sys
 import json
 import pickle
@@ -1510,6 +1511,53 @@ class SchemaTests(TestCase):
             d.number = 0
             self.assertEqual(d.char, '')
             self.assertEqual(d.number, 0)
+
+        if DJANGO_VERSION[:2] >= (1, 7):
+            def test_migrations(self):
+                """ failing test for https://github.com/djangonauts/django-hstore/issues/103 """
+                from django.core.management import call_command
+                if sys.version_info.major >= 3:
+                    from io import StringIO
+                else:
+                    from StringIO import StringIO
+                # start capturing output
+                output = StringIO()
+                sys.stdout = output
+                call_command('makemigrations', 'django_hstore_tests')
+                # stop capturing print statements
+                sys.stdout = sys.__stdout__
+                self.assertIn('0001_initial', output.getvalue())
+                path = '{0}/{1}'.format(os.path.dirname(__file__), 'migrations')
+                # add a new migration which replicates the bug in #103
+                with open('{0}/{1}'.format(path, '0002_issue_103.py'), 'w') as f:
+                    f.write("""# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+from django.db import models, migrations
+import datetime
+import django_hstore.virtual
+class Migration(migrations.Migration):
+    dependencies = [
+        ('django_hstore_tests', '0001_initial'),
+    ]
+    operations = [
+        migrations.AlterField(
+            model_name='schemadatabag',
+            name='datetime',
+            field=django_hstore.virtual.VirtualField(default=datetime.datetime(2015, 4, 19, 16, 44, 9, 417872)),
+            preserve_default=True,
+        ),
+    ]""")
+                    f.close()
+                # start capturing output
+                output = StringIO()
+                sys.stdout = output
+                call_command('migrate', 'django_hstore_tests')
+                # stop capturing print statements
+                sys.stdout = sys.__stdout__
+                self.assertIn('Applying django_hstore_tests.0002_issue_103... OK', output.getvalue())
+                # delete migration files
+                import shutil
+                shutil.rmtree(path)
     else:
         def test_improperly_configured(self):
             with self.assertRaises(ImproperlyConfigured):
