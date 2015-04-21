@@ -16,14 +16,6 @@ from django.db.models.sql.where import EmptyShortCircuit, WhereNode
 from django_hstore.apps import GEODJANGO_INSTALLED
 
 
-class literal_clause(object):
-    def __init__(self, sql, params):
-        self.clause = (sql, params)
-
-    def as_sql(self, qn, connection):
-        return self.clause
-
-
 try:
     from django.db.models.query_utils import QueryWrapper  # django >= 1.4
 except ImportError:
@@ -172,26 +164,19 @@ class HStoreWhereNode(WhereNode):
                         # Retrieve key and compare to param instead of using '@>' in order to cast hstore value
                         cast = get_cast_for_param(value_annot, keys[0])
                         return ('(%s->\'%s\')%s = %%s' % (field, keys[0], cast), [values[0]])
-
                     return ('%s @> %%s' % field, [param])
-
                 elif isinstance(param, (list, tuple)):
                     if len(param) == 0:
                         raise ValueError('invalid value')
-
                     if len(param) < 2:
                         return ('%s ? %%s' % field, [param[0]])
-
                     if param:
                         return ('%s ?& %%s' % field, [param])
-
                     raise ValueError('invalid value')
-
                 elif isinstance(param, six.string_types):
                     # if looking for a string perform the normal text lookup
                     # that is: look for occurence of string in all the keys
                     pass
-
                 elif hasattr(child[0].field, 'serializer'):
                     try:
                         child[0].field._serialize_value(param)
@@ -200,23 +185,18 @@ class HStoreWhereNode(WhereNode):
                         raise ValueError('invalid value')
                 else:
                     raise ValueError('invalid value')
-
             elif lookup_type == 'isnull':
                 if isinstance(param, dict):
                     param_keys = list(param.keys())
                     conditions = []
-
                     for key in param_keys:
                         op = 'IS NULL' if value_annot[key] else 'IS NOT NULL'
                         conditions.append('(%s->\'%s\') %s' % (field, key, op))
-
                     return (" AND ".join(conditions), [])
                 # do not perform any special format
                 return super(HStoreWhereNode, self).make_atom(child, qn, connection)
-
             else:
                 raise TypeError('invalid lookup type')
-
         return super(HStoreWhereNode, self).make_atom(child, qn, connection)
     make_hstore_atom = make_atom
 
@@ -294,11 +274,9 @@ if GEODJANGO_INSTALLED:
     class HStoreGeoWhereNode(HStoreWhereNode, GeoWhereNode):
         def make_atom(self, child, qn, connection):
             lvalue, lookup_type, value_annot, params_or_value = child
-
             # if spatial query
             if isinstance(lvalue, GeoConstraint):
                 return GeoWhereNode.make_atom(self, child, qn, connection)
-
             # else might be an HSTORE query
             return HStoreWhereNode.make_atom(self, child, qn, connection)
 

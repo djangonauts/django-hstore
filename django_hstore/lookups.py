@@ -77,18 +77,15 @@ class HStoreContains(HStoreLookupMixin, Contains):
 
     def as_postgresql(self, qn, connection):
         lhs, lhs_params = self.process_lhs(qn, connection)
-
         # FIXME: ::text cast is added by ``django.db.backends.postgresql_psycopg2.DatabaseOperations.lookup_cast``;
         # maybe there's a cleaner way to fix the cast for hstore columns
         if lhs.endswith('::text'):
             lhs = lhs[:-4] + 'hstore'
-
         param = self.rhs
 
         if isinstance(param, dict):
             values = list(param.values())
             keys = list(param.keys())
-
             if len(values) == 1 and isinstance(values[0], (list, tuple)):
                 # Can't cast here because the list could contain multiple types
                 return '%s->\'%s\' = ANY(%%s)' % (lhs, keys[0]), [[str(x) for x in values[0]]]
@@ -96,19 +93,14 @@ class HStoreContains(HStoreLookupMixin, Contains):
                 # Retrieve key and compare to param instead of using '@>' in order to cast hstore value
                 cast = get_cast_for_param(self.value_annot, keys[0])
                 return ('(%s->\'%s\')%s = %%s' % (lhs, keys[0], cast), [values[0]])
-
             return '%s @> %%s' % lhs, [param]
-
         elif isinstance(param, (list, tuple)):
             if len(param) == 0:
                 raise ValueError('invalid value')
-
             if len(param) < 2:
                 return '%s ? %%s' % lhs, [param[0]]
-
             if param:
                 return '%s ?& %%s' % lhs, [param]
-
         elif isinstance(param, six.string_types):
             # if looking for a string perform the normal text lookup
             # that is: look for occurence of string in all the keys
