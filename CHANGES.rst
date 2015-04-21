@@ -4,7 +4,7 @@ Changelog
 Version 1.3.7 [unreleased]
 --------------------------
 
-- ...
+ - Fixed VirtualField migration bug #103
 
 Version 1.3.6 [2015-04-10]
 --------------------------
