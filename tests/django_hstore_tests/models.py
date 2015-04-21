@@ -3,9 +3,7 @@ from django.conf import settings
 from django import get_version
 
 from django_hstore import hstore
-
-# determine if geodjango is in use
-GEODJANGO = settings.DATABASES['default']['ENGINE'] == 'django.contrib.gis.db.backends.postgis'
+from django_hstore.apps import GEODJANGO_INSTALLED
 
 
 __all__ = [
@@ -19,8 +17,7 @@ __all__ = [
     'BadDefaultsModel',
     'DefaultsInline',
     'NumberedDataBag',
-    'UniqueTogetherDataBag',
-    'GEODJANGO'
+    'UniqueTogetherDataBag'
 ]
 
 
@@ -223,7 +220,7 @@ if get_version()[0:3] >= '1.6':
 
 
 # if geodjango is in use define Location model, which contains GIS data
-if GEODJANGO:
+if GEODJANGO_INSTALLED:
     from django.contrib.gis.db import models as geo_models
 
     class Location(geo_models.Model):

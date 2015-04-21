@@ -19,6 +19,7 @@ from django.test import TestCase
 from django.test import SimpleTestCase
 
 from django_hstore import get_version, hstore
+from django_hstore.apps import GEODJANGO_INSTALLED
 from django_hstore.forms import DictionaryFieldWidget, ReferencesFieldWidget, SerializedDictionaryFieldWidget
 from django_hstore.fields import HStoreDict
 from django_hstore.exceptions import HStoreDictException
@@ -1831,7 +1832,7 @@ class TestReferencesField(TestCase):
         self.assertEqual(str(r.refs), '{}')
 
 
-if GEODJANGO:
+if GEODJANGO_INSTALLED:
     from django.contrib.gis.geos import GEOSGeometry
 
     class TestDictionaryFieldPlusGIS(TestCase):
