@@ -11,7 +11,7 @@ from django.db.models.lookups import (
     IsNull
 )
 
-from django_hstore.query import get_cast_for_param, get_value_annotations
+from django_hstore.utils import get_cast_for_param, get_value_annotations
 
 
 __all__ = [

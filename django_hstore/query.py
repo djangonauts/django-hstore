@@ -1,8 +1,5 @@
 from __future__ import unicode_literals, absolute_import
 
-from decimal import Decimal
-from datetime import date, time, datetime
-
 from django import VERSION
 from django.db import transaction
 from django.utils import six
@@ -14,6 +11,7 @@ from django.db.models.sql.subqueries import UpdateQuery
 from django.db.models.sql.where import EmptyShortCircuit, WhereNode
 
 from django_hstore.apps import GEODJANGO_INSTALLED
+from django_hstore.utils import get_cast_for_param, get_value_annotations
 
 
 try:
@@ -52,33 +50,6 @@ def update_query(method):
         return rows
     updater.alters_data = True
     return updater
-
-
-def get_cast_for_param(value_annot, key):
-    if not isinstance(value_annot, dict):
-        return ''
-    if value_annot[key] in (True, False):
-        return '::boolean'
-    elif issubclass(value_annot[key], datetime):
-        return '::timestamp'
-    elif issubclass(value_annot[key], date):
-        return '::date'
-    elif issubclass(value_annot[key], time):
-        return '::time'
-    elif issubclass(value_annot[key], six.integer_types):
-        return '::bigint'
-    elif issubclass(value_annot[key], float):
-        return '::float8'
-    elif issubclass(value_annot[key], Decimal):
-        return '::numeric'
-    else:
-        return ''
-
-
-def get_value_annotations(param):
-    # We need to store the actual value for booleans, not just the type, for isnull
-    get_type = lambda v: v if isinstance(v, bool) else type(v)
-    return dict((key, get_type(subvalue)) for key, subvalue in six.iteritems(param))
 
 
 class HStoreWhereNode(WhereNode):

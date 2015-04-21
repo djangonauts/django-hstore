@@ -1,5 +1,8 @@
 from __future__ import unicode_literals, absolute_import
 
+from decimal import Decimal
+from datetime import date, time, datetime
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import six
 
@@ -51,3 +54,30 @@ def unserialize_references(references):
             refs[key] = reference
     else:
         return refs
+
+
+def get_cast_for_param(value_annot, key):
+    if not isinstance(value_annot, dict):
+        return ''
+    if value_annot[key] in (True, False):
+        return '::boolean'
+    elif issubclass(value_annot[key], datetime):
+        return '::timestamp'
+    elif issubclass(value_annot[key], date):
+        return '::date'
+    elif issubclass(value_annot[key], time):
+        return '::time'
+    elif issubclass(value_annot[key], six.integer_types):
+        return '::bigint'
+    elif issubclass(value_annot[key], float):
+        return '::float8'
+    elif issubclass(value_annot[key], Decimal):
+        return '::numeric'
+    else:
+        return ''
+
+
+def get_value_annotations(param):
+    # We need to store the actual value for booleans, not just the type, for isnull
+    get_type = lambda v: v if isinstance(v, bool) else type(v)
+    return dict((key, get_type(subvalue)) for key, subvalue in six.iteritems(param))
