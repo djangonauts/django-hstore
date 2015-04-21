@@ -2,22 +2,17 @@ from __future__ import unicode_literals, absolute_import
 
 from django import VERSION
 from django.db import transaction
-from django.utils import six
 from django.db.models.query import QuerySet
+from django.db.models.query_utils import QueryWrapper
 from django.db.models.sql.constants import SINGLE
 from django.db.models.sql.datastructures import EmptyResultSet
 from django.db.models.sql.query import Query
 from django.db.models.sql.subqueries import UpdateQuery
 from django.db.models.sql.where import EmptyShortCircuit, WhereNode
+from django.utils import six
 
 from django_hstore.apps import GEODJANGO_INSTALLED
 from django_hstore.utils import get_cast_for_param, get_value_annotations
-
-
-try:
-    from django.db.models.query_utils import QueryWrapper  # django >= 1.4
-except ImportError:
-    from django.db.models.sql.where import QueryWrapper  # django <= 1.3
 
 
 def select_query(method):
