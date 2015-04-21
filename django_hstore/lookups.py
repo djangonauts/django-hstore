@@ -80,7 +80,7 @@ class HStoreContains(HStoreLookupMixin, Contains):
         # FIXME: ::text cast is added by ``django.db.backends.postgresql_psycopg2.DatabaseOperations.lookup_cast``;
         # maybe there's a cleaner way to fix the cast for hstore columns
         if lhs.endswith('::text'):
-            lhs = lhs[:-4] + 'hstore'
+            lhs = '{0}{1}'.format(lhs[:-4], 'hstore')
         param = self.rhs
 
         if isinstance(param, dict):
