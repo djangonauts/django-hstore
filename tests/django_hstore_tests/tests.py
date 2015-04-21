@@ -464,7 +464,7 @@ class TestDictionaryField(TestCase):
         with self.assertRaises(HStoreDictException):
             HStoreDict(3)
 
-    def test_hstoredictionary_unicoce_vs_str(self):
+    def test_hstoredictionary_unicode_vs_str(self):
         d = HStoreDict({'test': 'test'})
         self.assertEqual(d.__str__(), d.__unicode__())
 
@@ -1036,7 +1036,7 @@ class TestSerializedDictionaryField(TestCase):
         with self.assertRaises(HStoreDictException):
             HStoreDict(3)
 
-    def test_hstoredictionary_unicoce_vs_str(self):
+    def test_hstoredictionary_unicode_vs_str(self):
         d = HStoreDict({'test': 'test'})
         self.assertEqual(d.__str__(), d.__unicode__())
 
