@@ -64,28 +64,21 @@ class HStoreWhereNode(WhereNode):
 
         if isinstance(original_value, dict):
             len_children = len(self.children) if self.children else 0
-
             value_annot = get_value_annotations(original_value)
-
             # We should be able to get the normal child node here, but it is not returned in Django 1.5
             super(HStoreWhereNode, self).add(data, *args, **kwargs)
-
             # We also need to place the type annotation into self.children
             # It will either be the last item in the last child, or be the last child
             # We can tell which by comparing the lengths before and after calling the super method
             if len_children < len(self.children):
                 child = self.children[-1]
-
                 obj, lookup_type, _, value = child
                 annotated_child = (obj, lookup_type, value_annot, value)
-
                 self.children[-1] = annotated_child
             else:
                 child = self.children[-1][-1]
-
                 obj, lookup_type, _, value = child
                 annotated_child = (obj, lookup_type, value_annot, value)
-
                 self.children[-1][-1] = annotated_child
         else:
             return super(HStoreWhereNode, self).add(data, *args, **kwargs)
@@ -100,34 +93,26 @@ class HStoreWhereNode(WhereNode):
                 lvalue, params = lvalue.process(lookup_type, param, connection)
             except EmptyShortCircuit:
                 raise EmptyResultSet()
-
             field = self.sql_for_columns(lvalue, qn, connection)
 
             if lookup_type == 'exact':
                 if isinstance(param, dict):
                     return ('{0} = %s'.format(field), [param])
-
                 raise ValueError('invalid value')
-
             elif lookup_type in ('gt', 'gte', 'lt', 'lte'):
                 if isinstance(param, dict):
                     sign = (lookup_type[0] == 'g' and '>%s' or '<%s') % (lookup_type[-1] == 'e' and '=' or '')
                     param_keys = list(param.keys())
                     conditions = []
-
                     for key in param_keys:
                         cast = get_cast_for_param(value_annot, key)
                         conditions.append('(%s->\'%s\')%s %s %%s' % (field, key, cast, sign))
-
                     return (" AND ".join(conditions), param.values())
-
                 raise ValueError('invalid value')
-
             elif lookup_type in ['contains', 'icontains']:
                 if isinstance(param, dict):
                     values = list(param.values())
                     keys = list(param.keys())
-
                     if len(values) == 1 and isinstance(values[0], (list, tuple)):
                         # Can't cast here because the list could contain multiple types
                         return ('%s->\'%s\' = ANY(%%s)' % (field, keys[0]), [[str(x) for x in values[0]]])

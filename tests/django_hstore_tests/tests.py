@@ -629,10 +629,12 @@ class TestSerializedDictionaryField(TestCase):
         return alpha, beta
 
     def _create_bitfield_bags(self):
-        # create dictionaries with bits as dictionary keys (i.e. bag5 = { 'b0':'1', 'b2':'1'})
+        # create dictionaries with bits as dictionary keys (i.e. bag5 = {'b0':'1', 'b2':'1'})
         for i in range(10):
-            SerializedDataBag.objects.create(name='bag%d' % (i,),
-                                   data=dict(('b%d' % (bit,), '1') for bit in range(4) if (1 << bit) & i))
+            SerializedDataBag.objects.create(
+                name='bag%d' % (i,),
+                data=dict(('b%d' % (bit,), '1') for bit in range(4) if (1 << bit) & i)
+            )
 
     def test_hstore_dict(self):
         alpha, beta = self._create_bags()
@@ -648,7 +650,7 @@ class TestSerializedDictionaryField(TestCase):
         databag = SerializedDataBag.objects.get(name='number')
         self.assertEqual(databag.data['num'], 1)
 
-        databag = SerializedDataBag(name='number', data={ 'num': 1 })
+        databag = SerializedDataBag(name='number', data={'num': 1})
         self.assertEqual(databag.data['num'], 1)
 
     def test_full_clean(self):
@@ -662,12 +664,12 @@ class TestSerializedDictionaryField(TestCase):
         self.assertEqual(databag.data['num'], 1)
 
     def test_list(self):
-        databag = SerializedDataBag.objects.create(name='list', data={ 'list': ['a', 'b', 'c'] })
+        databag = SerializedDataBag.objects.create(name='list', data={'list': ['a', 'b', 'c']})
         databag = SerializedDataBag.objects.get(name='list')
         self.assertEqual(databag.data['list'], ['a', 'b', 'c'])
 
     def test_dictionary(self):
-        databag = SerializedDataBag.objects.create(name='dict', data={ 'dict': {'subkey': 'subvalue'} })
+        databag = SerializedDataBag.objects.create(name='dict', data={'dict': {'subkey': 'subvalue'}})
         databag = SerializedDataBag.objects.get(name='dict')
         self.assertEqual(databag.data['dict'], {'subkey': 'subvalue'})
 
@@ -676,7 +678,7 @@ class TestSerializedDictionaryField(TestCase):
         self.assertEqual(databag.data['dict'], {'subkey': True, 'list': ['a', 'b', False]})
 
     def test_boolean(self):
-        databag = SerializedDataBag.objects.create(name='boolean', data={ 'boolean': True })
+        databag = SerializedDataBag.objects.create(name='boolean', data={'boolean': True})
         databag = SerializedDataBag.objects.get(name='boolean')
         self.assertEqual(databag.data['boolean'], True)
 
@@ -896,7 +898,7 @@ class TestSerializedDictionaryField(TestCase):
 
     def test_simple_text_icontains_querying(self):
         alpha, beta = self._create_bags()
-        gamma = SerializedDataBag.objects.create(name='gamma', data={'theKey': 'someverySpecialValue', 'v2': '3'})
+        SerializedDataBag.objects.create(name='gamma', data={'theKey': 'someverySpecialValue', 'v2': '3'})
 
         self.assertEqual(SerializedDataBag.objects.filter(data__contains='very').count(), 1)
         self.assertEqual(SerializedDataBag.objects.filter(data__contains='very')[0].name, 'gamma')
@@ -945,19 +947,19 @@ class TestSerializedDictionaryField(TestCase):
     def test_invalid_comparison_lookup_values(self):
         alpha, beta = self._create_bags()
         with self.assertRaises(ValueError):
-            SerializedDataBag.objects.filter(data__lt=[1,2])[0]
+            SerializedDataBag.objects.filter(data__lt=[1, 2])[0]
         with self.assertRaises(ValueError):
             SerializedDataBag.objects.filter(data__lt=99)[0]
         with self.assertRaises(ValueError):
-            SerializedDataBag.objects.filter(data__lte=[1,2])[0]
+            SerializedDataBag.objects.filter(data__lte=[1, 2])[0]
         with self.assertRaises(ValueError):
             SerializedDataBag.objects.filter(data__lte=99)[0]
         with self.assertRaises(ValueError):
-            SerializedDataBag.objects.filter(data__gt=[1,2])[0]
+            SerializedDataBag.objects.filter(data__gt=[1, 2])[0]
         with self.assertRaises(ValueError):
             SerializedDataBag.objects.filter(data__gt=99)[0]
         with self.assertRaises(ValueError):
-            SerializedDataBag.objects.filter(data__gte=[1,2])[0]
+            SerializedDataBag.objects.filter(data__gte=[1, 2])[0]
         with self.assertRaises(ValueError):
             SerializedDataBag.objects.filter(data__gte=99)[0]
 
@@ -991,8 +993,8 @@ class TestSerializedDictionaryField(TestCase):
     def test_hupdate(self):
         alpha, beta = self._create_bags()
         self.assertEqual(SerializedDataBag.objects.get(name='alpha').data, alpha.data)
-        SerializedDataBag.objects.filter(name='alpha').hupdate('data', {'v2': '10', 'v3': {'a':'20'}})
-        self.assertEqual(SerializedDataBag.objects.get(name='alpha').data, {'v': 1, 'v2': '10', 'v3': {'a':'20'}})
+        SerializedDataBag.objects.filter(name='alpha').hupdate('data', {'v2': '10', 'v3': {'a': '20'}})
+        self.assertEqual(SerializedDataBag.objects.get(name='alpha').data, {'v': 1, 'v2': '10', 'v3': {'a': '20'}})
 
     def test_default(self):
         m = DefaultsModel()
@@ -1035,7 +1037,7 @@ class TestSerializedDictionaryField(TestCase):
             HStoreDict(3)
 
     def test_hstoredictionary_unicoce_vs_str(self):
-        d = HStoreDict({ 'test': 'test' })
+        d = HStoreDict({'test': 'test'})
         self.assertEqual(d.__str__(), d.__unicode__())
 
     def test_hstore_model_field_validation(self):
@@ -1063,7 +1065,7 @@ class TestSerializedDictionaryField(TestCase):
             'a': 1,
             'b': 2.2,
             'c': ['a', 'b'],
-            'd': { 'test': 'test' }
+            'd': {'test': 'test'}
         }
 
         with self.assertRaises(ValidationError):
@@ -1136,13 +1138,13 @@ class TestSerializedDictionaryField(TestCase):
     def test_unique_together(self):
         d = UniqueTogetherDataBag()
         d.name = 'test'
-        d.data = { 'test': 'test '}
+        d.data = {'test': 'test '}
         d.full_clean()
         d.save()
 
         d = UniqueTogetherDataBag()
         d.name = 'test'
-        d.data = { 'test': 'test '}
+        d.data = {'test': 'test '}
         with self.assertRaises(ValidationError):
             d.full_clean()
 
@@ -1150,20 +1152,18 @@ class TestSerializedDictionaryField(TestCase):
         """
         Make sure the hstore field does what it is supposed to.
         """
-        from django_hstore.fields import HStoreDict
-
         instance = SerializedDataBag()
-        test_props = {'foo':'bar', 'size': '3'}
+        test_props = {'foo': 'bar', 'size': '3'}
 
         instance.name = "foo"
         instance.data = test_props
         instance.save()
 
-        self.assertEqual(type(instance.data), dict)
+        self.assertIsInstance(instance.data, dict)
         self.assertEqual(instance.data, test_props)
         instance = SerializedDataBag.objects.get(pk=instance.pk)
 
-        self.assertEqual(type(instance.data), dict)
+        self.assertIsInstance(instance.data, dict)
 
         self.assertEqual(instance.data, test_props)
         self.assertEqual(instance.data['size'], '3')
