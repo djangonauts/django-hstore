@@ -29,18 +29,24 @@ def update_query(method):
         self._for_write = True
         query = method(self, self.query.clone(UpdateQuery), *args, **params)
         forced_managed = False
-        if not transaction.is_managed(using=self.db):
-            transaction.enter_transaction_management(using=self.db)
-            forced_managed = True
-        try:
-            rows = query.get_compiler(self.db).execute_sql(None)
-            if forced_managed:
-                transaction.commit(using=self.db)
-            else:
-                transaction.commit_unless_managed(using=self.db)
-        finally:
-            if forced_managed:
-                transaction.leave_transaction_management(using=self.db)
+        # django >= 1.6
+        if VERSION[:2] >= (1, 6):
+            with transaction.atomic(using=self.db):
+                rows = query.get_compiler(self.db).execute_sql(None)
+        # django <= 1.5 - TODO: remove soon
+        else:
+            if not transaction.is_managed(using=self.db):
+                transaction.enter_transaction_management(using=self.db)
+                forced_managed = True
+            try:
+                rows = query.get_compiler(self.db).execute_sql(None)
+                if forced_managed:
+                    transaction.commit(using=self.db)
+                else:
+                    transaction.commit_unless_managed(using=self.db)
+            finally:
+                if forced_managed:
+                    transaction.leave_transaction_management(using=self.db)
         self._result_cache = None
         return rows
     updater.alters_data = True
