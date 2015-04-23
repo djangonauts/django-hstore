@@ -1189,6 +1189,16 @@ class TestSerializedDictionaryField(TestCase):
 
 class SchemaTests(TestCase):
     if DJANGO_VERSION[:2] >= (1, 6):
+        @classmethod
+        def tearDownClass(cls):
+            # delete migration files
+            migration_path = '{0}/{1}'.format(os.path.dirname(__file__), 'migrations')
+            import shutil
+            try:
+                shutil.rmtree(migration_path)
+            except OSError:
+                pass
+
         def _login_as_admin(self):
             # create admin user
             admin = User.objects.create(username='admin', password='tester', is_staff=True, is_superuser=True, is_active=True)
@@ -1556,9 +1566,6 @@ class Migration(migrations.Migration):
                 # stop capturing print statements
                 sys.stdout = sys.__stdout__
                 self.assertIn('Applying django_hstore_tests.0002_issue_103... OK', output.getvalue())
-                # delete migration files
-                import shutil
-                shutil.rmtree(path)
     else:
         def test_improperly_configured(self):
             with self.assertRaises(ImproperlyConfigured):
