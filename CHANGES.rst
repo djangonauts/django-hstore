@@ -1,10 +1,11 @@
 Changelog
 =========
 
-Version 1.3.7 [unreleased]
+Version 1.3.7 [2015-04-24]
 --------------------------
 
 - `9516dd7 <https://github.com/djangonauts/django-hstore/commit/9516dd77602aa27f189b0d633c1cefdd6090eb20>`_: Removed deprecated ``transaction.is_managed`` in favour of ``transaction.atomic`` for django >= 1.6
+- `eeda0e5 <https://github.com/djangonauts/django-hstore/commit/eeda0e50caa9107189961f97a4f4e7a234aa7fc9>`_: Removed import for django <= 1.3 in query.py
 - `#103 <https://github.com/djangonauts/django-hstore/pull/103>`_: Fixed migration bug in ``VirtualField``
 
 Version 1.3.6 [2015-04-10]
