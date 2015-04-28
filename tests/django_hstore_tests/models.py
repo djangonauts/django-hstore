@@ -9,6 +9,7 @@ __all__ = [
     'Ref',
     'DataBag',
     'SerializedDataBag',
+    'SerializedDataBagNoID',
     'NullableDataBag',
     'RefsBag',
     'NullableRefsBag',
@@ -37,6 +38,12 @@ class DataBag(HStoreModel):
 
 
 class SerializedDataBag(HStoreModel):
+    name = models.CharField(max_length=32)
+    data = hstore.SerializedDictionaryField()
+
+
+class SerializedDataBagNoID(HStoreModel):
+    slug = models.SlugField(primary_key=True)
     name = models.CharField(max_length=32)
     data = hstore.SerializedDictionaryField()
 
