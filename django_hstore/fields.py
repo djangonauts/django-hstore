@@ -248,7 +248,7 @@ class SerializedDictionaryField(HStoreField):
         """
         Helper to determine if model instance is from the DB.
         """
-        return bool(model_instance._state.adding and model_instance.id)
+        return bool(model_instance._state.adding and model_instance.pk)
 
     def get_default(self):
         """

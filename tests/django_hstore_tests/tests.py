@@ -653,6 +653,12 @@ class TestSerializedDictionaryField(TestCase):
         databag = SerializedDataBag(name='number', data={'num': 1})
         self.assertEqual(databag.data['num'], 1)
 
+    def test_non_id_pk(self):
+        databag = SerializedDataBagNoID(slug='123', name='abc')
+        databag.data['num'] = 1
+        databag.save()
+        SerializedDataBagNoID.objects.get(slug='123')
+
     def test_full_clean(self):
         databag = SerializedDataBag(name='number')
         databag.data['num'] = 1
