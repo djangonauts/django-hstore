@@ -19,7 +19,7 @@ django-hstore
 .. image:: https://badge.fury.io/py/django-hstore.png
     :target: https://pypi.python.org/pypi/django-hstore
 
-.. image:: https://pypip.in/d/django-hstore/badge.png
+.. image:: https://img.shields.io/pypi/dm/django-hstore.svg
    :target: https://pypi.python.org/pypi/django-hstore
 
 ------------
