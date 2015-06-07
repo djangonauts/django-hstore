@@ -1941,6 +1941,13 @@ if GEODJANGO_INSTALLED:
             d1 = Location.objects.filter(point__distance_lte=(self.pnt1, 70000))
             self.assertEqual(d1.count(), 2)
 
+        def test_manager(self):
+            from django_hstore.managers import HStoreGeoManager
+            isinstance(Location.objects, HStoreGeoManager)
+            hasattr(Location.objects, 'hpeek')
+            hasattr(Location.objects, 'hslice')
+            hasattr(Location.objects, 'hkeys')
+
     # noqa
     class TestReferencesFieldPlusGIS(TestDictionaryFieldPlusGIS):
         """ Test ReferenceField with gis backend """
