@@ -1639,7 +1639,7 @@ class Migration(migrations.Migration):
                     ])
 
 
-class NotTransactionalTests(SimpleTestCase):
+class TestNotTransactional(SimpleTestCase):
     if DJANGO_VERSION[:2] >= (1, 6):
         def test_hstore_registring_in_transaction_block(self):
             obj1 = DataBag.objects.create(name='alpha1', data={'v': '1', 'v2': '3'})
