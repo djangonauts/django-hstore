@@ -197,16 +197,30 @@ class DictionaryField(HStoreField):
             for field_name in cls._hstore_virtual_fields.keys():
                 delattr(cls, field_name)
             delattr(cls, '_hstore_virtual_fields')
-
-        # remove  all hstore virtual fields from meta
-        hstore_fields = []
-        # get all the existing hstore virtual fields
-        for field in getattr(cls._meta, 'virtual_fields'):
-            if hasattr(field, 'hstore_field_name'):
-                hstore_fields.append(field)
-        # remove from meta
-        for field in hstore_fields:
-            getattr(cls._meta, 'virtual_fields').remove(field)
+        # django >= 1.8
+        if get_version()[0:3] >= '1.8':
+            # remove  all hstore virtual fields from meta
+            hstore_fields = []
+            # get all the existing hstore virtual fields
+            for field in getattr(cls._meta, 'virtual_fields'):
+                if hasattr(field, 'hstore_field_name'):
+                    hstore_fields.append(field)
+            # remove from meta
+            for field in hstore_fields:
+                getattr(cls._meta, 'virtual_fields').remove(field)
+        # django <= 1.7
+        # TODO: will be removed in future versions
+        else:
+            # remove  all hstore virtual fields from meta
+            for meta_fields in ['fields', 'local_fields', 'virtual_fields']:
+                hstore_fields = []
+                # get all the existing hstore virtual fields
+                for field in getattr(cls._meta, meta_fields):
+                    if hasattr(field, 'hstore_field_name'):
+                        hstore_fields.append(field)
+                # remove from meta
+                for field in hstore_fields:
+                    getattr(cls._meta, meta_fields).remove(field)
 
 
 class ReferencesField(HStoreField):
@@ -236,7 +250,6 @@ class ReferencesField(HStoreField):
 
 
 class SerializedDictionaryField(HStoreField):
-
     description = _("A python dictionary in a postgresql hstore field.")
 
     def __init__(self, serializer=json.dumps, deserializer=json.loads, *args, **kwargs):
