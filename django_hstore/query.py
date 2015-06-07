@@ -29,24 +29,8 @@ def update_query(method):
         self._for_write = True
         query = method(self, self.query.clone(UpdateQuery), *args, **params)
         forced_managed = False
-        # django >= 1.6
-        if VERSION[:2] >= (1, 6):
-            with transaction.atomic(using=self.db):
-                rows = query.get_compiler(self.db).execute_sql(None)
-        # django <= 1.5 - TODO: remove soon
-        else:
-            if not transaction.is_managed(using=self.db):
-                transaction.enter_transaction_management(using=self.db)
-                forced_managed = True
-            try:
-                rows = query.get_compiler(self.db).execute_sql(None)
-                if forced_managed:
-                    transaction.commit(using=self.db)
-                else:
-                    transaction.commit_unless_managed(using=self.db)
-            finally:
-                if forced_managed:
-                    transaction.leave_transaction_management(using=self.db)
+        with transaction.atomic(using=self.db):
+            rows = query.get_compiler(self.db).execute_sql(None)
         self._result_cache = None
         return rows
     updater.alters_data = True
@@ -87,7 +71,7 @@ class HStoreWhereNode(WhereNode):
     # FIXME: this method shuld be more clear.
     def make_atom(self, child, qn, connection):
         lvalue, lookup_type, value_annot, param = child
-        kwargs = {'connection': connection} if VERSION[:2] >= (1, 3) else {}
+        kwargs = {'connection': connection}
 
         if lvalue and lvalue.field and hasattr(lvalue.field, 'db_type') and lvalue.field.db_type(**kwargs) == 'hstore':
             try:
