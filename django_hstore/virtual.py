@@ -15,7 +15,7 @@ class HStoreVirtualMixin(object):
     must be mixed-in with django fields
     """
     concrete = False
-    
+
     def contribute_to_class(self, cls, name):
         if self.choices:
             setattr(cls, 'get_%s_display' % self.name,
