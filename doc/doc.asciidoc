@@ -111,7 +111,7 @@ Requirements
 ^^^^^^^^^^^^
 
 - Python 2.6, 2.7 or 3.3+
-- Django 1.5, 1.6 and 1.7
+- Django 1.6, 1.7 and 1.8
 - Psycopg2 2.4.3+
 - PostgreSQL 9.0+
 
