@@ -1640,11 +1640,16 @@ class Migration(migrations.Migration):
 
 
 class TestNotTransactional(SimpleTestCase):
+    if DJANGO_VERSION[:2] >= (1, 8):
+        def setUp(self):
+            # avoid error "connection already closed"
+            connection.connect()
+
     if DJANGO_VERSION[:2] >= (1, 6):
         def test_hstore_registring_in_transaction_block(self):
             obj1 = DataBag.objects.create(name='alpha1', data={'v': '1', 'v2': '3'})
             obj2 = DataBag.objects.create(name='alpha2', data={'v': '1', 'v2': '3'})
-            # Close any existing connection previously do anything
+            # Close any existing connection before doing anything
             connection.close()
             with transaction.atomic():
                 qs = DataBag.objects.filter(name__in=["alpha2", "alpha1"])
@@ -1656,7 +1661,7 @@ class TestNotTransactional(SimpleTestCase):
         def test_hstore_registring_in_transaction_block(self):
             obj1 = DataBag.objects.create(name='alpha1', data={'v': '1', 'v2': '3'})
             obj2 = DataBag.objects.create(name='alpha2', data={'v': '1', 'v2': '3'})
-            # Close any existing connection previously do anything
+            # Close any existing connection before doing anything
             connection.close()
             with transaction.commit_on_success():
                 qs = DataBag.objects.filter(name__in=["alpha2", "alpha1"])
