@@ -1015,7 +1015,11 @@ class TestSerializedDictionaryField(TestCase):
         try:
             m.save()
         except IntegrityError:
-            transaction.rollback()
+            if DJANGO_VERSION[:2] >= (1, 6):
+                pass
+            # TODO: remove in future versions of django-hstore
+            else:
+                transaction.rollback()
         else:
             self.assertTrue(False)
 
