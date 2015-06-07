@@ -39,9 +39,9 @@ class HStoreComparisonLookupMixin(HStoreLookupMixin):
     Mixin for hstore comparison custom lookups.
     """
 
-    def as_postgresql(self, qn, connection):
-        lhs, lhs_params = self.process_lhs(qn, connection)
-        rhs, rhs_params = self.process_rhs(qn, connection)
+    def as_postgresql(self, compiler, connection):
+        lhs, lhs_params = self.process_lhs(compiler, connection)
+        rhs, rhs_params = self.process_rhs(compiler, connection)
         if len(rhs_params) == 1 and isinstance(rhs_params[0], dict):
             param = rhs_params[0]
             sign = (self.lookup_name[0] == 'g' and '>%s' or '<%s') % (self.lookup_name[-1] == 'e' and '=' or '')
@@ -75,8 +75,8 @@ class HStoreLessThanOrEqual(HStoreComparisonLookupMixin, LessThanOrEqual):
 
 class HStoreContains(HStoreLookupMixin, Contains):
 
-    def as_postgresql(self, qn, connection):
-        lhs, lhs_params = self.process_lhs(qn, connection)
+    def as_postgresql(self, compiler, connection):
+        lhs, lhs_params = self.process_lhs(compiler, connection)
         # FIXME: ::text cast is added by ``django.db.backends.postgresql_psycopg2.DatabaseOperations.lookup_cast``;
         # maybe there's a cleaner way to fix the cast for hstore columns
         if lhs.endswith('::text'):
@@ -105,15 +105,16 @@ class HStoreContains(HStoreLookupMixin, Contains):
             # if looking for a string perform the normal text lookup
             # that is: look for occurence of string in all the keys
             pass
-        elif hasattr(self.lhs.source, 'serializer'):
+        # needed for SerializedDictionaryField
+        elif hasattr(self.lhs.target, 'serializer'):
             try:
-                self.lhs.source._serialize_value(param)
+                self.lhs.target._serialize_value(param)
                 pass
             except Exception:
                 raise ValueError('invalid value')
         else:
             raise ValueError('invalid value')
-        return super(HStoreContains, self).as_sql(qn, connection)
+        return super(HStoreContains, self).as_sql(compiler, connection)
 
 
 class HStoreIContains(IContains, HStoreContains):
@@ -122,8 +123,8 @@ class HStoreIContains(IContains, HStoreContains):
 
 class HStoreIsNull(IsNull):
 
-    def as_postgresql(self, qn, connection):
-        lhs, lhs_params = self.process_lhs(qn, connection)
+    def as_postgresql(self, compiler, connection):
+        lhs, lhs_params = self.process_lhs(compiler, connection)
 
         if isinstance(self.rhs, dict):
             param = self.rhs
@@ -136,4 +137,4 @@ class HStoreIsNull(IsNull):
 
             return (" AND ".join(conditions), lhs_params)
 
-        return super(HStoreIsNull, self).as_sql(qn, connection)
+        return super(HStoreIsNull, self).as_sql(compiler, connection)
