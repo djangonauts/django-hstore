@@ -1,6 +1,11 @@
 Changelog
 =========
 
+Version 1.3.8 [2015-06-07]
+--------------------------
+
+- `#110 <https://github.com/djangonauts/django-hstore/pull/110>`_: change ``id`` to ``pk`` on ``model_instance`` check
+
 Version 1.3.7 [2015-04-24]
 --------------------------
 
