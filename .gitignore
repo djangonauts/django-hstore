@@ -13,3 +13,4 @@ tests/local_settings_psycopg.py
 doc/index.html
 /images
 /static
+*.komodoproject
