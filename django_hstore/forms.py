@@ -17,7 +17,7 @@ from . import utils
 def validate_hstore(value, is_serialized=False):
     """ HSTORE validation. """
     # if empty
-    if value == '' or value == 'null':
+    if value is None or value == '' or value == 'null':
         value = '{}'
 
     # ensure valid JSON
