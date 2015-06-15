@@ -93,7 +93,9 @@ class VirtualField(HStoreVirtualMixin, models.Field):
                 self.auto_created = False
                 # --- needed to avoid exception when repeating same migration --- #
                 self.app_label = 'django_hstore'
-                self.object_name = 'virtual'
+                self.model_name = 'virtual'
+                # --- for backwards compatability with Django <= 1.7 --- #
+                self.object_name = self.model_name
 
         class _Through(object):
             def __init__(self):
