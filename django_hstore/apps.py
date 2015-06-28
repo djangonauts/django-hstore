@@ -10,24 +10,13 @@ try:
 except ImportError:
     AppConfig = object
 
-# keep backward compatibility until django hstore 1.3.0
-HSTORE_GLOBAL_REGISTER = getattr(settings, "DJANGO_HSTORE_GLOBAL_REGISTER", None)
+HSTORE_REGISTER_GLOBALLY = getattr(settings, "DJANGO_HSTORE_ADAPTER_REGISTRATION", "global") == "global"
 
 # This allows users that introduce hstore into an existing
 # environment to disable global registration of the hstore adapter
 # in order to avoid unpredictable behavior when having hstore installed individually
 # on each database instead of on having it installed on template1.
 
-if HSTORE_GLOBAL_REGISTER is None:
-    HSTORE_REGISTER_GLOBALLY = getattr(settings, "DJANGO_HSTORE_ADAPTER_REGISTRATION", "global") == "global"
-else:
-    HSTORE_REGISTER_GLOBALLY = HSTORE_GLOBAL_REGISTER
-    # issue deprecation warning
-    import warnings
-    warnings.warn("""\n
-DJANGO_HSTORE_GLOBAL_REGISTER setting is deprecated since django-hstore 1.2.5 and will be removed in 1.3.0.
-Use DJANGO_HSTORE_ADAPTER_REGISTRATION by setting it either to 'global' or 'connection'.
-    """, DeprecationWarning)
 
 
 # Check if GEODJANGO is being used
