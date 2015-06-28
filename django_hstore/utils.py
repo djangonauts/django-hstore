@@ -9,10 +9,10 @@ from django.utils import six
 
 def acquire_reference(reference):
     try:
-        implementation, identifier = reference.split(':')
-        module, sep, attr = implementation.rpartition('.')
-        implementation = getattr(__import__(module, fromlist=(attr,)), attr)
-        return implementation.objects.get(pk=identifier)
+        model, identifier = reference.split(':')
+        module, sep, attr = model.rpartition('.')
+        model = getattr(__import__(module, fromlist=(attr,)), attr)
+        return model.objects.get(pk=identifier)
     except ObjectDoesNotExist:
         return None
     except Exception:
@@ -20,8 +20,8 @@ def acquire_reference(reference):
 
 
 def identify_instance(instance):
-    implementation = type(instance)
-    return '%s.%s:%s' % (implementation.__module__, implementation.__name__, instance.pk)
+    model = type(instance)
+    return '%s.%s:%s' % (model.__module__, model.__name__, instance.pk)
 
 
 def serialize_references(references):
