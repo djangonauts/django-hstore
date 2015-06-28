@@ -11,6 +11,7 @@ tests/local_settings_psycopg.py
 ._*
 *.DS_Store
 doc/index.html
-/images
-/static
+/doc/images
+/doc/static
 *.komodoproject
+/htmlcov
