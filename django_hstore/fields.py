@@ -208,8 +208,12 @@ class DictionaryField(HStoreField):
             # remove from meta
             for field in hstore_fields:
                 getattr(cls._meta, 'virtual_fields').remove(field)
+            # reset _meta.fields
+            fields = [f for f in cls._meta.fields if not hasattr(f, 'hstore_field_name')]
+            # cls._meta.fields.__class__ == ImmutableList
+            cls._meta.fields = cls._meta.fields.__class__(fields)
         # django <= 1.7
-        # TODO: will be removed in future versions
+        # TODO: will removed when django 1.7 will be deprecated
         else:
             # remove  all hstore virtual fields from meta
             for meta_fields in ['fields', 'local_fields', 'virtual_fields']:

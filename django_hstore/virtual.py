@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils import six
 from django.utils.functional import curry
+from django import VERSION as DJANGO_VERSION
+
 from .dict import HStoreDict
 
 
@@ -28,9 +30,13 @@ class HStoreVirtualMixin(object):
         # Connect myself as the descriptor for this field
         setattr(cls, name, self)
         # add field to class
-        cls._meta.add_field(self)
-        # add also into virtual fields in order to support admin
-        cls._meta.virtual_fields.append(self)
+        if DJANGO_VERSION[:2] >= (1, 8):
+            # virtual=True available since django 1.8
+            cls._meta.add_field(self, virtual=True)
+        else:
+            cls._meta.add_field(self)
+            # add also into virtual fields in order to support admin
+            cls._meta.virtual_fields.append(self)
 
     def db_type(self, connection):
         """

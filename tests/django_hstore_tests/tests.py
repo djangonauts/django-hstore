@@ -1496,7 +1496,7 @@ class TestSchemaMode(TestCase):
                 self.assertTrue(d.data.schema_mode)
                 self.assertEqual(len(SchemaDataBag._meta.virtual_fields), len(original_schema))
                 self.assertEqual(len(SchemaDataBag._meta.fields), len(original_schema) + local_fields_length)
-                #self.assertEqual(len(SchemaDataBag._meta.local_fields), len(original_schema) + local_fields_length)
+                self.assertEqual(len(SchemaDataBag._meta.local_fields), 3)
                 self.assertTrue(hasattr(SchemaDataBag, '_hstore_virtual_fields'))
                 for key in hstore_virtual_fields_keys:
                     self.assertTrue(hasattr(d, key))
@@ -1507,9 +1507,9 @@ class TestSchemaMode(TestCase):
                 self.assertFalse(f.schema_mode)
                 self.assertTrue(f.editable)
                 self.assertEqual(len(SchemaDataBag._meta.virtual_fields), 0)
-                #self.assertEqual(len(SchemaDataBag._meta.fields), local_fields_length)
-                #self.assertEqual(len(SchemaDataBag._meta.local_fields), local_fields_length)
-                #self.assertFalse(hasattr(SchemaDataBag, '_hstore_virtual_fields'))
+                self.assertEqual(len(SchemaDataBag._meta.fields), local_fields_length)
+                self.assertEqual(len(SchemaDataBag._meta.local_fields), local_fields_length)
+                self.assertFalse(hasattr(SchemaDataBag, '_hstore_virtual_fields'))
                 d = SchemaDataBag()
                 self.assertFalse(d.data.schema_mode)
                 for key in hstore_virtual_fields_keys:
@@ -1519,13 +1519,14 @@ class TestSchemaMode(TestCase):
                 f.reload_schema(original_schema)
                 d = SchemaDataBag()
                 self.assertTrue(d.data.schema_mode)
-                #self.assertEqual(len(SchemaDataBag._meta.virtual_fields), len(original_schema))
-                #self.assertEqual(len(SchemaDataBag._meta.fields), len(original_schema) + local_fields_length)
-                #self.assertEqual(len(SchemaDataBag._meta.local_fields), len(original_schema) + local_fields_length)
+                self.assertEqual(len(SchemaDataBag._meta.virtual_fields), len(original_schema))
+                self.assertEqual(len(SchemaDataBag._meta.fields), len(original_schema) + local_fields_length)
+                self.assertEqual(len(SchemaDataBag._meta.local_fields), 3)
                 self.assertTrue(hasattr(SchemaDataBag, '_hstore_virtual_fields'))
                 for key in hstore_virtual_fields_keys:
                     self.assertTrue(hasattr(d, key))
         else:
+            # TODO: will removed when django 1.7 will be deprecated
             def test_reload_schema(self):
                 # cache some stuff
                 f = SchemaDataBag._meta.get_field('data')
@@ -1649,7 +1650,9 @@ class Migration(migrations.Migration):
 
             def test_migrations(self):
                 self._test_migrations_issue_117()
-                self._test_migrations_issue_103()
+                # changes in django 1.8 make this test obsolete
+                if DJANGO_VERSION[:2] == (1, 7):
+                    self._test_migrations_issue_103()
                 TestSchemaMode._delete_migrations()
 
     else:
