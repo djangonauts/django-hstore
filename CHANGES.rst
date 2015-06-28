@@ -1,7 +1,7 @@
 Changelog
 =========
 
-Version 1.4.0 [unreleased]
+Version 1.4.0 [2015-06-28]
 --------------------------
 
 - `#107 <https://github.com/djangonauts/django-hstore/pull/107>`_: added support for django 1.8
