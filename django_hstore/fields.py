@@ -298,7 +298,10 @@ class SerializedDictionaryField(HStoreField):
         return dict((k, self._serialize_value(v)) for k, v in value.items())
 
     def _deserialize_value(self, value):
-        if (value is None) or isinstance(value, datetime.date):
+        if value is None or isinstance(value, datetime.date):
+            return value
+        # needed for #111
+        elif not isinstance(value, six.string_types):
             return value
         else:
             return self.deserializer(value)

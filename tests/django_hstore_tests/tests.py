@@ -664,12 +664,8 @@ class TestSerializedDictionaryField(TestCase):
         SerializedDataBagNoID.objects.get(slug='123')
 
     def test_create_directly(self):
-        databag = SerializedDataBag.objects.create(
-            name='abc', data={'num': 1}
-        )
-        databagnoid = SerializedDataBagNoID.objects.create(
-            slug='123', name='abc', data={'num': 1}
-        )
+        SerializedDataBag.objects.create(name='abc', data={'num': 1})
+        SerializedDataBagNoID.objects.create(slug='123', name='abc', data={'num': 1})
 
     def test_full_clean(self):
         databag = SerializedDataBag(name='number')
