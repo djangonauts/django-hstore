@@ -7,7 +7,7 @@ from psycopg2.extras import register_hstore
 
 try:
     from django.apps import AppConfig
-except ImportError:
+except ImportError:  # pragma no cover
     AppConfig = object
 
 HSTORE_REGISTER_GLOBALLY = getattr(settings, "DJANGO_HSTORE_ADAPTER_REGISTRATION", "global") == "global"
@@ -16,8 +16,6 @@ HSTORE_REGISTER_GLOBALLY = getattr(settings, "DJANGO_HSTORE_ADAPTER_REGISTRATION
 # environment to disable global registration of the hstore adapter
 # in order to avoid unpredictable behavior when having hstore installed individually
 # on each database instead of on having it installed on template1.
-
-
 
 # Check if GEODJANGO is being used
 GEODJANGO_INSTALLED = False

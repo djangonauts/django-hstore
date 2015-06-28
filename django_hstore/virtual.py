@@ -164,7 +164,7 @@ def create_hstore_virtual_field(field_cls, kwargs, hstore_field_name):
 
 
 # south compatibility, ignore virtual fields
-try:
+try:  # pragma no cover
     from south.modelsinspector import add_ignored_fields
     add_ignored_fields(["^django_hstore\.virtual\.VirtualField"])
 except ImportError:

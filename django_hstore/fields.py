@@ -64,7 +64,7 @@ class HStoreField(models.Field):
     def db_type(self, connection=None):
         return 'hstore'
 
-    def south_field_triple(self):
+    def south_field_triple(self):  # pragma no cover
         from south.modelsinspector import introspector
         name = '%s.%s' % (self.__class__.__module__, self.__class__.__name__)
         args, kwargs = introspector(self)
@@ -122,7 +122,7 @@ class DictionaryField(HStoreField):
     def _value_to_python(self, value):
         return value
 
-    def south_field_triple(self):
+    def south_field_triple(self):  # pragma no cover
         name, args, kwargs = super(DictionaryField, self).south_field_triple()
         # if schema mode replace the default value {} with None as {} would break south
         if self.schema_mode:
@@ -340,7 +340,7 @@ class SerializedDictionaryField(HStoreField):
 
 
 # south compatibility
-try:
+try:  # pragma no cover
     from south.modelsinspector import add_introspection_rules
     add_introspection_rules(rules=[], patterns=['django_hstore\.hstore'])
 except ImportError:

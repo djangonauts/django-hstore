@@ -23,7 +23,7 @@ from django_hstore.apps import GEODJANGO_INSTALLED
 from django_hstore.forms import DictionaryFieldWidget, ReferencesFieldWidget, SerializedDictionaryFieldWidget
 from django_hstore.fields import HStoreDict
 from django_hstore.exceptions import HStoreDictException
-from django_hstore.utils import unserialize_references, serialize_references, acquire_reference
+from django_hstore.utils import unserialize_references, serialize_references, acquire_reference, get_cast_for_param
 from django_hstore.virtual import create_hstore_virtual_field
 
 from django_hstore_tests.models import *  # noqa
@@ -1826,15 +1826,36 @@ class TestReferencesField(TestCase):
         self.assertEqual(len(unserialize_references(refs).keys()), 2)
         self.assertEqual(unserialize_references(None), {})
 
+    def test_unserialize_references(self):
+        alpha, beta, refs = self._create_bags()
+        ref = dict(alpha=alpha, beta=beta)
+        serialized_refs = serialize_references(ref)
+        unserialized_refs = unserialize_references(serialized_refs)
+        self.assertEqual(unserialized_refs['alpha'].pk, alpha.pk)
+        self.assertEqual(unserialized_refs['beta'].pk, beta.pk)
+
     def test_serialize_references_edge_cases(self):
         self.assertEqual(serialize_references(None), {})
         self.assertEqual(serialize_references({'test': 'test'}), {'test': 'test'})
 
-    def test_acquire_references_edge_cases(self):
+    def test_acquire_references_value_error(self):
         with self.assertRaises(ValueError):
             acquire_reference(None)
         with self.assertRaises(ValueError):
-            acquire_reference(None)
+            acquire_reference('')
+
+    def test_acquire_references_none(self):
+        self.assertIsNone(acquire_reference('django_hstore_tests.models.SchemaDataBag:2'))
+
+    def test_get_cast_for_param(self):
+        self.assertEqual(get_cast_for_param([], 'a'), '')
+        self.assertEqual(get_cast_for_param({'a': True}, 'a'), '::boolean')
+        self.assertEqual(get_cast_for_param({'a': datetime.datetime}, 'a'), '::timestamp')
+        self.assertEqual(get_cast_for_param({'a': datetime.time}, 'a'), '::time')
+        self.assertEqual(get_cast_for_param({'a': int}, 'a'), '::bigint')
+        self.assertEqual(get_cast_for_param({'a': float}, 'a'), '::float8')
+        from decimal import Decimal
+        self.assertEqual(get_cast_for_param({'a': Decimal}, 'a'), '::numeric')
 
     def test_native_contains(self):
         d = DataBag()
