@@ -1,6 +1,15 @@
 Changelog
 =========
 
+Version 1.4.0 [unreleased]
+--------------------------
+
+- `#107 <https://github.com/djangonauts/django-hstore/pull/107>`_: added support for django 1.8
+- `#121 <https://github.com/djangonauts/django-hstore/pull/121>`_: fixed "value not assignment" in forms.py
+- `#117 <https://github.com/djangonauts/django-hstore/pull/117>`_: fixed makemigrations bug with django 1.8
+- `#118 <https://github.com/djangonauts/django-hstore/issues/118>`_: improved reload_schema for django 1.8
+- `#111 <https://github.com/djangonauts/django-hstore/issues/111>`_: fixed bug in create manager method when using ``SerializedDictionaryField``
+
 Version 1.3.8 [2015-06-07]
 --------------------------
 
