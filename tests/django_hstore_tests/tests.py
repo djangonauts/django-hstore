@@ -1201,10 +1201,21 @@ class TestSerializedDictionaryField(TestCase):
         self.assertEqual(str(d.data), '{}')
 
 
+from django.core.management import call_command
+if sys.version_info[0] >= 3:
+    from io import StringIO
+else:
+    from StringIO import StringIO
+
+
 class TestSchemaMode(TestCase):
     if DJANGO_VERSION[:2] >= (1, 6):
         @classmethod
         def tearDownClass(cls):
+            TestSchemaMode._delete_migrations()
+
+        @classmethod
+        def _delete_migrations(cls):
             # delete migration files
             migration_path = '{0}/{1}'.format(os.path.dirname(__file__), 'migrations')
             import shutil
@@ -1581,20 +1592,15 @@ class TestSchemaMode(TestCase):
             self.assertEqual(d.number, 0)
 
         if DJANGO_VERSION[:2] >= (1, 7):
-            def test_migrations(self):
+            def _test_migrations_issue_103(self):
                 """ failing test for https://github.com/djangonauts/django-hstore/issues/103 """
-                from django.core.management import call_command
-                if sys.version_info.major >= 3:
-                    from io import StringIO
-                else:
-                    from StringIO import StringIO
                 # start capturing output
                 output = StringIO()
                 sys.stdout = output
                 call_command('makemigrations', 'django_hstore_tests')
                 # stop capturing print statements
                 sys.stdout = sys.__stdout__
-                self.assertIn('0001_initial', output.getvalue())
+                self.assertIn('No changes detected', output.getvalue())
                 path = '{0}/{1}'.format(os.path.dirname(__file__), 'migrations')
                 # add a new migration which replicates the bug in #103
                 with open('{0}/{1}'.format(path, '0002_issue_103.py'), 'w') as f:
@@ -1623,6 +1629,29 @@ class Migration(migrations.Migration):
                 # stop capturing print statements
                 sys.stdout = sys.__stdout__
                 self.assertIn('Applying django_hstore_tests.0002_issue_103... OK', output.getvalue())
+
+            def _test_migrations_issue_117(self):
+                """ failing test for https://github.com/djangonauts/django-hstore/issues/117 """
+                # start capturing output
+                output = StringIO()
+                sys.stdout = output
+                call_command('makemigrations', 'django_hstore_tests')
+                # stop capturing print statements
+                sys.stdout = sys.__stdout__
+                self.assertIn('0001_initial', output.getvalue())
+                # start capturing output
+                output = StringIO()
+                sys.stdout = output
+                call_command('makemigrations', 'django_hstore_tests')
+                # stop capturing print statements
+                sys.stdout = sys.__stdout__
+                self.assertIn('No changes detected', output.getvalue())
+
+            def test_migrations(self):
+                self._test_migrations_issue_117()
+                self._test_migrations_issue_103()
+                TestSchemaMode._delete_migrations()
+
     else:
         def test_improperly_configured(self):
             with self.assertRaises(ImproperlyConfigured):
