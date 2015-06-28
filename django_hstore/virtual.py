@@ -139,13 +139,7 @@ def create_hstore_virtual_field(field_cls, kwargs, hstore_field_name):
     class VirtualField(HStoreVirtualMixin, BaseField):
         # keep basefield info (added for django-rest-framework-hstore)
         __basefield__ = BaseField
-
-        def __init__(self, *args, **kwargs):
-            try:
-                self.hstore_field_name = hstore_field_name
-            except KeyError:
-                raise ValueError('missing hstore_field_name keyword argument')
-            super(VirtualField, self).__init__(*args, **kwargs)
+    VirtualField.hstore_field_name = hstore_field_name
 
     # support DateTimeField
     if BaseField == models.DateTimeField and (kwargs.get('null') or kwargs.get('blank')):
