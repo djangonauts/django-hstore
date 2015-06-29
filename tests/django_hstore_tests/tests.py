@@ -1614,17 +1614,17 @@ from django.db import models, migrations
 import datetime
 import django_hstore.virtual
 class Migration(migrations.Migration):
-dependencies = [
-    ('django_hstore_tests', '0001_initial'),
-]
-operations = [
-    migrations.AlterField(
-        model_name='schemadatabag',
-        name='datetime',
-        field=django_hstore.virtual.VirtualField(default=datetime.datetime(2015, 4, 19, 16, 44, 9, 417872)),
-        preserve_default=True,
-    ),
-]""")
+    dependencies = [
+        ('django_hstore_tests', '0001_initial'),
+    ]
+    operations = [
+        migrations.AlterField(
+            model_name='schemadatabag',
+            name='datetime',
+            field=django_hstore.virtual.VirtualField(default=datetime.datetime(2015, 4, 19, 16, 44, 9, 417872)),
+            preserve_default=True,
+        ),
+    ]""")
                 f.close()
             # start capturing output
             output = StringIO()
