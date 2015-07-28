@@ -88,6 +88,7 @@ class HStoreConfig(AppConfig):
 
     def ready(self):
         connection_created.connect(connection_handler,
+                                   weak=False,
                                    dispatch_uid="_connection_create_handler")
 
 if django.get_version() < '1.7':
