@@ -11,6 +11,7 @@ except ImportError:  # pragma no cover
     AppConfig = object
 
 HSTORE_REGISTER_GLOBALLY = getattr(settings, "DJANGO_HSTORE_ADAPTER_REGISTRATION", "global") == "global"
+CONNECTION_CREATED_SIGNAL_WEAKREF = bool(getattr(settings, "DJANGO_HSTORE_ADAPTER_SIGNAL_WEAKREF", False))
 
 # This allows users that introduce hstore into an existing
 # environment to disable global registration of the hstore adapter
@@ -88,7 +89,7 @@ class HStoreConfig(AppConfig):
 
     def ready(self):
         connection_created.connect(connection_handler,
-                                   weak=False,
+                                   weak=CONNECTION_CREATED_SIGNAL_WEAKREF,
                                    dispatch_uid="_connection_create_handler")
 
 if django.get_version() < '1.7':
