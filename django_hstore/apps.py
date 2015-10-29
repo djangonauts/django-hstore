@@ -21,7 +21,7 @@ HSTORE_REGISTER_GLOBALLY = getattr(settings, "DJANGO_HSTORE_ADAPTER_REGISTRATION
 GEODJANGO_INSTALLED = False
 
 for database in settings.DATABASES.values():
-    if 'postgis' in database['ENGINE']:
+    if 'postgis' in database.get('ENGINE'):
         GEODJANGO_INSTALLED = True
         break
 
