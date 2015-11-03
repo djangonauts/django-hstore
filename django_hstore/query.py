@@ -8,7 +8,11 @@ from django.db.models.sql.constants import SINGLE
 from django.db.models.sql.datastructures import EmptyResultSet
 from django.db.models.sql.query import Query
 from django.db.models.sql.subqueries import UpdateQuery
-from django.db.models.sql.where import EmptyShortCircuit, WhereNode
+from django.db.models.sql.where import WhereNode
+try:
+    from django.db.models.sql.where import EmptyShortCircuit
+except ImportError:
+    EmptyShortCircuit = Exception
 from django.utils import six
 
 from django_hstore.apps import GEODJANGO_INSTALLED
