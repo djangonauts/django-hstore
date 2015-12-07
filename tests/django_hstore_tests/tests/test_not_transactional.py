@@ -8,6 +8,8 @@ from django_hstore_tests.models import DataBag
 
 
 class TestNotTransactional(SimpleTestCase):
+    allow_database_queries = True
+
     if DJANGO_VERSION[:2] >= (1, 8):
         def setUp(self):
             # avoid error "connection already closed"
