@@ -203,6 +203,11 @@ If you do that, then don't try to create `DictionaryField` in that database.
 Be sure to check out link:https://docs.djangoproject.com/en/1.5/topics/db/multi-db/#allow_syncdb[allow_syncdb]
 documentation.
 
+Available Settings
+^^^^^^^^^^^^^^^^^^
+
+- `DJANGO_HSTORE_ADAPTER_REGISTRATION`: defaults to `global`; set this to `connection` if you need compatibility with SQLAlchemy
+- `DJANGO_HSTORE_ADAPTER_SIGNAL_WEAKREF`: the value of `weak` argument passed to the `connection_created` signal
 
 Note to South users
 ^^^^^^^^^^^^^^^^^^^
