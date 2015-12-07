@@ -94,8 +94,8 @@ Deprecation policy
 
 At any momment of time, *django-hstore* developers will mantain support for three versions of django.
 
-As example: The current stable release of django is 1.8, so django-hstore supports the following django versions: 1.8, 1.7 and 1.6. When
-django 1.9 is released, support for 1.6 will be dropped.
+As example: The current stable release of django is 1.9, so django-hstore supports the following django versions: 1.9, 1.8 and 1.7. When
+django 1.10 is released, support for 1.7 will be dropped.
 
 User Guide
 ----------
@@ -110,8 +110,8 @@ This section covers a installing _django-hstore_ and its requirements.
 Requirements
 ^^^^^^^^^^^^
 
-- Python 2.6, 2.7 or 3.3+
-- Django 1.6, 1.7 or 1.8
+- Python 2.7 or 3.3+
+- Django 1.7, 1.8, 1.9
 - Psycopg2 2.4.3+
 - PostgreSQL 9.0+
 

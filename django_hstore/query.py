@@ -10,8 +10,10 @@ from django.db.models.sql.query import Query
 from django.db.models.sql.subqueries import UpdateQuery
 from django.db.models.sql.where import WhereNode
 try:
+    # django <= 1.8
     from django.db.models.sql.where import EmptyShortCircuit
 except ImportError:
+    # django >= 1.9
     EmptyShortCircuit = Exception
 from django.utils import six
 

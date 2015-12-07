@@ -3,12 +3,10 @@ import sys
 import django
 from django.conf import settings
 from django.db.backends.signals import connection_created
+from django.apps import AppConfig
+
 from psycopg2.extras import register_hstore
 
-try:
-    from django.apps import AppConfig
-except ImportError:  # pragma no cover
-    AppConfig = object
 
 HSTORE_REGISTER_GLOBALLY = getattr(settings, "DJANGO_HSTORE_ADAPTER_REGISTRATION", "global") == "global"
 CONNECTION_CREATED_SIGNAL_WEAKREF = bool(getattr(settings, "DJANGO_HSTORE_ADAPTER_SIGNAL_WEAKREF", False))
@@ -91,6 +89,3 @@ class HStoreConfig(AppConfig):
         connection_created.connect(connection_handler,
                                    weak=CONNECTION_CREATED_SIGNAL_WEAKREF,
                                    dispatch_uid="_connection_create_handler")
-
-if django.get_version() < '1.7':
-    HStoreConfig().ready()
