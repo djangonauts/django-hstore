@@ -1,6 +1,13 @@
 Changelog
 =========
 
+Version 1.4.1 [unreleased]
+--------------------------
+
+- `#140 <https://github.com/djangonauts/django-hstore/pull/140>`_: added support for django 1.9
+- `#139 <https://github.com/djangonauts/django-hstore/pull/139>`_: dropped support for django 1.6 and python 2.6
+- `#128 <https://github.com/djangonauts/django-hstore/pull/128>`_: added ``CONNECTION_CREATED_SIGNAL_WEAKREF``
+
 Version 1.4.0 [2015-06-28]
 --------------------------
 
