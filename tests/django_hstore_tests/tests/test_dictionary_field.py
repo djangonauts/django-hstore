@@ -597,6 +597,18 @@ class TestDictionaryField(TestCase):
         d = DataBag()
         self.assertEqual(str(d.data), '{}')
 
+    def test_array_with_decimal(self):
+        instance = DataBag(name="decimal")
+        array_decimal = [Decimal('1.01')]
+        array_dumped = '[1.01]'
+        instance.data['arr_dec'] = array_decimal
+
+        self.assertEqual(instance.data['arr_dec'], array_dumped)
+        instance.save()
+
+        instance = DataBag.objects.get(pk=instance.pk)
+        self.assertEqual(instance.data['arr_dec'], array_dumped)
+
     def test_native_contains(self):
         d = DataBag()
         d.name = "A bag of data"
