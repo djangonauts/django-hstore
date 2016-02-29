@@ -15,6 +15,13 @@ __all__ = [
 ]
 
 
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Decimal):
+            return float(obj)
+        return json.JSONEncoder.default(self, obj)
+
+
 class HStoreDict(UnicodeMixin, dict):
     """
     A dictionary subclass which implements hstore support.
@@ -120,7 +127,7 @@ class HStoreDict(UnicodeMixin, dict):
             elif isinstance(value, six.integer_types + (float, Decimal)):
                 return force_text(value)
             elif isinstance(value, (list, dict)):
-                return force_text(json.dumps(value))
+                return force_text(json.dumps(value, cls=DecimalEncoder))
             else:
                 return value
         else:
