@@ -1,3 +1,4 @@
+from pkg_resources import parse_version
 from django.db import models
 from django import get_version
 
@@ -91,7 +92,7 @@ class UniqueTogetherDataBag(HStoreModel):
     class Meta:
         unique_together = ('name', 'data')
 
-if get_version()[0:3] >= '1.6':
+if parse_version(get_version()[0:3]) >= '1.6':
     class SchemaDataBag(HStoreModel):
         name = models.CharField(max_length=32)
         data = hstore.DictionaryField(schema=[
