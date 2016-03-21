@@ -1,6 +1,6 @@
 from __future__ import unicode_literals, absolute_import
 
-from django import forms
+from django import forms, get_version
 from django.contrib.admin.widgets import AdminTextareaWidget
 from django.contrib.admin.templatetags.admin_static import static
 from django.template import Context
@@ -41,7 +41,9 @@ class BaseAdminHStoreWidget(AdminTextareaWidget):
         html = super(BaseAdminHStoreWidget, self).render(name, value, attrs)
 
         # prepare template context
+        use_svg = get_version() >= '1.9'
         template_context = Context({
+            'use_svg': use_svg,
             'field_name': name,
             'STATIC_URL': settings.STATIC_URL
         })
