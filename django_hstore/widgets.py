@@ -1,4 +1,5 @@
 from __future__ import unicode_literals, absolute_import
+from pkg_resources import parse_version
 
 from django import forms, get_version
 from django.contrib.admin.widgets import AdminTextareaWidget
@@ -41,11 +42,10 @@ class BaseAdminHStoreWidget(AdminTextareaWidget):
         html = super(BaseAdminHStoreWidget, self).render(name, value, attrs)
 
         # prepare template context
-        use_svg = get_version() >= '1.9'
         template_context = Context({
-            'use_svg': use_svg,
             'field_name': name,
-            'STATIC_URL': settings.STATIC_URL
+            'STATIC_URL': settings.STATIC_URL,
+            'use_svg': parse_version(get_version()) >= parse_version('1.9'),  # use svg icons if django >= 1.9
         })
         # get template object
         template = get_template('hstore_%s_widget.html' % self.admin_style)
