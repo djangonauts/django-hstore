@@ -10,7 +10,7 @@
                    placeholder="{% trans 'value' %}">
             &nbsp;&nbsp;
             <a href="#" class="remove-row" title="{% trans 'remove row' %}">
-                <img src="{{ STATIC_URL }}admin/img/icon_deletelink.gif" width="10" height="10">
+                <img src="{{ STATIC_URL }}admin/img/{% if use_svg %}icon-deletelink.svg{% else %}icon_deletelink.gif{% endif %}" width="10" height="10">
             </a>
         </div>
     </div>
@@ -50,12 +50,12 @@
 
         <div class="form-row">
             <a href="#" class="hs-add-row" title="{% trans 'Add another row' %}">
-                <img src="{{ STATIC_URL }}admin/img/icon_addlink.gif" width="10" height="10" alt="{% trans 'Add Another' %}">
+                <img src="{{ STATIC_URL }}admin/img/{% if use_svg %}icon-addlink.svg{% else %}icon_addlink.gif{% endif %}" width="10" height="10" alt="{% trans 'Add Another' %}">
                 {% trans "Add row" %}
             </a>
 
             <a href="#" class="hstore-toggle-txtarea" title="{% trans 'toggle textarea' %}" style="float:right">
-                <img src="{{ STATIC_URL }}admin/img/icon_changelink.gif" width="10" height="10" alt="{% trans 'toggle textarea' %}">
+                <img src="{{ STATIC_URL }}admin/img/{% if use_svg %}icon-changelink.svg{% else %}icon_changelink.gif{% endif %}" width="10" height="10" alt="{% trans 'toggle textarea' %}">
                 {% trans 'toggle textarea' %}
             </a>
         </div>
