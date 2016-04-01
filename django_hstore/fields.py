@@ -1,6 +1,7 @@
 from __future__ import unicode_literals, absolute_import
 import json
 import datetime
+from pkg_resources import parse_version
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
@@ -71,7 +72,7 @@ class HStoreField(models.Field):
         return name, args, kwargs
 
 
-if get_version() >= '1.7':
+if parse_version(get_version()) >= parse_version('1.7'):
     from .lookups import (HStoreGreaterThan, HStoreGreaterThanOrEqual, HStoreLessThan,
                           HStoreLessThanOrEqual, HStoreContains, HStoreIContains, HStoreIsNull)
 
@@ -194,7 +195,7 @@ class DictionaryField(HStoreField):
                 delattr(cls, field_name)
             delattr(cls, '_hstore_virtual_fields')
         # django >= 1.8
-        if get_version()[0:3] >= '1.8':
+        if parse_version(get_version()[0:3]) >= parse_version('1.8'):
             # remove  all hstore virtual fields from meta
             hstore_fields = []
             # get all the existing hstore virtual fields

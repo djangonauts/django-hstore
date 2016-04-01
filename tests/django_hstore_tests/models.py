@@ -92,7 +92,7 @@ class UniqueTogetherDataBag(HStoreModel):
     class Meta:
         unique_together = ('name', 'data')
 
-if parse_version(get_version()[0:3]) >= '1.6':
+if parse_version(get_version()[0:3]) >= parse_version('1.6'):
     class SchemaDataBag(HStoreModel):
         name = models.CharField(max_length=32)
         data = hstore.DictionaryField(schema=[
