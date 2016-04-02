@@ -1,6 +1,13 @@
 Changelog
 =========
 
+Version 1.4.2 [2016-04-02]
+--------------------------
+
+- `#144 <https://github.com/djangonauts/django-hstore/issues/144>`_: fixed 1.4.1 regression: "TypeError: Decimal is not JSON serializable"
+- `#147 <https://github.com/djangonauts/django-hstore/pull/147>`_: fixed version comparison (broken for django 1.10)
+- `#148 <https://github.com/djangonauts/django-hstore/issues/148>`_: fixed broken image "src" for icons in admin for Django >= 1.9
+
 Version 1.4.1 [2015-12-07]
 --------------------------
 
