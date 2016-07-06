@@ -1,33 +1,35 @@
 # -*- coding: utf-8 -*-
-import sys
+import datetime
 import json
 import pickle
+import sys
 from decimal import Decimal
-import datetime
 
 from django import VERSION as DJANGO_VERSION
 from django import forms
+from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models.aggregates import Count
 from django.db.utils import IntegrityError
-from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse
-from django.contrib.auth.models import User
-from django.utils.encoding import force_text
 from django.test import TestCase
+from django.utils.encoding import force_text
 
 from django_hstore import get_version
-from django_hstore.forms import DictionaryFieldWidget
-from django_hstore.fields import HStoreDict
 from django_hstore.exceptions import HStoreDictException
+from django_hstore.fields import HStoreDict
+from django_hstore.forms import DictionaryFieldWidget
 from django_hstore.utils import get_cast_for_param
 
-from django_hstore_tests.models import (DataBag,
-                                        DefaultsModel,
-                                        NullableDataBag,
-                                        BadDefaultsModel,
-                                        UniqueTogetherDataBag,
-                                        NumberedDataBag)
+from django_hstore_tests.models import (
+    BadDefaultsModel,
+    DataBag,
+    DefaultsModel,
+    NullableDataBag,
+    NumberedDataBag,
+    UniqueTogetherDataBag
+)
 
 
 class TestDictionaryField(TestCase):
@@ -64,7 +66,7 @@ class TestDictionaryField(TestCase):
 
     def test_long(self):
         if sys.version < '3':
-            l = long(100000000000)
+            l = long(100000000000)  # noqa
             databag = DataBag(name='long')
             databag.data['long'] = l
             self.assertEqual(databag.data['long'], force_text(l))
@@ -172,7 +174,6 @@ class TestDictionaryField(TestCase):
 
     def test_aggregates(self):
         self._create_bitfield_bags()
-
         self.assertEqual(DataBag.objects.filter(data__contains={'b0': '1'}).aggregate(Count('id'))['id__count'], 5)
         self.assertEqual(DataBag.objects.filter(data__contains={'b1': '1'}).aggregate(Count('id'))['id__count'], 4)
 

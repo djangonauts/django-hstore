@@ -3,8 +3,6 @@ import os
 import shutil
 import sys
 
-from django_hstore_tests.models import NullSchemaDataBag, SchemaDataBag
-
 import django
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -15,6 +13,8 @@ from django.test import TestCase
 
 from django_hstore import hstore
 from django_hstore.virtual import create_hstore_virtual_field
+
+from django_hstore_tests.models import NullSchemaDataBag, SchemaDataBag
 
 if sys.version_info[0] >= 3:
     from io import StringIO

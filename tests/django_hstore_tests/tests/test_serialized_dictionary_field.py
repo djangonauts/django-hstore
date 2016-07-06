@@ -2,10 +2,10 @@
 import datetime
 
 from django import forms
-from django.db.models.aggregates import Count
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
-from django.contrib.auth.models import User
+from django.db.models.aggregates import Count
 from django.test import TestCase
 
 from django_hstore.forms import SerializedDictionaryFieldWidget
