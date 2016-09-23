@@ -1,10 +1,8 @@
-from pkg_resources import parse_version
+import django
 from django.db import models
-from django import get_version
 
 from django_hstore import hstore
 from django_hstore.apps import GEODJANGO_INSTALLED
-
 
 __all__ = [
     'Ref',
@@ -92,7 +90,7 @@ class UniqueTogetherDataBag(HStoreModel):
     class Meta:
         unique_together = ('name', 'data')
 
-if parse_version(get_version()[0:3]) >= parse_version('1.6'):
+if django.VERSION >= (1, 6):
     class SchemaDataBag(HStoreModel):
         name = models.CharField(max_length=32)
         data = hstore.DictionaryField(schema=[

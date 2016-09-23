@@ -1,25 +1,25 @@
 # -*- coding: utf-8 -*-
 import os
-import sys
 import shutil
+import sys
 
-if sys.version_info[0] >= 3:
-    from io import StringIO
-else:
-    from StringIO import StringIO
-
-from django import VERSION as DJANGO_VERSION
-from django.db import models
-from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse
-from django.core.management import call_command
+import django
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.core.management import call_command
+from django.core.urlresolvers import reverse
+from django.db import models
 from django.test import TestCase
 
 from django_hstore import hstore
 from django_hstore.virtual import create_hstore_virtual_field
 
-from django_hstore_tests.models import SchemaDataBag, NullSchemaDataBag
+from django_hstore_tests.models import NullSchemaDataBag, SchemaDataBag
+
+if sys.version_info[0] >= 3:
+    from io import StringIO
+else:
+    from StringIO import StringIO
 
 
 MIGRATION_PATH = '{0}/../{1}'.format(os.path.dirname(__file__), 'migrations')
@@ -287,7 +287,7 @@ class TestSchemaMode(TestCase):
         d = SchemaDataBag()
         self.assertEqual(str(d.data), '{}')
 
-    if DJANGO_VERSION[:2] >= (1, 8):
+    if django.VERSION >= (1, 8):
         def test_reload_schema(self):
             # cache some stuff
             f = SchemaDataBag._meta.get_field('data')
@@ -396,7 +396,7 @@ class TestSchemaMode(TestCase):
         self.assertEqual(d.char, '')
         self.assertEqual(d.number, 0)
 
-    if DJANGO_VERSION[:2] >= (1, 7):
+    if django.VERSION >= (1, 7):
         def _test_migrations_issue_103(self):
             """ failing test for https://github.com/djangonauts/django-hstore/issues/103 """
             # start capturing output
@@ -454,6 +454,6 @@ class Migration(migrations.Migration):
         def test_migrations(self):
             self._test_migrations_issue_117()
             # changes in django 1.8 make this test obsolete
-            if DJANGO_VERSION[:2] == (1, 7):
+            if django.VERSION == (1, 7):
                 self._test_migrations_issue_103()
             TestSchemaMode._delete_migrations()

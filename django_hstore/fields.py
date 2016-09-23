@@ -1,17 +1,17 @@
-from __future__ import unicode_literals, absolute_import
-import json
+from __future__ import absolute_import, unicode_literals
+
 import datetime
-from pkg_resources import parse_version
+import json
 
+import django
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
 from django.utils import six
-from django import get_version
+from django.utils.translation import ugettext_lazy as _
 
+from . import forms, utils
 from .descriptors import HStoreDescriptor, HStoreReferenceDescriptor, SerializedDictDescriptor
 from .dict import HStoreDict, HStoreReferenceDict
 from .virtual import create_hstore_virtual_field
-from . import forms, utils
 
 
 class HStoreField(models.Field):
@@ -72,7 +72,7 @@ class HStoreField(models.Field):
         return name, args, kwargs
 
 
-if parse_version(get_version()) >= parse_version('1.7'):
+if django.VERSION >= (1, 7):
     from .lookups import (HStoreGreaterThan, HStoreGreaterThanOrEqual, HStoreLessThan,
                           HStoreLessThanOrEqual, HStoreContains, HStoreIContains, HStoreIsNull)
 
@@ -195,7 +195,7 @@ class DictionaryField(HStoreField):
                 delattr(cls, field_name)
             delattr(cls, '_hstore_virtual_fields')
         # django >= 1.8
-        if parse_version(get_version()[0:3]) >= parse_version('1.8'):
+        if django.VERSION >= (1, 8):
             # remove  all hstore virtual fields from meta
             hstore_fields = []
             # get all the existing hstore virtual fields
@@ -210,7 +210,7 @@ class DictionaryField(HStoreField):
             # cls._meta.fields.__class__ == ImmutableList
             cls._meta.fields = cls._meta.fields.__class__(fields)
         # django <= 1.7
-        # TODO: will removed when django 1.7 will be deprecated
+        # TODO: Remove this when django 1.7 is no longer supported.
         else:
             # remove  all hstore virtual fields from meta
             for meta_fields in ['fields', 'local_fields', 'virtual_fields']:

@@ -1,6 +1,6 @@
-from pkg_resources import parse_version
+import django
 from django.contrib import admin
-from django import get_version
+
 from .models import *  # noqa
 
 
@@ -27,7 +27,7 @@ admin.site.register(DefaultsModel, DefaultsModelAdmin)
 admin.site.register(RefsBag, RefsBagAdmin)
 
 
-if parse_version(get_version()) >= parse_version('1.6'):
+if django.VERSION >= (1, 6):
     class SchemaDataBagAdmin(admin.ModelAdmin):
         list_display = ['name']
 

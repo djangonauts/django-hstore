@@ -1,12 +1,12 @@
-from django.core.urlresolvers import reverse
-from django.contrib.auth.models import User
-from django.test import TestCase
 from django import forms
+from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
+from django.test import TestCase
 
 from django_hstore.forms import ReferencesFieldWidget
-from django_hstore.utils import unserialize_references, serialize_references, acquire_reference
+from django_hstore.utils import acquire_reference, serialize_references, unserialize_references
 
-from django_hstore_tests.models import Ref, RefsBag, NullableRefsBag
+from django_hstore_tests.models import NullableRefsBag, Ref, RefsBag
 
 
 class TestReferencesField(TestCase):

@@ -2,11 +2,11 @@ from __future__ import print_function
 
 import os
 import sys
+
 import django
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 DEBUG = True
-TEMPLATE_DEBUG = DEBUG
 
 SECRET_KEY = '!5myuh^d23p9$$lo5k$39x&ji!vceayg+wwt472!bgs$0!i3k4'
 
@@ -67,9 +67,25 @@ USE_L10N = True
 USE_TZ = True
 STATIC_URL = '/static/'
 
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+
 # local settings must be imported before test runner otherwise they'll be ignored
 try:
-    from local_settings_psycopg import *
+    from local_settings_psycopg import *  # noqa
 except ImportError:
     pass
 
@@ -77,7 +93,7 @@ if django.VERSION[:2] >= (1, 6):
     TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 else:
     try:
-        import discover_runner
+        import discover_runner  # noqa
         TEST_RUNNER = "discover_runner.DiscoverRunner"
     except ImportError:
         print("For run tests with django <= 1.5 you should install "

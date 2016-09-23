@@ -2,11 +2,11 @@ from __future__ import print_function
 
 import os
 import sys
+
 import django
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 DEBUG = True
-TEMPLATE_DEBUG = DEBUG
 
 SECRET_KEY = '!5myuh^d23p9$$lo5k$39x&ji!vceayg+wwt472!bgs$0!i3k4'
 

@@ -1,5 +1,5 @@
 from django import VERSION as DJANGO_VERSION
-from django.db import transaction, connection
+from django.db import connection, transaction
 from django.test import SimpleTestCase
 
 from django_hstore.fields import HStoreDict
