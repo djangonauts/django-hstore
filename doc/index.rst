@@ -58,8 +58,8 @@ Each time a key or a value is modified, the underlying textarea is updated:
     :width: 650
     :alt: Grappeli Widget
 
-*Note: When using SerializedDictionaryField, data values are displayed in their
-serialized JSON form. This is done to make their type explicit.
+.. note:: When using SerializedDictionaryField, data values are displayed in their
+    serialized JSON form. This is done to make their type explicit.
 
 Limitations
 ~~~~~~~~~~~
@@ -78,21 +78,18 @@ Limitations
   see `Django Ticket #22297 <https://code.djangoproject.com/ticket/22297>`_ for more details on this issue.
   This issue is specific to Django 1.6 and below.
 
-[WARNING]
-====
-Due to hstore being a postgresql extension and not a native type, its oid is different on each database, which causes
-strange behavior with type conversions (see more on `this issue <https://github.com/djangonauts/django-hstore/pull/35>`_)
-if hstore extension is installed individually in each database.
+.. warning:: Due to hstore being a postgresql extension and not a native type, its oid is different on each database, which causes
+    strange behavior with type conversions (see more on `this issue <https://github.com/djangonauts/django-hstore/pull/35>`_)
+    if hstore extension is installed individually in each database.
 
-To avoid this strange behavior you have two options:
+    To avoid this strange behavior you have two options:
 
-- Install hstore on *template1* postgresql template database and recreate all databases/templates
-  from it, which allows all database to have the same oid for the hstore type (this is the recommended way).
-- Disable global registering setting `DJANGO_HSTORE_ADAPTER_REGISTRATION` by setting it to `connection` in your settings. This
-  can have a performance impact because it registers the hstore extension for each new connection created
-  (if you are using django 1.6, persistent connections - or any other connection pool - will help to
-  reduce this impact).
-====
+    - Install hstore on *template1* postgresql template database and recreate all databases/templates
+      from it, which allows all database to have the same oid for the hstore type (this is the recommended way).
+    - Disable global registering setting `DJANGO_HSTORE_ADAPTER_REGISTRATION` by setting it to `connection` in your settings. This
+      can have a performance impact because it registers the hstore extension for each new connection created
+      (if you are using django 1.6, persistent connections - or any other connection pool - will help to
+      reduce this impact).
 
 
 Project Maturity
