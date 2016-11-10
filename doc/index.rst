@@ -9,11 +9,11 @@ django-hstore documentation
 Introduction
 ------------
 
-_django-hstore_ is a niche library which integrates the link:http://www.postgresql.org/docs/9.1/interactive/hstore.html[hstore]
+_django-hstore_ is a niche library which integrates the `hstore <http://www.postgresql.org/docs/9.1/interactive/hstore.html>`_
 extension of PostgreSQL into Django.
 
 HStore brings the power of NoSQL key/value stores into PostgreSQL, giving us the
-link:http://www.craigkerstiens.com/2013/07/03/hstore-vs-json/[advantage of flexibility and performance]
+`advantage of flexibility and performance <http://www.craigkerstiens.com/2013/07/03/hstore-vs-json/>`_
 without renouncing to the robustness of SQL databases.
 
 Mailing List: https://groups.google.com/forum/#!forum/django-hstore
@@ -46,7 +46,7 @@ Each time a key or a value is modified, the underlying textarea is updated:
 Grappelli Admin widget
 ~~~~~~~~~~~~~~~~~~~~~~
 
-If you use the awesome link:http://grappelliproject.com/[django-grappelli] there's an even nicer looking widget for you too!
+If you use the awesome `django-grappelli <http://grappelliproject.com/>`_ there's an even nicer looking widget for you too!
 
 .. image:: images/hstore-widget.png
     :width: 650
@@ -75,13 +75,13 @@ Limitations
 - The admin widget will work with inlines only if using `StackedInline`. It won't work on `TabularInline`.
 - If `django.middleware.transaction.TransactionMiddleware` is enabled and the project is deployed
   through `uwsgi`, the first request to a view working with models featuring hstore fields will raise an exception;
-  see link:https://code.djangoproject.com/ticket/22297[Django Ticket #22297] for more details on this issue.
+  see `Django Ticket #22297 <https://code.djangoproject.com/ticket/22297>`_ for more details on this issue.
   This issue is specific to Django 1.6 and below.
 
 [WARNING]
 ====
 Due to hstore being a postgresql extension and not a native type, its oid is different on each database, which causes
-strange behavior with type conversions (see more on link:https://github.com/djangonauts/django-hstore/pull/35[this issue])
+strange behavior with type conversions (see more on `this issue <https://github.com/djangonauts/django-hstore/pull/35>`_)
 if hstore extension is installed individually in each database.
 
 To avoid this strange behavior you have two options:
@@ -212,7 +212,7 @@ DATABASES = {
 
 If you do that, then don't try to create `DictionaryField` in that database.
 
-Be sure to check out link:https://docs.djangoproject.com/en/1.5/topics/db/multi-db/#allow_syncdb[allow_syncdb]
+Be sure to check out `allow_syncdb <https://docs.djangoproject.com/en/1.5/topics/db/multi-db/#allow_syncdb>`_
 documentation.
 
 Available Settings
@@ -670,14 +670,14 @@ Try this:
 psql template1 -c 'create extension hstore;'
 ----
 
-More details here on link: http://clarkdave.net/2012/09/postgresql-error-type-hstore-does-not-exist/[PostgreSQL error type hstore does not exist].
+More details here on link: `PostgreSQL error type hstore does not exist <http://clarkdave.net/2012/09/postgresql-error-type-hstore-does-not-exist/>`_.
 
 How to contribute
 ~~~~~~~~~~~~~~~~~
 
-1. Join the mailing List: link: https://groups.google.com/forum/#!forum/django-hstore[django-hstore mailing list]
+1. Join the mailing List: `django-hstore mailing list <https://groups.google.com/forum/#!forum/django-hstore>`_
    and announce your intentions.
-2. Follow link:http://www.python.org/dev/peps/pep-0008/[PEP8], Style Guide for Python Code
+2. Follow `Style Guide for Python Code <http://www.python.org/dev/peps/pep-0008/>`
 3. Fork this repo
 4. Write code
 5. Write tests for your code
