@@ -15,3 +15,4 @@ doc/index.html
 /doc/static
 *.komodoproject
 /htmlcov
+_build
