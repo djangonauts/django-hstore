@@ -2,10 +2,6 @@ django-hstore documentation
 ===========================
 1.4.1, 2015-12-07
 
-:toc:
-:numbered:
-
-
 Introduction
 ------------
 
