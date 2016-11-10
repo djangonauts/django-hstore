@@ -31,20 +31,32 @@ Django Admin widget
 ~~~~~~~~~~~~~~~~~~~
 
 django-hstore ships a nice admin widget that makes the field more user-friendly.
-image:images/deafult-admin-widget.png["Admin Widget", width=650]
+
+.. image:: images/deafult-admin-widget.png
+    :width: 650
+    :alt: Admin Widget
 
 Each time a key or a value is modified, the underlying textarea is updated:
-image:images/deafult-admin-widget-raw.png["Admin Widget", width=650]
+
+.. image:: images/deafult-admin-widget-raw.png
+    :width: 650
+    :alt: Admin Widget
 
 
 Grappelli Admin widget
 ~~~~~~~~~~~~~~~~~~~~~~
 
 If you use the awesome link:http://grappelliproject.com/[django-grappelli] there's an even nicer looking widget for you too!
-image:images/hstore-widget.png["Grappeli Widget",width=650]
+
+.. image:: images/hstore-widget.png
+    :width: 650
+    :alt: Grappeli Widget
 
 Each time a key or a value is modified, the underlying textarea is updated:
-image:images/hstore-widget-raw.png["Grappeli Widget",width=650]
+
+.. image:: images/hstore-widget-raw.png
+    :width: 650
+    :alt: Grappeli Widget
 
 *Note: When using SerializedDictionaryField, data values are displayed in their
 serialized JSON form. This is done to make their type explicit.
