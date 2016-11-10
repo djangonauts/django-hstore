@@ -30,20 +30,20 @@ Features
 Django Admin widget
 ~~~~~~~~~~~~~~~~~~~
 
-.django-hstore ships a nice admin widget that makes the field more user-friendly.
+django-hstore ships a nice admin widget that makes the field more user-friendly.
 image:images/deafult-admin-widget.png["Admin Widget", width=650]
 
-.Each time a key or a value is modified, the underlying textarea is updated:
+Each time a key or a value is modified, the underlying textarea is updated:
 image:images/deafult-admin-widget-raw.png["Admin Widget", width=650]
 
 
 Grappelli Admin widget
 ~~~~~~~~~~~~~~~~~~~~~~
 
-.If you use the awesome link:http://grappelliproject.com/[django-grappelli] there's an even nicer looking widget for you too!
+If you use the awesome link:http://grappelliproject.com/[django-grappelli] there's an even nicer looking widget for you too!
 image:images/hstore-widget.png["Grappeli Widget",width=650]
 
-.Each time a key or a value is modified, the underlying textarea is updated:
+Each time a key or a value is modified, the underlying textarea is updated:
 image:images/hstore-widget-raw.png["Grappeli Widget",width=650]
 
 *Note: When using SerializedDictionaryField, data values are displayed in their
@@ -246,7 +246,7 @@ The library provides five principal classes:
 Model setup
 ^^^^^^^^^^^
 
-.the `DictionaryField` definition is straightforward:
+the `DictionaryField` definition is straightforward:
 [source, python]
 ----
 from django.db import models
@@ -362,7 +362,7 @@ field.reload_schema([
 field.reload_schema(None)
 ----
 
-.the `ReferenceField` definition is also straightforward:
+the `ReferenceField` definition is also straightforward:
 [source,python]
 ----
 class ReferenceContainer(models.Model):
@@ -372,7 +372,7 @@ class ReferenceContainer(models.Model):
     objects = hstore.HStoreManager()
 ----
 
-.the `SerializedDictionaryField` definition is very similar to the standard
+the `SerializedDictionaryField` definition is very similar to the standard
 dictionary field:
 [source, python]
 ----
