@@ -130,18 +130,16 @@ Requirements
 Stable version
 ^^^^^^^^^^^^^^
 
-[source, bash]
-----
-pip install django-hstore
-----
+.. code-block:: console
+
+    pip install django-hstore
 
 Development version
 ^^^^^^^^^^^^^^^^^^^
 
-[source, bash]
-----
-pip install -e git+git://github.com/djangonauts/django-hstore#egg=django-hstore
-----
+.. code-block:: console
+
+    pip install -e git+git://github.com/djangonauts/django-hstore#egg=django-hstore
 
 Upgrade from older versions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -163,21 +161,19 @@ Basic setup
 
 First, add *django_hstore* to your `settings.INSTALLED_APPS`:
 
-[source, python]
-----
-INSTALLED_APPS = (
-    ...
-    "django_hstore",
-    ...
-)
-----
+.. code-block:: python
+
+    INSTALLED_APPS = (
+        ...
+        "django_hstore",
+        ...
+    )
 
 Second, collect static files (needed for the admin widget) with:
 
-[source, bash]
-----
-python manage.py collectstatic
-----
+.. code-block:: console
+
+    python manage.py collectstatic
 
 Multiple database setup
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -187,28 +183,27 @@ some of the database you are using don't have the hstore extension installed,
 you can skip hstore registration by setting `HAS_HSTORE` to `False` in your
 database config:
 
-[source, python]
-----
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'name',
-        'USER': 'user',
-        'PASSWORD': 'pass',
-        'HOST': 'localhost',
-        'PORT': '',
-    },
-    'other': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'other',
-        'USER': 'user',
-        'PASSWORD': 'pass',
-        'HOST': 'localhost',
-        'PORT': '',
-        'HAS_HSTORE': False,
+.. code-block:: python
+
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'name',
+            'USER': 'user',
+            'PASSWORD': 'pass',
+            'HOST': 'localhost',
+            'PORT': '',
+        },
+        'other': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'other',
+            'USER': 'user',
+            'PASSWORD': 'pass',
+            'HOST': 'localhost',
+            'PORT': '',
+            'HAS_HSTORE': False,
+        }
     }
-}
-----
 
 If you do that, then don't try to create `DictionaryField` in that database.
 
@@ -227,10 +222,9 @@ Note to South users
 If you keep getting errors like "There is no South database module 'south.db.None'"
 for your database., add the following to settings.py:
 
-[source, python]
-----
-SOUTH_DATABASE_ADAPTERS = {'default': 'south.db.postgresql_psycopg2'}
-----
+.. code-block:: python
+
+    SOUTH_DATABASE_ADAPTERS = {'default': 'south.db.postgresql_psycopg2'}
 
 Usage
 ~~~~~
@@ -259,75 +253,75 @@ Model setup
 ^^^^^^^^^^^
 
 the `DictionaryField` definition is straightforward:
-[source, python]
-----
-from django.db import models
-from django_hstore import hstore
 
-class Something(models.Model):
-    name = models.CharField(max_length=32)
-    data = hstore.DictionaryField()  # can pass attributes like null, blank, etc.
+.. code-block:: python
 
-    objects = hstore.HStoreManager()
-    # IF YOU ARE USING POSTGIS:
-    # objects = hstore.HStoreGeoManager()
-----
+    from django.db import models
+    from django_hstore import hstore
+
+    class Something(models.Model):
+        name = models.CharField(max_length=32)
+        data = hstore.DictionaryField()  # can pass attributes like null, blank, etc.
+
+        objects = hstore.HStoreManager()
+        # IF YOU ARE USING POSTGIS:
+        # objects = hstore.HStoreGeoManager()
 
 Since *django_hstore 1.3.0* it is possible to use the `DictionaryField` in *schema mode* in order to overcome the limit of values being only strings.
 Another advantage of using the schema mode is that you can recycle the standard django fields in the admin and hopefully elsewhere.
 *This feature is available only from django 1.6 onwards*.
 
 To use the schema mode you just need to supply a `schema` parameter to the `DictionaryField`:
-[source, python]
-----
-# models.py
-from django.db import models
-from django_hstore import hstore
 
-class SomethingWithSchema(models.Model):
-    name = models.CharField(max_length=32)
-    data = hstore.DictionaryField(schema=[
-        {
-            'name': 'number',
-            'class': 'IntegerField',
-            'kwargs': {
-                'default': 0
-            }
-        },
-        {
-            'name': 'float',
-            'class': 'FloatField',
-            'kwargs': {
-                'default': 1.0
-            }
-        },
-        {
-            'name': 'char',
-            'class': 'CharField',
-            'kwargs': {
-                'default': 'test', 'blank': True, 'max_length': 10
-            }
-        },
-        {
-            'name': 'text',
-            'class': 'TextField',
-            'kwargs': {
-                'blank': True
-            }
-        },
-        {
-            'name': 'choice',
-            'class': 'CharField',
-            'kwargs': {
-                'blank': True,
-                'max_length': 10,
-                'choices': (('choice1', 'choice1'), ('choice2', 'choice2'))
-            }
-        }
-    ])
+.. code-block:: python
 
-    objects = hstore.HStoreManager()
-----
+    # models.py
+    from django.db import models
+    from django_hstore import hstore
+
+    class SomethingWithSchema(models.Model):
+        name = models.CharField(max_length=32)
+        data = hstore.DictionaryField(schema=[
+            {
+                'name': 'number',
+                'class': 'IntegerField',
+                'kwargs': {
+                    'default': 0
+                }
+            },
+            {
+                'name': 'float',
+                'class': 'FloatField',
+                'kwargs': {
+                    'default': 1.0
+                }
+            },
+            {
+                'name': 'char',
+                'class': 'CharField',
+                'kwargs': {
+                    'default': 'test', 'blank': True, 'max_length': 10
+                }
+            },
+            {
+                'name': 'text',
+                'class': 'TextField',
+                'kwargs': {
+                    'blank': True
+                }
+            },
+            {
+                'name': 'choice',
+                'class': 'CharField',
+                'kwargs': {
+                    'blank': True,
+                    'max_length': 10,
+                    'choices': (('choice1', 'choice1'), ('choice2', 'choice2'))
+                }
+            }
+        ])
+
+        objects = hstore.HStoreManager()
 
 After this declaration some additional virtual fields will be available in the model.
 Each virtual field will map to a key in the dictionary field, types are mantained behind the scenes
@@ -360,45 +354,45 @@ The following standard django fields fields have been tested successfully:
 Other fields might work as well except for `FileField`, `ImageField`, and `BinaryField` which would need some additional work.
 
 The schema of a DictionaryField can be changed at run-time if needed by using the `reload_schema` method (introduced in version 1.3.4):
-[source, python]
-----
-field = SchemaDataBag._meta.get_field('data')
-# load a different schema
-field.reload_schema([
-    {
-        'name': 'url',
-        'class': 'URLField'
-    }
-])
-# turn off schema mode
-field.reload_schema(None)
-----
+
+.. code-block:: python
+
+    field = SchemaDataBag._meta.get_field('data')
+    # load a different schema
+    field.reload_schema([
+        {
+            'name': 'url',
+            'class': 'URLField'
+        }
+    ])
+    # turn off schema mode
+    field.reload_schema(None)
 
 the `ReferenceField` definition is also straightforward:
-[source,python]
-----
-class ReferenceContainer(models.Model):
-    name = models.CharField(max_length=32)
-    refs = hstore.ReferencesField()
 
-    objects = hstore.HStoreManager()
-----
+.. code-block:: python
+
+    class ReferenceContainer(models.Model):
+        name = models.CharField(max_length=32)
+        refs = hstore.ReferencesField()
+
+        objects = hstore.HStoreManager()
 
 the `SerializedDictionaryField` definition is very similar to the standard
 dictionary field:
-[source, python]
-----
-from django.db import models
-from django_hstore import hstore
 
-class Something(models.Model):
-    name = models.CharField(max_length=32)
-    data = hstore.SerializedDictionaryField()  # can pass attributes like null, blank, etc.
+.. code-block:: python
 
-    objects = hstore.HStoreManager()
-    # IF YOU ARE USING POSTGIS:
-    # objects = hstore.HStoreGeoManager()
-----
+    from django.db import models
+    from django_hstore import hstore
+
+    class Something(models.Model):
+        name = models.CharField(max_length=32)
+        data = hstore.SerializedDictionaryField()  # can pass attributes like null, blank, etc.
+
+        objects = hstore.HStoreManager()
+        # IF YOU ARE USING POSTGIS:
+        # objects = hstore.HStoreGeoManager()
 
 Optionally, the data accepts both a `serializer` and `deserializer` argument
 (which default to `json.dumps` and `json.loads`, respectively).  This allows
@@ -412,147 +406,141 @@ Python API
 
 You then treat the `data` field as simply a dictionary of string pairs:
 
-[source,python]
-----
-instance = Something.objects.create(name='something', data={'a': '1', 'b': '2'})
-assert instance.data['a'] == '1'
+.. code-block:: python
 
-empty = Something.objects.create(name='empty')
-assert empty.data == {}
+    instance = Something.objects.create(name='something', data={'a': '1', 'b': '2'})
+    assert instance.data['a'] == '1'
 
-empty.data['a'] = '3'
-empty.save()
-assert Something.objects.get(name='empty').data['a'] == '3'
-----
+    empty = Something.objects.create(name='empty')
+    assert empty.data == {}
+
+    empty.data['a'] = '3'
+    empty.save()
+    assert Something.objects.get(name='empty').data['a'] == '3'
 
 In *default mode*, Booleans, integers, floats, lists, and dictionaries will be converted to strings,
 while lists, dictionaries, and booleans are converted into JSON formatted strings, so
 can be decoded if needed:
 
-[source,python]
-----
-instance = Something.objects.create(name='something', data={'int': 1, 'bool': True})
+.. code-block:: python
 
-instance.data['int'] == '1'
-instance.data['bool'] == 'true'
+    instance = Something.objects.create(name='something', data={'int': 1, 'bool': True})
 
-import json
-instance.data['dict'] = { 'list': ['a', False, 1] }
-instance.data['dict'] == '{"list": ["a", false, 1]}'
-json.loads(instance.data['dict']) == { 'list': ['a', False, 1] }
-# => True
-----
+    instance.data['int'] == '1'
+    instance.data['bool'] == 'true'
+
+    import json
+    instance.data['dict'] = { 'list': ['a', False, 1] }
+    instance.data['dict'] == '{"list": ["a", false, 1]}'
+    json.loads(instance.data['dict']) == { 'list': ['a', False, 1] }
+    # => True
 
 Since version *1.3.0* you can use the *schema mode* and you will be able to use
 virtual fields derived from standard django fields which will take care of validation, default values, type casting, choices and so on.
 Each virtual field will be mapped to a key of the `DictionaryField`:
 
-[source, python]
-----
->>> obj = SomethingWithSchema()
->>> obj.number
-0
->>> obj.float
-1.0
->>> obj.number = 3
->>> obj.float = 9.99
->>> obj.save()
->>> obj = SomethingWithSchema.objects.last()
->>> obj.number
-3
->>> obj.data['number']
-3
->>> obj.float
-9.99
->>> obj.data['float']
-9.99
-----
+.. code-block:: python
+
+    >>> obj = SomethingWithSchema()
+    >>> obj.number
+    0
+    >>> obj.float
+    1.0
+    >>> obj.number = 3
+    >>> obj.float = 9.99
+    >>> obj.save()
+    >>> obj = SomethingWithSchema.objects.last()
+    >>> obj.number
+    3
+    >>> obj.data['number']
+    3
+    >>> obj.float
+    9.99
+    >>> obj.data['float']
+    9.99
 
 Since version *1.3.6* you can use the `SerializedDictionaryField` to store any
 data type support in JSON. This has the specific advantage over the schema mode
 of not requiring the user to specify schema ahead of time.
 
-[source, python]
-----
->>> obj = SerializedExample.objects.create(
-...   name="A Serializable Field!",
-...   data={
-...     'str': 'A string',
-...     'int': 1234,
-...     'float': 3.141,
-...     'bool': True,
-...     'list': [0, 'one', [2.0, 2.1]],
-...     'dict': {
-...       'a': 1,
-...       'b': 'two',
-...       'c': ['three']
-...     }
-...   }
-... )
+.. code-block:: python
 
->>> obj.data
-{'int': 1234, 'float': 3.141, 'list': [0, 'one', [2.0, 2.1]], 'bool': True, 'str': 'A string', 'dict': {'a': 1, 'c': ['three'], 'b': 'two'}
-----
+    >>> obj = SerializedExample.objects.create(
+    ...   name="A Serializable Field!",
+    ...   data={
+    ...     'str': 'A string',
+    ...     'int': 1234,
+    ...     'float': 3.141,
+    ...     'bool': True,
+    ...     'list': [0, 'one', [2.0, 2.1]],
+    ...     'dict': {
+    ...       'a': 1,
+    ...       'b': 'two',
+    ...       'c': ['three']
+    ...     }
+    ...   }
+    ... )
+
+    >>> obj.data
+    {'int': 1234, 'float': 3.141, 'list': [0, 'one', [2.0, 2.1]], 'bool': True, 'str': 'A string', 'dict': {'a': 1, 'c': ['three'], 'b': 'two'}
+
 
 You can issue indexed queries against hstore fields:
 
-[source,python]
-----
-# equivalence
-Something.objects.filter(data={'a': '1', 'b': '2'})
+.. code-block:: python
 
-# comparison (greater than, less than or equal to, ecc)
-Something.objects.filter(data__gt={'a': '1'})
-Something.objects.filter(data__gte={'a': '1'})
-Something.objects.filter(data__lt={'a': '2'})
-Something.objects.filter(data__lte={'a': '2'})
+    # equivalence
+    Something.objects.filter(data={'a': '1', 'b': '2'})
 
-# more than one key can be supplied, the result will include the objects which satisfy the
-# condition (greater than, less than or equal to, ecc) on all supplied keys
-Something.objects.filter(data__gt={'a': '1','b': '2'})
-Something.objects.filter(data__gte={'a': '1','b': '2'})
-Something.objects.filter(data__lt={'a': '2', 'b': '3'})
-Something.objects.filter(data__lte={'a': '2', 'b: '3'})
+    # comparison (greater than, less than or equal to, ecc)
+    Something.objects.filter(data__gt={'a': '1'})
+    Something.objects.filter(data__gte={'a': '1'})
+    Something.objects.filter(data__lt={'a': '2'})
+    Something.objects.filter(data__lte={'a': '2'})
 
-# subset by key/value mapping
-Something.objects.filter(data__contains={'a': '1'})
+    # more than one key can be supplied, the result will include the objects which satisfy the
+    # condition (greater than, less than or equal to, ecc) on all supplied keys
+    Something.objects.filter(data__gt={'a': '1','b': '2'})
+    Something.objects.filter(data__gte={'a': '1','b': '2'})
+    Something.objects.filter(data__lt={'a': '2', 'b': '3'})
+    Something.objects.filter(data__lte={'a': '2', 'b: '3'})
 
-# subset by list of some key values
-# Note: Incompatible with the SerializedDictionaryField (lists as values are treated as actual values, not subsets)
-Something.objects.filter(data__contains={'a': ['1', '2']})
+    # subset by key/value mapping
+    Something.objects.filter(data__contains={'a': '1'})
 
-# subset by list of keys
-# Note: Incompatible with the SerializedDictionaryField (lists as values are treated as actual values, not subsets)
-Something.objects.filter(data__contains=['a', 'b'])
+    # subset by list of some key values
+    # Note: Incompatible with the SerializedDictionaryField (lists as values are treated as actual values, not subsets)
+    Something.objects.filter(data__contains={'a': ['1', '2']})
 
-# subset by single key
-# Note: Incompatible with the SerializedDictionaryField (lists as values are treated as actual values, not subsets)
-Something.objects.filter(data__contains=['a'])
+    # subset by list of keys
+    # Note: Incompatible with the SerializedDictionaryField (lists as values are treated as actual values, not subsets)
+    Something.objects.filter(data__contains=['a', 'b'])
 
-# filter by is null on individual key/value pairs
-Something.objects.filter(data__isnull={'a': True})
-Something.objects.filter(data__isnull={'a': True, 'b': False})
+    # subset by single key
+    # Note: Incompatible with the SerializedDictionaryField (lists as values are treated as actual values, not subsets)
+    Something.objects.filter(data__contains=['a'])
 
-# filter by is null on the column works as normal
-Something.objects.filter(data__isnull=True)
-----
+    # filter by is null on individual key/value pairs
+    Something.objects.filter(data__isnull={'a': True})
+    Something.objects.filter(data__isnull={'a': True, 'b': False})
 
+    # filter by is null on the column works as normal
+    Something.objects.filter(data__isnull=True)
 
 You can still do classic django "contains" lookups as you would normally do for normal text
 fields if you were looking for a particular string. In this case, the HSTORE field
 will be converted to text and the lookup will be performed on all the keys and all the values:
 
-[source, python]
-----
-Something.objects.create(data={ 'some_key': 'some crazy Value' })
+.. code-block:: python
 
-# classic text lookup (look up for occurence of string in all the keys)
-Something.objects.filter(data__contains='crazy')
-Something.objects.filter(data__contains='some_key')
-# classic case insensitive text looup
-Something.objects.filter(data__icontains='value')
-Something.objects.filter(data__icontains='SOME_KEY')
-----
+    Something.objects.create(data={ 'some_key': 'some crazy Value' })
+
+    # classic text lookup (look up for occurence of string in all the keys)
+    Something.objects.filter(data__contains='crazy')
+    Something.objects.filter(data__contains='some_key')
+    # classic case insensitive text looup
+    Something.objects.filter(data__icontains='value')
+    Something.objects.filter(data__icontains='SOME_KEY')
 
 
 HSTORE manager
@@ -560,26 +548,25 @@ HSTORE manager
 
 You can also take advantage of some db-side functionality by using the manager:
 
-[source, python]
-----
-# identify the keys present in an hstore field
->>> Something.objects.hkeys(id=instance.id, attr='data')
-['a', 'b']
+.. code-block:: python
 
-# peek at a a named value within an hstore field
->>> Something.objects.hpeek(id=instance.id, attr='data', key='a')
-'1'
+    # identify the keys present in an hstore field
+    >>> Something.objects.hkeys(id=instance.id, attr='data')
+    ['a', 'b']
 
-# do the same, after filter
->>> Something.objects.filter(id=instance.id).hpeek(attr='data', key='a')
-'1'
+    # peek at a a named value within an hstore field
+    >>> Something.objects.hpeek(id=instance.id, attr='data', key='a')
+    '1'
 
-# remove a key/value pair from an hstore field
->>> Something.objects.filter(name='something').hremove('data', 'b')
+    # do the same, after filter
+    >>> Something.objects.filter(id=instance.id).hpeek(attr='data', key='a')
+    '1'
 
-The hstore methods on manager pass all keyword arguments aside from `attr` and
-`key` to `.filter()`.
-----
+    # remove a key/value pair from an hstore field
+    >>> Something.objects.filter(name='something').hremove('data', 'b')
+
+    The hstore methods on manager pass all keyword arguments aside from `attr` and
+    `key` to `.filter()`.
 
 ReferenceField Usage
 ~~~~~~~~~~~~~~~~~~~~
@@ -589,40 +576,38 @@ without using a classic ManyToMany relationship.
 
 Here's an example with the `ReferenceContainer` model defined in the *Model fields* section:
 
-[source,python]
-----
-r = ReferenceContainer(name='test')
-r.refs['another_object'] = AnotherModel.objects.get(slug='another-object')
-r.refs['some_object'] = AnotherModel.objects.get(slug='some-object')
-r.save()
+.. code-block:: python
 
-r = ReferenceContainer.objects.get(name='test')
-r.refs['another_object']
-'<AnotherModel: AnotherModel object>'
-r.refs['some_object']
-'<AnotherModel: AnotherModel some_object>'
-----
+    r = ReferenceContainer(name='test')
+    r.refs['another_object'] = AnotherModel.objects.get(slug='another-object')
+    r.refs['some_object'] = AnotherModel.objects.get(slug='some-object')
+    r.save()
+
+    r = ReferenceContainer.objects.get(name='test')
+    r.refs['another_object']
+    '<AnotherModel: AnotherModel object>'
+    r.refs['some_object']
+    '<AnotherModel: AnotherModel some_object>'
 
 The database is queried only when references are accessed directly.
 Once references have been retrieved they will be stored for any eventual subsequent access:
 
-[source,python]
-----
-r = ReferenceContainer.objects.get(name='test')
-# this won't query the database
-r.refs
-{ u'another_object': u'myapp.models.AnotherModel:1',
-  u'some_object': u'myapp.models.AnotherModel:2' }
+.. code-block:: python
 
-# this will query the database
-r.refs['another_object']
-'<AnotherModel: AnotherModel object>'
+    r = ReferenceContainer.objects.get(name='test')
+    # this won't query the database
+    r.refs
+    { u'another_object': u'myapp.models.AnotherModel:1',
+      u'some_object': u'myapp.models.AnotherModel:2' }
 
-# retrieved reference is now visible also when calling the HStoreDict object:
-r.refs
-{ u'another_object': <AnotherModel: AnotherModel object>,
-  u'some_object': u'myapp.models.AnotherModel:2' }
-----
+    # this will query the database
+    r.refs['another_object']
+    '<AnotherModel: AnotherModel object>'
+
+    # retrieved reference is now visible also when calling the HStoreDict object:
+    r.refs
+    { u'another_object': <AnotherModel: AnotherModel object>,
+      u'some_object': u'myapp.models.AnotherModel:2' }
 
 Developers Guide
 ----------------
@@ -635,19 +620,17 @@ Running tests
 Assuming one has the dependencies installed, and a *PostgreSQL 9.0+* server up and
 running:
 
-[source,bash]
-----
-python runtests.py
-----
+.. code-block:: console
+
+    python runtests.py
 
 By default the tests run with the postgis backend.
 
 If you want to run the tests with psycopg2 backend you can do:
 
-[source,bash]
-----
-python runtests.py --settings=settings_psycopg
-----
+.. code-block:: console
+
+    python runtests.py --settings=settings_psycopg
 
 You might need to tweak the DB settings according to your DB configuration.
 
@@ -658,17 +641,15 @@ The same applies for `local_settings_psycopg.py.example`, which will be imported
 
 If after running this command you get an *error* saying:
 
-[source, text]
-----
-type "hstore" does not exist
-----
+.. code-block:: console
+
+    type "hstore" does not exist
 
 Try this:
 
-[source, bash]
-----
-psql template1 -c 'create extension hstore;'
-----
+.. code-block:: console
+
+    psql template1 -c 'create extension hstore;'
 
 More details here on link: `PostgreSQL error type hstore does not exist <http://clarkdave.net/2012/09/postgresql-error-type-hstore-does-not-exist/>`_.
 
@@ -690,48 +671,47 @@ How to contribute
 License
 -------
 
-[source,text]
-----
-Copyright (C) 2013-2014 Federico Capoano
+.. code-block:: text
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+    Copyright (C) 2013-2014 Federico Capoano
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+    The above copyright notice and this permission notice shall be included in
+    all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+    THE SOFTWARE.
 
 
-Original Author
-===============
-Copyright (C) 2011 Jordan McCoy
+    Original Author
+    ===============
+    Copyright (C) 2011 Jordan McCoy
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+    The above copyright notice and this permission notice shall be included in
+    all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-----
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+    THE SOFTWARE.
