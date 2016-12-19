@@ -28,13 +28,13 @@ Django Admin widget
 
 **django-hstore** ships a nice admin widget that makes the field more user-friendly.
 
-.. image:: images/deafult-admin-widget.png
+.. image:: _static/deafult-admin-widget.png
     :width: 650
     :alt: Admin Widget
 
 Each time a key or a value is modified, the underlying textarea is updated:
 
-.. image:: images/deafult-admin-widget-raw.png
+.. image:: _static/deafult-admin-widget-raw.png
     :width: 650
     :alt: Admin Widget
 
@@ -44,13 +44,13 @@ Grappelli Admin widget
 
 If you use the awesome `django-grappelli <http://grappelliproject.com/>`_ there's an even nicer looking widget for you too!
 
-.. image:: images/hstore-widget.png
+.. image:: _static/hstore-widget.png
     :width: 650
     :alt: Grappeli Widget
 
 Each time a key or a value is modified, the underlying textarea is updated:
 
-.. image:: images/hstore-widget-raw.png
+.. image:: _static/hstore-widget-raw.png
     :width: 650
     :alt: Grappeli Widget
 
