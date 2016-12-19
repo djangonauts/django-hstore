@@ -36,4 +36,5 @@ Projects using this package
 ---------------------------
 
 - `django-rest-framework-hstore <https://github.com/djangonauts/django-rest-framework-hstore>`__: **django-rest-framework** tools for **django-hstore**
+- `Libreborme <https://github.com/PabloCastellano/libreborme>`__: django web platform that opens data from the Spanish Companies Register by providing also a search engine
 - `Nodeshot <https://github.com/ninuxorg/nodeshot>`__: extensible django web application for management of community-led georeferenced data - some features of **django-hstore**, like the ``schema-mode`` have been developed for this project
