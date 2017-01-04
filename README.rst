@@ -27,7 +27,7 @@ You need **dynamic columns** in your tables. What do you do?
 
 Documentation_ - `Mailing List`_
 
-.. _Documentation: http://djangonauts.github.io/django-hstore/
+.. _Documentation: http://django-hstore.readthedocs.io/
 .. _`Mailing List`: https://groups.google.com/forum/#!forum/django-hstore
 
 ------------
