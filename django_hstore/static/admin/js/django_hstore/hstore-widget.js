@@ -163,7 +163,7 @@ var initDjangoHStoreWidget = function(hstore_field_name, inline_prefix) {
     });
 
     // update textarea whenever a field changes
-    $hstore.delegate('input[type=text]', 'keyup', function() {
+    $hstore.delegate('input[type=text]', 'input propertychange', function() {
         updateTextarea($hstore);
     });
 };
